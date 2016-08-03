@@ -530,6 +530,8 @@ public class Utils {
       throws IOException {
     Runtime runtime = Runtime.getRuntime();
     if (System.getProperty("os.name").toLowerCase().startsWith("linux")) {
+      file.getParentFile().mkdirs();
+      FileWriter newJsp = new FileWriter(file);
       Process process = runtime.exec("fallocate --keep-size -l " + capacityBytes + " " + file.getAbsolutePath());
       try {
         process.waitFor();

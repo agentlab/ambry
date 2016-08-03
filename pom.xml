@@ -1,0 +1,91 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd" xmlns="http://maven.apache.org/POM/4.0.0"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+  <modelVersion>4.0.0</modelVersion>
+  
+  <groupId>com.github.ambry</groupId>
+  <artifactId>ambry-parent</artifactId>
+  <packaging>pom</packaging>
+  <version>0.1.0</version>
+  
+  <name>Ambry - Parent</name>
+  
+  <description>
+    LinkedIn Ambry is a file storage implemented in Java
+  </description>
+  
+  <scm>
+    <url>https://github.com/eclipse-orbit/ambry.git</url>
+    <connection>scm:git:https://github.com/eclipse-orbit/ambry.git</connection>
+  </scm>
+  
+  <build>
+    <pluginManagement>
+      <plugins>
+        <plugin>
+          <artifactId>maven-compiler-plugin</artifactId>
+          <version>3.5.1</version>
+          <configuration>
+            <encoding>UTF-8</encoding>
+            <source>1.7</source>
+            <target>1.7</target>
+          </configuration>
+        </plugin>
+        <plugin>
+          <artifactId>maven-clean-plugin</artifactId>
+          <version>3.0.0</version>
+        </plugin>
+        <plugin>
+    <groupId>org.apache.maven.plugins</groupId>
+    <artifactId>maven-jar-plugin</artifactId>
+    <version>2.4</version>
+    <executions>
+      <execution>
+        <phase>package</phase>
+        <goals>
+          <goal>test-jar</goal>
+        </goals>
+      </execution>
+    </executions>
+  </plugin>
+      </plugins>
+    </pluginManagement>
+  </build>
+  
+  <modules>
+    <module>ambry-api</module>
+    <module>ambry-server</module>
+    <module>ambry-network</module>
+    <module>ambry-utils</module>
+    <module>ambry-store</module>
+    <module>ambry-commons</module>
+    <module>ambry-messageformat</module>
+    <module>ambry-replication</module>
+    <module>ambry-coordinator</module>
+    <module>ambry-clustermap</module>
+    <module>ambry-tools</module>
+    <module>ambry-metrics</module>
+    <module>ambry-protocol</module>
+    <module>ambry-rest</module>
+    <module>ambry-admin</module>
+    <module>ambry-router</module>
+    <module>ambry-frontend</module>
+    
+    <module>ambry-api.tests</module>
+    <module>ambry-server.tests</module>
+    <module>ambry-network.tests</module>
+    <module>ambry-utils.tests</module>
+    <module>ambry-store.tests</module>
+    <module>ambry-commons.tests</module>
+    <module>ambry-messageformat.tests</module>
+    <module>ambry-replication.tests</module>
+    <module>ambry-coordinator.tests</module>
+    <module>ambry-clustermap.tests</module>
+    <module>ambry-metrics.tests</module>
+    <module>ambry-protocol.tests</module>
+    <module>ambry-rest.tests</module>
+    <module>ambry-admin.tests</module>
+    <module>ambry-router.tests</module>
+    <module>ambry-frontend.tests</module>
+  </modules>
+</project>
