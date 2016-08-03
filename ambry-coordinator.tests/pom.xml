@@ -27,7 +27,7 @@
     </dependency>
     <dependency>
       <groupId>com.github.ambry</groupId>
-      <artifactId>ambry-network</artifactId>
+      <artifactId>ambry-network.tests</artifactId>
       <version>0.1.0</version>
       <scope>test</scope>
       <type>test-jar</type>

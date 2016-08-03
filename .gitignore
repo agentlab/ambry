@@ -2,9 +2,6 @@
 *.war
 *.ear
 target/
-.classpath
-.project
-.settings/
 .idea/
 .idea_modules/
 *.iml
