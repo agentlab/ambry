@@ -1,0 +1,7 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: ambry-metrics
+Bundle-SymbolicName: ambry-metrics
+Bundle-Version: 1.0.0.qualifier
+Export-Package: com.github.ambry.metrics
+Require-Bundle: org.slf4j.api;bundle-version="1.7.2"

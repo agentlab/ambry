@@ -1,0 +1,12 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: ambry-clustermap
+Bundle-SymbolicName: ambry-clustermap
+Bundle-Version: 1.0.0.qualifier
+Export-Package: com.github.ambry.clustermap
+Require-Bundle: org.slf4j.api;bundle-version="1.7.2",
+ com.codahaus.metrics;bundle-version="1.0.0",
+ org.json;bundle-version="1.0.0"
+Bundle-RequiredExecutionEnvironment: JavaSE-1.7
+Import-Package: com.github.ambry.metrics,
+ com.github.ambry.utils

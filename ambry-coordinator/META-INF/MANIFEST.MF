@@ -1,0 +1,13 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: ambry-coordinator
+Bundle-SymbolicName: ambry-coordinator
+Bundle-Version: 1.0.0.qualifier
+Export-Package: com.github.ambry.coordinator
+Require-Bundle: org.slf4j.api;bundle-version="1.7.2"
+Import-Package: com.github.ambry.clustermap,
+ com.github.ambry.commons,
+ com.github.ambry.messageformat,
+ com.github.ambry.network,
+ com.github.ambry.protocol,
+ com.github.ambry.utils

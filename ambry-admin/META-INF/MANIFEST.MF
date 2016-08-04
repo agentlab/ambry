@@ -1,0 +1,11 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: ambry-admin
+Bundle-SymbolicName: ambry-admin
+Bundle-Version: 1.0.0.qualifier
+Export-Package: com.github.ambry.admin
+Require-Bundle: org.slf4j.api;bundle-version="1.7.2",
+ com.codahaus.metrics;bundle-version="1.0.0"
+Import-Package: com.github.ambry.commons,
+ com.github.ambry.router,
+ com.github.ambry.utils

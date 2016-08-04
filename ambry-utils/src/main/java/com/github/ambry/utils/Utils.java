@@ -28,10 +28,13 @@ import java.nio.channels.FileChannel;
 import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.List;
 import java.util.Properties;
 import java.util.Random;
 import org.json.JSONException;
 import org.json.JSONObject;
+import org.osgi.framework.Bundle;
+import org.osgi.framework.BundleContext;
 
 
 /**
@@ -532,6 +535,7 @@ public class Utils {
     if (System.getProperty("os.name").toLowerCase().startsWith("linux")) {
       file.getParentFile().mkdirs();
       FileWriter newJsp = new FileWriter(file);
+      newJsp.flush();
       Process process = runtime.exec("fallocate --keep-size -l " + capacityBytes + " " + file.getAbsolutePath());
       try {
         process.waitFor();

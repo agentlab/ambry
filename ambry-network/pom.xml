@@ -20,13 +20,6 @@
       <scope>compile</scope>
     </dependency>
     <dependency>
-      <groupId>com.github.ambry</groupId>
-      <artifactId>ambry-utils.tests</artifactId>
-      <version>0.1.0</version>
-      <scope>test</scope>
-      <type>test-jar</type>
-    </dependency>
-    <dependency>
       <groupId>org.slf4j</groupId>
       <artifactId>slf4j-log4j12</artifactId>
       <version>1.7.5</version>

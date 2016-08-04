@@ -1,0 +1,8 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: Tests
+Bundle-SymbolicName: ambry-api.tests
+Bundle-Version: 1.0.0.qualifier
+Export-Package: com.github.ambry.metrics,
+ com.github.ambry.rest,
+ com.github.ambry.router

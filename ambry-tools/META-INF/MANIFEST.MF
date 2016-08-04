@@ -1,0 +1,16 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: ambry-tools
+Bundle-SymbolicName: ambry-tools
+Bundle-Version: 1.0.0.qualifier
+Export-Package: com.github.ambry.tools.admin,
+ com.github.ambry.tools.perf,
+ com.github.ambry.tools.perf.rest,
+ com.github.ambry.tools.util
+Require-Bundle: net.sf.jopt-simple;bundle-version="1.0.0",
+ org.slf4j.api;bundle-version="1.7.2"
+Import-Package: com.github.ambry.admin,
+ com.github.ambry.coordinator,
+ com.github.ambry.frontend,
+ com.github.ambry.rest,
+ com.github.ambry.store

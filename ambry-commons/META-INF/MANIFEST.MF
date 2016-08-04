@@ -1,0 +1,10 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: ambry-commons
+Bundle-SymbolicName: ambry-commons
+Bundle-Version: 1.0.0.qualifier
+Export-Package: com.github.ambry.commons
+Require-Bundle: org.slf4j.api;bundle-version="1.7.2"
+Import-Package: com.github.ambry.clustermap,
+ com.github.ambry.messageformat,
+ com.github.ambry.utils

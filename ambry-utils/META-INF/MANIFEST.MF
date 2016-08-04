@@ -1,0 +1,12 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: ambry-utils
+Bundle-SymbolicName: ambry-utils
+Bundle-Version: 1.0.0.qualifier
+Export-Package: com.github.ambry.utils
+Require-Bundle: net.sf.jopt-simple;bundle-version="1.0.0",
+ org.slf4j.api;bundle-version="1.7.2",
+ org.json;bundle-version="1.0.0",
+ org.apache.commons.codec;bundle-version="1.6.0"
+Bundle-RequiredExecutionEnvironment: JavaSE-1.7
+Import-Package: org.osgi.framework
