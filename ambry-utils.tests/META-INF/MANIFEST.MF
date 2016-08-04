@@ -2,5 +2,8 @@ Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: Tests
 Bundle-SymbolicName: ambry-utils.tests
-Bundle-Version: 1.0.0.qualifier
+Bundle-Version: 0.1.0.qualifier
 Export-Package: com.github.ambry.utils
+Bundle-RequiredExecutionEnvironment: JavaSE-1.7
+Import-Package: org.junit;version="4.12.0"
+Require-Bundle: ambry-utils;bundle-version="0.1.0"

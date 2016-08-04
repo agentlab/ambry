@@ -8,6 +8,13 @@
   <packaging>pom</packaging>
   <version>0.1.0</version>
   
+  <parent>
+		<groupId>org.eclipseorbit</groupId>
+		<artifactId>org.eclipseorbit.parent</artifactId>
+		<relativePath>../orbit-parent/org.eclipseorbit.parent/pom.xml</relativePath>
+		<version>1.0.0-SNAPSHOT</version>
+  </parent>
+  
   <name>Ambry - Parent</name>
   
   <description>
@@ -18,39 +25,6 @@
     <url>https://github.com/eclipse-orbit/ambry.git</url>
     <connection>scm:git:https://github.com/eclipse-orbit/ambry.git</connection>
   </scm>
-  
-  <build>
-    <pluginManagement>
-      <plugins>
-        <plugin>
-          <artifactId>maven-compiler-plugin</artifactId>
-          <version>3.5.1</version>
-          <configuration>
-            <encoding>UTF-8</encoding>
-            <source>1.7</source>
-            <target>1.7</target>
-          </configuration>
-        </plugin>
-        <plugin>
-          <artifactId>maven-clean-plugin</artifactId>
-          <version>3.0.0</version>
-        </plugin>
-        <plugin>
-    <groupId>org.apache.maven.plugins</groupId>
-    <artifactId>maven-jar-plugin</artifactId>
-    <version>2.4</version>
-    <executions>
-      <execution>
-        <phase>package</phase>
-        <goals>
-          <goal>test-jar</goal>
-        </goals>
-      </execution>
-    </executions>
-  </plugin>
-      </plugins>
-    </pluginManagement>
-  </build>
   
   <modules>
     <module>ambry-api</module>

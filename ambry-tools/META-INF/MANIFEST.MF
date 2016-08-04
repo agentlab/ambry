@@ -2,15 +2,32 @@ Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: ambry-tools
 Bundle-SymbolicName: ambry-tools
-Bundle-Version: 1.0.0.qualifier
+Bundle-Version: 0.1.0.qualifier
 Export-Package: com.github.ambry.tools.admin,
  com.github.ambry.tools.perf,
  com.github.ambry.tools.perf.rest,
  com.github.ambry.tools.util
-Require-Bundle: net.sf.jopt-simple;bundle-version="1.0.0",
- org.slf4j.api;bundle-version="1.7.2"
-Import-Package: com.github.ambry.admin,
- com.github.ambry.coordinator,
- com.github.ambry.frontend,
- com.github.ambry.rest,
- com.github.ambry.store
+Import-Package: com.codahale.metrics,
+ io.netty.bootstrap,
+ io.netty.buffer,
+ io.netty.channel,
+ io.netty.channel.nio,
+ io.netty.channel.socket,
+ io.netty.channel.socket.nio,
+ io.netty.handler.codec.http,
+ io.netty.handler.stream,
+ io.netty.util.concurrent,
+ joptsimple,
+ org.json,
+ org.slf4j;version="1.7.2"
+Bundle-RequiredExecutionEnvironment: JavaSE-1.7
+Require-Bundle: ambry-api;bundle-version="0.1.0",
+ ambry-utils;bundle-version="0.1.0",
+ ambry-clustermap;bundle-version="0.1.0",
+ ambry-commons;bundle-version="0.1.0",
+ ambry-messageformat;bundle-version="0.1.0",
+ ambry-network;bundle-version="0.1.0",
+ ambry-protocol;bundle-version="0.1.0",
+ ambry-store;bundle-version="0.1.0",
+ ambry-coordinator;bundle-version="0.1.0",
+ ambry-rest;bundle-version="0.1.0"

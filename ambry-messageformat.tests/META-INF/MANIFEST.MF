@@ -2,5 +2,12 @@ Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: Tests
 Bundle-SymbolicName: ambry-messageformat.tests
-Bundle-Version: 1.0.0.qualifier
+Bundle-Version: 0.1.0.qualifier
 Export-Package: com.github.ambry.messageformat
+Bundle-RequiredExecutionEnvironment: JavaSE-1.7
+Import-Package: com.codahale.metrics,
+ org.junit;version="4.12.0"
+Require-Bundle: ambry-messageformat;bundle-version="0.1.0",
+ ambry-api;bundle-version="0.1.0",
+ ambry-utils;bundle-version="0.1.0",
+ ambry-utils.tests;bundle-version="0.1.0"

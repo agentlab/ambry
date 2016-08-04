@@ -2,5 +2,15 @@ Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: Tests
 Bundle-SymbolicName: ambry-clustermap.tests
-Bundle-Version: 1.0.0.qualifier
+Bundle-Version: 0.1.0.qualifier
 Export-Package: com.github.ambry.clustermap
+Bundle-RequiredExecutionEnvironment: JavaSE-1.7
+Import-Package: junit.framework;version="4.12.0",
+ org.json,
+ org.junit;version="4.12.0",
+ org.junit.rules;version="4.12.0"
+Require-Bundle: ambry-api;bundle-version="0.1.0",
+ ambry-clustermap;bundle-version="0.1.0",
+ ambry-utils;bundle-version="0.1.0",
+ ambry-metrics;bundle-version="0.1.0",
+ com.codahaus.metrics
