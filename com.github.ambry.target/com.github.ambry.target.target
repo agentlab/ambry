@@ -1,0 +1,152 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<?pde version="3.8"?>
+<target name="Generated from Ambry" sequenceNumber="7">
+  <locations>
+    <location includeAllPlatforms="false" includeConfigurePhase="true" includeMode="planner" includeSource="true" type="InstallableUnit">
+      <unit id="ch.qos.logback.classic" version="0.0.0"/>
+      <unit id="ch.qos.logback.core" version="0.0.0"/>
+      <unit id="ch.qos.logback.slf4j" version="0.0.0"/>
+      <unit id="com.google.inject" version="0.0.0"/>
+      <unit id="com.google.inject.assistedinject" version="0.0.0"/>
+      <unit id="com.google.inject.multibindings" version="0.0.0"/>
+      <unit id="com.ibm.icu.base" version="0.0.0"/>
+      <unit id="javax.inject" version="0.0.0"/>
+      <unit id="javax.servlet" version="0.0.0"/>
+      <unit id="javax.xml" version="0.0.0"/>
+      <unit id="org.apache.batik.css" version="0.0.0"/>
+      <unit id="org.apache.batik.util" version="0.0.0"/>
+      <unit id="org.apache.batik.util.gui" version="0.0.0"/>
+      <unit id="org.apache.commons.codec" version="0.0.0"/>
+      <unit id="org.apache.commons.io" version="0.0.0"/>
+      <unit id="org.apache.commons.jxpath" version="0.0.0"/>
+      <unit id="org.apache.felix.gogo.command" version="0.0.0"/>
+      <unit id="org.apache.felix.gogo.runtime" version="0.0.0"/>
+      <unit id="org.apache.felix.gogo.shell" version="0.0.0"/>
+      <unit id="org.apache.mina.core" version="0.0.0"/>
+      <unit id="org.apache.sshd.core" version="0.0.0"/>
+      <unit id="org.hamcrest.core" version="0.0.0"/>
+      <unit id="org.json" version="0.0.0"/>
+      <unit id="org.junit" version="0.0.0"/>
+      <unit id="org.mockito" version="0.0.0"/>
+      <unit id="org.objenesis" version="0.0.0"/>
+      <unit id="org.slf4j.api" version="0.0.0"/>
+      <unit id="org.slf4j.ext" version="0.0.0"/>
+      <unit id="org.slf4j.jcl" version="0.0.0"/>
+      <unit id="org.slf4j.jul" version="0.0.0"/>
+      <unit id="org.slf4j.log4j" version="0.0.0"/>
+      <unit id="org.tukaani.xz" version="0.0.0"/>
+      <unit id="org.w3c.css.sac" version="0.0.0"/>
+      <unit id="org.w3c.dom.events" version="0.0.0"/>
+      <unit id="org.w3c.dom.smil" version="0.0.0"/>
+      <unit id="org.w3c.dom.svg" version="0.0.0"/>
+      <repository location="http://download.eclipse.org/tools/orbit/downloads/drops/R20160520211859/repository"/>
+    </location>
+    <location includeAllPlatforms="false" includeConfigurePhase="true" includeMode="planner" includeSource="true" type="InstallableUnit">
+      <unit id="a.jre.javase" version="0.0.0"/>
+      <unit id="org.eclipse.core.commands" version="0.0.0"/>
+      <unit id="org.eclipse.core.contenttype" version="0.0.0"/>
+      <unit id="org.eclipse.core.databinding" version="0.0.0"/>
+      <unit id="org.eclipse.core.databinding.observable" version="0.0.0"/>
+      <unit id="org.eclipse.core.databinding.property" version="0.0.0"/>
+      <unit id="org.eclipse.core.expressions" version="0.0.0"/>
+      <unit id="org.eclipse.core.jobs" version="0.0.0"/>
+      <unit id="org.eclipse.core.runtime" version="0.0.0"/>
+      <unit id="org.eclipse.e4.core.commands" version="0.0.0"/>
+      <unit id="org.eclipse.e4.core.contexts" version="0.0.0"/>
+      <unit id="org.eclipse.e4.core.di" version="0.0.0"/>
+      <unit id="org.eclipse.e4.core.di.annotations" version="0.0.0"/>
+      <unit id="org.eclipse.e4.core.di.extensions" version="0.0.0"/>
+      <unit id="org.eclipse.e4.core.services" version="0.0.0"/>
+      <unit id="org.eclipse.e4.emf.xpath" version="0.0.0"/>
+      <unit id="org.eclipse.e4.ui.bindings" version="0.0.0"/>
+      <unit id="org.eclipse.e4.ui.css.core" version="0.0.0"/>
+      <unit id="org.eclipse.e4.ui.css.swt" version="0.0.0"/>
+      <unit id="org.eclipse.e4.ui.css.swt.theme" version="0.0.0"/>
+      <unit id="org.eclipse.e4.ui.di" version="0.0.0"/>
+      <unit id="org.eclipse.e4.ui.model.workbench" version="0.0.0"/>
+      <unit id="org.eclipse.e4.ui.services" version="0.0.0"/>
+      <unit id="org.eclipse.e4.ui.widgets" version="0.0.0"/>
+      <unit id="org.eclipse.e4.ui.workbench" version="0.0.0"/>
+      <unit id="org.eclipse.e4.ui.workbench.addons.swt" version="0.0.0"/>
+      <unit id="org.eclipse.e4.ui.workbench.renderers.swt" version="0.0.0"/>
+      <unit id="org.eclipse.e4.ui.workbench.swt" version="0.0.0"/>
+      <unit id="org.eclipse.e4.ui.workbench3" version="0.0.0"/>
+      <unit id="org.eclipse.emf.common" version="0.0.0"/>
+      <unit id="org.eclipse.emf.ecore" version="0.0.0"/>
+      <unit id="org.eclipse.emf.ecore.change" version="0.0.0"/>
+      <unit id="org.eclipse.emf.ecore.xmi" version="0.0.0"/>
+      <unit id="org.eclipse.equinox.app" version="0.0.0"/>
+      <unit id="org.eclipse.equinox.bidi" version="0.0.0"/>
+      <unit id="org.eclipse.equinox.common" version="0.0.0"/>
+      <unit id="org.eclipse.equinox.concurrent" version="0.0.0"/>
+      <unit id="org.eclipse.equinox.console" version="0.0.0"/>
+      <unit id="org.eclipse.equinox.console.jaas.fragment" version="0.0.0"/>
+      <unit id="org.eclipse.equinox.console.ssh" version="0.0.0"/>
+      <unit id="org.eclipse.equinox.ds" version="0.0.0"/>
+      <unit id="org.eclipse.equinox.launcher" version="0.0.0"/>
+      <unit id="org.eclipse.equinox.preferences" version="0.0.0"/>
+      <unit id="org.eclipse.equinox.region" version="0.0.0"/>
+      <unit id="org.eclipse.equinox.registry" version="0.0.0"/>
+      <unit id="org.eclipse.equinox.security" version="0.0.0"/>
+      <unit id="org.eclipse.equinox.security.macosx" version="0.0.0"/>
+      <unit id="org.eclipse.equinox.security.ui" version="0.0.0"/>
+      <unit id="org.eclipse.equinox.security.win32.x86" version="0.0.0"/>
+      <unit id="org.eclipse.equinox.security.win32.x86_64" version="0.0.0"/>
+      <unit id="org.eclipse.equinox.simpleconfigurator" version="0.0.0"/>
+      <unit id="org.eclipse.equinox.supplement" version="0.0.0"/>
+      <unit id="org.eclipse.equinox.transforms.hook" version="0.0.0"/>
+      <unit id="org.eclipse.equinox.transforms.xslt" version="0.0.0"/>
+      <unit id="org.eclipse.equinox.util" version="0.0.0"/>
+      <unit id="org.eclipse.equinox.weaving.caching" version="0.0.0"/>
+      <unit id="org.eclipse.equinox.weaving.caching.j9" version="0.0.0"/>
+      <unit id="org.eclipse.equinox.weaving.hook" version="0.0.0"/>
+      <unit id="org.eclipse.help" version="0.0.0"/>
+      <unit id="org.eclipse.jface" version="0.0.0"/>
+      <unit id="org.eclipse.jface.databinding" version="0.0.0"/>
+      <unit id="org.eclipse.osgi" version="0.0.0"/>
+      <unit id="org.eclipse.osgi.compatibility.state" version="0.0.0"/>
+      <unit id="org.eclipse.osgi.services" version="0.0.0"/>
+      <unit id="org.eclipse.osgi.util" version="0.0.0"/>
+      <unit id="org.eclipse.swt" version="0.0.0"/>
+      <unit id="org.eclipse.ui" version="0.0.0"/>
+      <unit id="org.eclipse.ui.workbench" version="0.0.0"/>
+      <repository location="http://download.eclipse.org/eclipse/updates/4.6"/>
+    </location>
+    <location includeAllPlatforms="false" includeConfigurePhase="true" includeMode="planner" includeSource="true" type="InstallableUnit">
+      <unit id="com.google.jsr305" version="0.0.0"/>
+      <unit id="com.google.jsr305.feature.feature.group" version="0.0.0"/>
+      <unit id="com.google.jsr305.feature.feature.jar" version="0.0.0"/>
+      <repository location="http://agentlab.ru/eclipse/update/com.google.jsr305/1.0.0.201502020347"/>
+    </location>
+    <location includeAllPlatforms="false" includeConfigurePhase="true" includeMode="planner" includeSource="true" type="InstallableUnit">
+      <unit id="com.google.guava" version="0.0.0"/>
+      <unit id="com.google.guava.feature.feature.group" version="0.0.0"/>
+      <unit id="com.google.guava.feature.feature.jar" version="0.0.0"/>
+      <repository location="http://agentlab.ru/eclipse/update/com.google.guava/18.0.0.201502021635"/>
+    </location>
+    <location includeAllPlatforms="false" includeConfigurePhase="true" includeMode="planner" includeSource="true" type="InstallableUnit">
+      <unit id="net.sf.trove4j" version="0.0.0"/>
+      <unit id="net.sf.trove4j.feature.feature.group" version="0.0.0"/>
+      <unit id="net.sf.trove4j.feature.feature.jar" version="0.0.0"/>
+      <repository location="http://agentlab.ru/p2/orbit/net.sf.trove4j/updates/nightly/latest"/>
+    </location>
+    <location includeAllPlatforms="false" includeConfigurePhase="true" includeMode="planner" includeSource="true" type="InstallableUnit">
+      <unit id="bcpkix" version="0.0.0"/>
+      <unit id="bcprov" version="0.0.0"/>
+      <unit id="com.codahale.metrics.core" version="0.0.0"/>
+      <unit id="org.apache.felix.scr" version="0.0.0"/>
+      <unit id="org.osgi.service.component.annotations" version="0.0.0"/>
+      <repository location="http://10.72.103.217:8090/p2/ambry/"/>
+    </location>
+    <location includeAllPlatforms="false" includeConfigurePhase="true" includeMode="planner" includeSource="true" type="InstallableUnit">
+      <unit id="io.netty.buffer" version="0.0.0"/>
+      <unit id="io.netty.codec" version="0.0.0"/>
+      <unit id="io.netty.codec-http" version="0.0.0"/>
+      <unit id="io.netty.codec-socks" version="0.0.0"/>
+      <unit id="io.netty.common" version="0.0.0"/>
+      <unit id="io.netty.handler" version="0.0.0"/>
+      <unit id="io.netty.transport" version="0.0.0"/>
+      <repository location="http://10.72.103.217:8090/p2/netty/"/>
+    </location>
+  </locations>
+</target>
