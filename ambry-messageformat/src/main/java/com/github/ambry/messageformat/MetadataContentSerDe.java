@@ -13,8 +13,8 @@
  */
 package com.github.ambry.messageformat;
 
-import com.github.ambry.store.StoreKey;
-import com.github.ambry.store.StoreKeyFactory;
+import com.github.ambry.store.api.StoreKey;
+import com.github.ambry.store.api.StoreKeyFactory;
 import com.github.ambry.utils.ByteBufferInputStream;
 import java.io.DataInputStream;
 import java.io.IOException;

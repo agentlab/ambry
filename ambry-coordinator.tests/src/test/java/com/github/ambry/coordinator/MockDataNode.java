@@ -13,11 +13,12 @@
  */
 package com.github.ambry.coordinator;
 
-import com.github.ambry.clustermap.DataNodeId;
+import com.github.ambry.clustermap.api.DataNodeId;
 import com.github.ambry.commons.BlobId;
 import com.github.ambry.commons.ServerErrorCode;
-import com.github.ambry.messageformat.BlobOutput;
-import com.github.ambry.messageformat.BlobProperties;
+import com.github.ambry.messageformat.api.BlobOutput;
+import com.github.ambry.messageformat.api.BlobProperties;
+
 import java.io.ByteArrayInputStream;
 import java.io.DataInputStream;
 import java.io.IOException;

@@ -14,7 +14,10 @@
 package com.github.ambry.network;
 
 import com.codahale.metrics.MetricRegistry;
-import com.github.ambry.config.SSLConfig;
+import com.github.ambry.config.api.SSLConfig;
+import com.github.ambry.network.api.NetworkReceive;
+import com.github.ambry.network.api.NetworkSend;
+import com.github.ambry.network.api.PortType;
 import com.github.ambry.utils.SystemTime;
 import java.io.File;
 import java.io.IOException;

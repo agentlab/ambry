@@ -13,7 +13,7 @@
  */
 package com.github.ambry.router;
 
-import com.github.ambry.messageformat.BlobProperties;
+import com.github.ambry.messageformat.api.BlobProperties;
 
 
 /**

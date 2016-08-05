@@ -13,15 +13,17 @@
  */
 package com.github.ambry.coordinator;
 
+import com.github.ambry.clustermap.api.ClusterMap;
+import com.github.ambry.clustermap.api.PartitionId;
+import com.github.ambry.clustermap.api.ReplicaId;
 import com.github.ambry.commons.BlobId;
 import com.github.ambry.commons.ServerErrorCode;
-import com.github.ambry.clustermap.ClusterMap;
-import com.github.ambry.clustermap.PartitionId;
-import com.github.ambry.clustermap.ReplicaId;
+import com.github.ambry.coordinator.api.CoordinatorError;
+import com.github.ambry.coordinator.api.CoordinatorException;
 import com.github.ambry.messageformat.MessageFormatErrorCodes;
 import com.github.ambry.messageformat.MessageFormatException;
-import com.github.ambry.messageformat.MessageFormatFlags;
-import com.github.ambry.network.ConnectionPool;
+import com.github.ambry.messageformat.api.MessageFormatFlags;
+import com.github.ambry.network.api.ConnectionPool;
 import com.github.ambry.protocol.GetOptions;
 import com.github.ambry.protocol.GetRequest;
 import com.github.ambry.protocol.GetResponse;

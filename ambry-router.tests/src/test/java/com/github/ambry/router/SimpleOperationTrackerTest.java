@@ -16,9 +16,10 @@ package com.github.ambry.router;
 import com.github.ambry.clustermap.MockDataNodeId;
 import com.github.ambry.clustermap.MockPartitionId;
 import com.github.ambry.clustermap.MockReplicaId;
-import com.github.ambry.clustermap.ReplicaId;
-import com.github.ambry.network.Port;
-import com.github.ambry.network.PortType;
+import com.github.ambry.clustermap.api.ReplicaId;
+import com.github.ambry.network.api.Port;
+import com.github.ambry.network.api.PortType;
+
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Iterator;

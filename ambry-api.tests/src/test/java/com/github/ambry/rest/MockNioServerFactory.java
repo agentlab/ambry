@@ -14,7 +14,9 @@
 package com.github.ambry.rest;
 
 import com.codahale.metrics.MetricRegistry;
-import com.github.ambry.config.VerifiableProperties;
+import com.github.ambry.config.api.VerifiableProperties;
+import com.github.ambry.rest.api.NioServer;
+import com.github.ambry.rest.api.NioServerFactory;
 
 
 /**

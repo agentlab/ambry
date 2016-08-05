@@ -13,6 +13,9 @@
  */
 package com.github.ambry.metrics;
 
+import com.github.ambry.metrics.api.Counter;
+import com.github.ambry.metrics.api.Gauge;
+import com.github.ambry.metrics.api.MetricsRegistry;
 import com.github.ambry.utils.Scheduler;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

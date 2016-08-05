@@ -13,7 +13,7 @@
  */
 package com.github.ambry.commons;
 
-import com.github.ambry.router.Callback;
+import com.github.ambry.router.api.Callback;
 import com.github.ambry.utils.Utils;
 import java.nio.ByteBuffer;
 import java.nio.channels.ClosedChannelException;

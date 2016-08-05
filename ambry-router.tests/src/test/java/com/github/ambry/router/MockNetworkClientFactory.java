@@ -14,8 +14,8 @@
 package com.github.ambry.router;
 
 import com.codahale.metrics.MetricRegistry;
-import com.github.ambry.config.NetworkConfig;
-import com.github.ambry.config.VerifiableProperties;
+import com.github.ambry.config.api.NetworkConfig;
+import com.github.ambry.config.api.VerifiableProperties;
 import com.github.ambry.network.NetworkClient;
 import com.github.ambry.network.NetworkClientFactory;
 import com.github.ambry.network.NetworkMetrics;

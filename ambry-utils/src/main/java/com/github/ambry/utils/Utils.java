@@ -35,6 +35,7 @@ import org.json.JSONException;
 import org.json.JSONObject;
 import org.osgi.framework.Bundle;
 import org.osgi.framework.BundleContext;
+import org.osgi.framework.FrameworkUtil;
 
 
 /**
@@ -312,7 +313,10 @@ public class Utils {
   public static <T> T getObj(String className, Object arg1, Object arg2, Object arg3)
       throws ClassNotFoundException, InstantiationException, IllegalAccessException, NoSuchMethodException,
              InvocationTargetException {
-    for (Constructor<?> ctor : Class.forName(className).getDeclaredConstructors()) {
+	Bundle bundle = FrameworkUtil.getBundle(Utils.class);
+	Class<?> loadClass = bundle.loadClass(className);
+	Constructor<?>[] cc = loadClass.getDeclaredConstructors();
+    for (Constructor<?> ctor : cc) {//Class.forName(className).getDeclaredConstructors()) {
       if (ctor.getParameterTypes().length == 3 && ctor.getParameterTypes()[0].isAssignableFrom(arg1.getClass()) &&
           ctor.getParameterTypes()[1].isAssignableFrom(arg2.getClass()) && ctor.getParameterTypes()[2]
           .isAssignableFrom(arg3.getClass())) {

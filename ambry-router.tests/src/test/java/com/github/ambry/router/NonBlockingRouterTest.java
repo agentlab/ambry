@@ -14,18 +14,22 @@
 package com.github.ambry.router;
 
 import com.github.ambry.clustermap.MockClusterMap;
-import com.github.ambry.clustermap.ReplicaId;
+import com.github.ambry.clustermap.api.ReplicaId;
 import com.github.ambry.commons.ByteBufferReadableStreamChannel;
 import com.github.ambry.commons.LoggingNotificationSystem;
 import com.github.ambry.commons.ResponseHandler;
 import com.github.ambry.commons.ServerErrorCode;
-import com.github.ambry.config.RouterConfig;
-import com.github.ambry.config.VerifiableProperties;
-import com.github.ambry.messageformat.BlobInfo;
-import com.github.ambry.messageformat.BlobProperties;
+import com.github.ambry.config.api.RouterConfig;
+import com.github.ambry.config.api.VerifiableProperties;
+import com.github.ambry.messageformat.api.BlobInfo;
+import com.github.ambry.messageformat.api.BlobProperties;
 import com.github.ambry.network.NetworkClient;
 import com.github.ambry.network.RequestInfo;
 import com.github.ambry.network.ResponseInfo;
+import com.github.ambry.router.api.FutureResult;
+import com.github.ambry.router.api.ReadableStreamChannel;
+import com.github.ambry.router.api.RouterErrorCode;
+import com.github.ambry.router.api.RouterException;
 import com.github.ambry.utils.MockTime;
 import com.github.ambry.utils.SystemTime;
 import com.github.ambry.utils.TestUtils;

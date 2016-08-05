@@ -1,7 +1,7 @@
 Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: ambry-server
-Bundle-SymbolicName: ambry-server
+Bundle-SymbolicName: ambry-server;singleton:=true
 Bundle-Version: 0.1.0.qualifier
 Export-Package: com.github.ambry.server
 Require-Bundle: ambry-clustermap;bundle-version="0.1.0",
@@ -21,3 +21,4 @@ Import-Package: com.codahale.metrics,
  org.slf4j;version="1.7.2"
 Bundle-Activator: com.github.ambry.server.Activator
 Bundle-RequiredExecutionEnvironment: JavaSE-1.7
+Bundle-ActivationPolicy: lazy

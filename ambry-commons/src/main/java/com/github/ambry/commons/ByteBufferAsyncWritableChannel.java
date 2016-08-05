@@ -13,9 +13,6 @@
  */
 package com.github.ambry.commons;
 
-import com.github.ambry.router.AsyncWritableChannel;
-import com.github.ambry.router.Callback;
-import com.github.ambry.router.FutureResult;
 import java.nio.ByteBuffer;
 import java.nio.channels.ClosedChannelException;
 import java.util.Queue;
@@ -24,6 +21,10 @@ import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.locks.ReentrantLock;
+
+import com.github.ambry.router.api.AsyncWritableChannel;
+import com.github.ambry.router.api.Callback;
+import com.github.ambry.router.api.FutureResult;
 
 
 /**

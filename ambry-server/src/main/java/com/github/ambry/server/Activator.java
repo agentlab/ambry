@@ -1,7 +1,5 @@
 package com.github.ambry.server;
 
-import java.io.File;
-
 import org.osgi.framework.BundleActivator;
 import org.osgi.framework.BundleContext;
 

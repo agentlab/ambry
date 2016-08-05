@@ -16,6 +16,9 @@ package com.github.ambry.store;
 import java.io.DataInputStream;
 import java.io.IOException;
 
+import com.github.ambry.store.api.StoreKey;
+import com.github.ambry.store.api.StoreKeyFactory;
+
 
 public class MockIdFactory implements StoreKeyFactory {
 

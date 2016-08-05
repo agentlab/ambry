@@ -13,9 +13,18 @@
  */
 package com.github.ambry.rest;
 
-import com.github.ambry.config.VerifiableProperties;
-import com.github.ambry.router.Callback;
-import com.github.ambry.router.ReadableStreamChannel;
+import com.github.ambry.config.api.VerifiableProperties;
+import com.github.ambry.rest.api.BlobStorageService;
+import com.github.ambry.rest.api.RestMethod;
+import com.github.ambry.rest.api.RestRequest;
+import com.github.ambry.rest.api.RestRequestHandler;
+import com.github.ambry.rest.api.RestResponseChannel;
+import com.github.ambry.rest.api.RestResponseHandler;
+import com.github.ambry.rest.api.RestServiceErrorCode;
+import com.github.ambry.rest.api.RestServiceException;
+import com.github.ambry.router.api.Callback;
+import com.github.ambry.router.api.ReadableStreamChannel;
+
 import java.io.IOException;
 import java.util.concurrent.atomic.AtomicBoolean;
 

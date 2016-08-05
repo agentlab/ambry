@@ -13,21 +13,21 @@
  */
 package com.github.ambry.tools.admin;
 
-import com.github.ambry.clustermap.ClusterMap;
 import com.github.ambry.clustermap.ClusterMapManager;
-import com.github.ambry.clustermap.PartitionId;
+import com.github.ambry.clustermap.api.ClusterMap;
+import com.github.ambry.clustermap.api.PartitionId;
 import com.github.ambry.commons.BlobId;
-import com.github.ambry.config.ClusterMapConfig;
-import com.github.ambry.config.VerifiableProperties;
+import com.github.ambry.config.api.ClusterMapConfig;
+import com.github.ambry.config.api.VerifiableProperties;
 import com.github.ambry.messageformat.BlobData;
-import com.github.ambry.messageformat.BlobProperties;
 import com.github.ambry.messageformat.MessageFormatException;
 import com.github.ambry.messageformat.MessageFormatRecord;
-import com.github.ambry.store.FindToken;
-import com.github.ambry.store.FindTokenFactory;
+import com.github.ambry.messageformat.api.BlobProperties;
 import com.github.ambry.store.IndexValue;
-import com.github.ambry.store.StoreKey;
-import com.github.ambry.store.StoreKeyFactory;
+import com.github.ambry.store.api.FindToken;
+import com.github.ambry.store.api.FindTokenFactory;
+import com.github.ambry.store.api.StoreKey;
+import com.github.ambry.store.api.StoreKeyFactory;
 import com.github.ambry.utils.SystemTime;
 import com.github.ambry.utils.Utils;
 import java.io.DataInputStream;

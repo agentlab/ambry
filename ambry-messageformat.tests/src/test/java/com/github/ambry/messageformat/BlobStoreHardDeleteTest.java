@@ -13,13 +13,15 @@
  */
 package com.github.ambry.messageformat;
 
-import com.github.ambry.store.HardDeleteInfo;
-import com.github.ambry.store.MessageInfo;
-import com.github.ambry.store.MessageReadSet;
-import com.github.ambry.store.MessageStoreHardDelete;
-import com.github.ambry.store.Read;
-import com.github.ambry.store.StoreKey;
-import com.github.ambry.store.StoreKeyFactory;
+import com.github.ambry.messageformat.api.BlobProperties;
+import com.github.ambry.messageformat.api.BlobType;
+import com.github.ambry.store.api.HardDeleteInfo;
+import com.github.ambry.store.api.MessageInfo;
+import com.github.ambry.store.api.MessageReadSet;
+import com.github.ambry.store.api.MessageStoreHardDelete;
+import com.github.ambry.store.api.Read;
+import com.github.ambry.store.api.StoreKey;
+import com.github.ambry.store.api.StoreKeyFactory;
 import com.github.ambry.utils.ByteBufferInputStream;
 import com.github.ambry.utils.Utils;
 import java.io.IOException;

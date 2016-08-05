@@ -14,8 +14,11 @@
 package com.github.ambry.rest;
 
 import com.codahale.metrics.MetricRegistry;
-import com.github.ambry.config.NettyConfig;
-import com.github.ambry.config.VerifiableProperties;
+import com.github.ambry.config.api.NettyConfig;
+import com.github.ambry.config.api.VerifiableProperties;
+import com.github.ambry.rest.api.NioServer;
+import com.github.ambry.rest.api.RestRequestHandler;
+
 import io.netty.channel.ChannelInitializer;
 import io.netty.channel.socket.SocketChannel;
 import io.netty.handler.codec.http.HttpServerCodec;

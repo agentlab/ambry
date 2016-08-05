@@ -13,8 +13,13 @@
  */
 package com.github.ambry.rest;
 
-import com.github.ambry.router.AsyncWritableChannel;
-import com.github.ambry.router.Callback;
+import com.github.ambry.rest.api.RestMethod;
+import com.github.ambry.rest.api.RestServiceErrorCode;
+import com.github.ambry.rest.api.RestServiceException;
+import com.github.ambry.rest.api.RestUtils;
+import com.github.ambry.router.api.AsyncWritableChannel;
+import com.github.ambry.router.api.Callback;
+
 import io.netty.handler.codec.http.DefaultHttpContent;
 import io.netty.handler.codec.http.HttpContent;
 import io.netty.handler.codec.http.HttpRequest;

@@ -16,6 +16,9 @@ package com.github.ambry.metrics;
 import org.junit.Assert;
 import org.junit.Test;
 
+import com.github.ambry.metrics.api.Counter;
+import com.github.ambry.metrics.api.Gauge;
+
 
 public class TestNoOpMetricsRegistry {
 

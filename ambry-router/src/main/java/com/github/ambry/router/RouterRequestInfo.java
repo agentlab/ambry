@@ -13,10 +13,10 @@
  */
 package com.github.ambry.router;
 
-import com.github.ambry.clustermap.ReplicaId;
-import com.github.ambry.network.Port;
+import com.github.ambry.clustermap.api.ReplicaId;
 import com.github.ambry.network.RequestInfo;
-import com.github.ambry.network.Send;
+import com.github.ambry.network.api.Port;
+import com.github.ambry.network.api.Send;
 
 
 /**

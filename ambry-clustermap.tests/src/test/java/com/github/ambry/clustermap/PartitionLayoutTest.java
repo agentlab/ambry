@@ -16,6 +16,8 @@ package com.github.ambry.clustermap;
 import org.json.JSONException;
 import org.junit.Test;
 
+import com.github.ambry.clustermap.api.PartitionState;
+
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.fail;
 

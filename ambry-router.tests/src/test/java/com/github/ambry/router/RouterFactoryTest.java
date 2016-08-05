@@ -15,7 +15,9 @@ package com.github.ambry.router;
 
 import com.github.ambry.clustermap.MockClusterMap;
 import com.github.ambry.commons.LoggingNotificationSystem;
-import com.github.ambry.config.VerifiableProperties;
+import com.github.ambry.config.api.VerifiableProperties;
+import com.github.ambry.router.api.Router;
+import com.github.ambry.router.api.RouterFactory;
 import com.github.ambry.utils.Utils;
 import java.io.IOException;
 import java.util.ArrayList;

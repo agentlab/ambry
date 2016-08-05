@@ -18,6 +18,12 @@ import org.json.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.github.ambry.clustermap.api.DataNodeId;
+import com.github.ambry.clustermap.api.DiskId;
+import com.github.ambry.clustermap.api.HardwareState;
+import com.github.ambry.clustermap.api.PartitionId;
+import com.github.ambry.clustermap.api.ReplicaId;
+
 import java.io.File;
 import java.util.ArrayList;
 import java.util.List;

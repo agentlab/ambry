@@ -13,8 +13,9 @@
  */
 package com.github.ambry.messageformat;
 
-import com.github.ambry.store.StoreKey;
 import java.nio.ByteBuffer;
+
+import com.github.ambry.store.api.StoreKey;
 
 
 /**

@@ -17,6 +17,10 @@ import java.nio.ByteBuffer;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.github.ambry.clustermap.api.PartitionId;
+import com.github.ambry.clustermap.api.PartitionState;
+import com.github.ambry.clustermap.api.ReplicaId;
+
 
 /**
  * Mock partition id for unit tests

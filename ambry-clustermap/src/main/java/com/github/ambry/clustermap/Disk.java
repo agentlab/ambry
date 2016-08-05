@@ -13,7 +13,11 @@
  */
 package com.github.ambry.clustermap;
 
-import com.github.ambry.config.ClusterMapConfig;
+import com.github.ambry.clustermap.api.DiskId;
+import com.github.ambry.clustermap.api.HardwareState;
+import com.github.ambry.clustermap.api.ResourceStatePolicy;
+import com.github.ambry.clustermap.api.ResourceStatePolicyFactory;
+import com.github.ambry.config.api.ClusterMapConfig;
 import com.github.ambry.utils.Utils;
 import org.json.JSONException;
 import org.json.JSONObject;

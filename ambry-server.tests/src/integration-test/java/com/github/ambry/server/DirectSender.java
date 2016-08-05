@@ -14,11 +14,11 @@
 package com.github.ambry.server;
 
 import com.github.ambry.clustermap.MockClusterMap;
-import com.github.ambry.clustermap.PartitionId;
+import com.github.ambry.clustermap.api.PartitionId;
 import com.github.ambry.commons.BlobId;
 import com.github.ambry.commons.ServerErrorCode;
-import com.github.ambry.messageformat.BlobProperties;
-import com.github.ambry.messageformat.BlobType;
+import com.github.ambry.messageformat.api.BlobProperties;
+import com.github.ambry.messageformat.api.BlobType;
 import com.github.ambry.network.BlockingChannel;
 import com.github.ambry.protocol.PutRequest;
 import com.github.ambry.protocol.PutResponse;

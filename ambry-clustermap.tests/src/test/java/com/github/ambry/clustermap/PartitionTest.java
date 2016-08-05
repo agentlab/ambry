@@ -18,6 +18,8 @@ import org.json.JSONException;
 import org.json.JSONObject;
 import org.junit.Test;
 
+import com.github.ambry.clustermap.api.PartitionState;
+
 import java.util.ArrayList;
 import java.util.List;
 

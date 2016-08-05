@@ -13,18 +13,18 @@
  */
 package com.github.ambry.router;
 
-import com.github.ambry.clustermap.ClusterMap;
-import com.github.ambry.clustermap.DataNodeId;
-import com.github.ambry.clustermap.PartitionId;
-import com.github.ambry.clustermap.ReplicaId;
+import com.github.ambry.clustermap.api.ClusterMap;
+import com.github.ambry.clustermap.api.DataNodeId;
+import com.github.ambry.clustermap.api.PartitionId;
+import com.github.ambry.clustermap.api.ReplicaId;
 import com.github.ambry.commons.BlobId;
 import com.github.ambry.commons.ServerErrorCode;
-import com.github.ambry.config.VerifiableProperties;
-import com.github.ambry.coordinator.Coordinator;
-import com.github.ambry.coordinator.CoordinatorError;
-import com.github.ambry.coordinator.CoordinatorException;
-import com.github.ambry.messageformat.BlobOutput;
-import com.github.ambry.messageformat.BlobProperties;
+import com.github.ambry.config.api.VerifiableProperties;
+import com.github.ambry.coordinator.api.Coordinator;
+import com.github.ambry.coordinator.api.CoordinatorError;
+import com.github.ambry.coordinator.api.CoordinatorException;
+import com.github.ambry.messageformat.api.BlobOutput;
+import com.github.ambry.messageformat.api.BlobProperties;
 import com.github.ambry.utils.ByteBufferInputStream;
 import java.io.ByteArrayInputStream;
 import java.io.DataInputStream;
@@ -40,7 +40,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
 
 
 /**
- * An implementation of {@link com.github.ambry.coordinator.Coordinator} for use in tests. Can be configured for custom
+ * An implementation of {@link com.github.ambry.coordinator.api.Coordinator} for use in tests. Can be configured for custom
  * behavior to check for various scenarios.
  */
 class MockCoordinator implements Coordinator {

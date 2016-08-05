@@ -19,7 +19,7 @@ import com.codahale.metrics.JmxReporter;
 import com.codahale.metrics.Meter;
 import com.codahale.metrics.MetricRegistry;
 import com.codahale.metrics.Snapshot;
-import com.github.ambry.rest.RestUtils;
+import com.github.ambry.rest.api.RestUtils;
 import com.github.ambry.utils.Time;
 import io.netty.bootstrap.Bootstrap;
 import io.netty.buffer.ByteBuf;

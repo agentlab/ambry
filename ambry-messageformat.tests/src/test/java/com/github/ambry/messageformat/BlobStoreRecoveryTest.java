@@ -13,11 +13,12 @@
  */
 package com.github.ambry.messageformat;
 
-import com.github.ambry.store.MessageInfo;
-import com.github.ambry.store.MessageStoreRecovery;
-import com.github.ambry.store.Read;
-import com.github.ambry.store.StoreKey;
-import com.github.ambry.store.StoreKeyFactory;
+import com.github.ambry.messageformat.api.BlobProperties;
+import com.github.ambry.store.api.MessageInfo;
+import com.github.ambry.store.api.MessageStoreRecovery;
+import com.github.ambry.store.api.Read;
+import com.github.ambry.store.api.StoreKey;
+import com.github.ambry.store.api.StoreKeyFactory;
 import com.github.ambry.utils.ByteBufferInputStream;
 import com.github.ambry.utils.Utils;
 import java.io.DataInputStream;

@@ -13,8 +13,9 @@
  */
 package com.github.ambry.clustermap;
 
-import com.github.ambry.config.ClusterMapConfig;
-import com.github.ambry.config.VerifiableProperties;
+import com.github.ambry.clustermap.api.HardwareState;
+import com.github.ambry.config.api.ClusterMapConfig;
+import com.github.ambry.config.api.VerifiableProperties;
 
 import java.util.Properties;
 

@@ -17,8 +17,14 @@ import com.codahale.metrics.Counter;
 import com.codahale.metrics.Gauge;
 import com.codahale.metrics.MetricRegistry;
 import com.codahale.metrics.Timer;
-import com.github.ambry.config.ConnectionPoolConfig;
-import com.github.ambry.config.SSLConfig;
+import com.github.ambry.config.api.ConnectionPoolConfig;
+import com.github.ambry.config.api.SSLConfig;
+import com.github.ambry.network.api.ConnectedChannel;
+import com.github.ambry.network.api.ConnectionPool;
+import com.github.ambry.network.api.ConnectionPoolTimeoutException;
+import com.github.ambry.network.api.Port;
+import com.github.ambry.network.api.PortType;
+
 import java.io.IOException;
 import java.net.SocketException;
 import java.util.Map;

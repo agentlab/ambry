@@ -15,7 +15,7 @@ package com.github.ambry.tools.perf;
 
 import com.codahale.metrics.MetricRegistry;
 import com.github.ambry.commons.BlobId;
-import com.github.ambry.config.StoreConfig;
+import com.github.ambry.config.api.StoreConfig;
 import com.github.ambry.messageformat.BlobStoreHardDelete;
 import com.github.ambry.messageformat.BlobStoreRecovery;
 import com.github.ambry.store.FileSpan;
@@ -23,10 +23,10 @@ import com.github.ambry.store.IndexEntry;
 import com.github.ambry.store.IndexValue;
 import com.github.ambry.store.Log;
 import com.github.ambry.store.PersistentIndex;
-import com.github.ambry.store.StoreException;
-import com.github.ambry.store.StoreKey;
-import com.github.ambry.store.StoreKeyFactory;
 import com.github.ambry.store.StoreMetrics;
+import com.github.ambry.store.api.StoreException;
+import com.github.ambry.store.api.StoreKey;
+import com.github.ambry.store.api.StoreKeyFactory;
 import com.github.ambry.utils.Scheduler;
 
 import com.github.ambry.utils.SystemTime;

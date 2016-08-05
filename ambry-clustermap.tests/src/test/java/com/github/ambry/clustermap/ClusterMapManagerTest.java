@@ -13,8 +13,11 @@
  */
 package com.github.ambry.clustermap;
 
-import com.github.ambry.config.ClusterMapConfig;
-import com.github.ambry.config.VerifiableProperties;
+import com.github.ambry.clustermap.api.DataNodeId;
+import com.github.ambry.clustermap.api.PartitionId;
+import com.github.ambry.clustermap.api.ReplicaId;
+import com.github.ambry.config.api.ClusterMapConfig;
+import com.github.ambry.config.api.VerifiableProperties;
 import com.github.ambry.utils.ByteBufferInputStream;
 import java.util.HashMap;
 import java.util.HashSet;

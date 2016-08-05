@@ -18,6 +18,13 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 
+import com.github.ambry.store.api.HardDeleteInfo;
+import com.github.ambry.store.api.MessageInfo;
+import com.github.ambry.store.api.MessageReadSet;
+import com.github.ambry.store.api.MessageStoreHardDelete;
+import com.github.ambry.store.api.Read;
+import com.github.ambry.store.api.StoreKeyFactory;
+
 
 public class DummyMessageStoreHardDelete implements MessageStoreHardDelete {
   HashMap<Long, MessageInfo> dummyMap;

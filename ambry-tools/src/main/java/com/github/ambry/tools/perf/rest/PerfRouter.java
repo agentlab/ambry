@@ -13,14 +13,15 @@
  */
 package com.github.ambry.tools.perf.rest;
 
-import com.github.ambry.messageformat.BlobInfo;
-import com.github.ambry.messageformat.BlobProperties;
-import com.github.ambry.router.Callback;
-import com.github.ambry.router.FutureResult;
-import com.github.ambry.router.ReadableStreamChannel;
-import com.github.ambry.router.Router;
-import com.github.ambry.router.RouterErrorCode;
-import com.github.ambry.router.RouterException;
+import com.github.ambry.messageformat.api.BlobInfo;
+import com.github.ambry.messageformat.api.BlobProperties;
+import com.github.ambry.router.api.Callback;
+import com.github.ambry.router.api.FutureResult;
+import com.github.ambry.router.api.ReadableStreamChannel;
+import com.github.ambry.router.api.Router;
+import com.github.ambry.router.api.RouterErrorCode;
+import com.github.ambry.router.api.RouterException;
+
 import java.util.Random;
 import java.util.concurrent.Future;
 import org.slf4j.Logger;

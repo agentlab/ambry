@@ -19,9 +19,10 @@ import com.codahale.metrics.Histogram;
 import com.codahale.metrics.Meter;
 import com.codahale.metrics.MetricRegistry;
 import com.codahale.metrics.Timer;
-import com.github.ambry.clustermap.DataNodeId;
-import com.github.ambry.clustermap.PartitionId;
-import com.github.ambry.clustermap.ReplicaId;
+import com.github.ambry.clustermap.api.DataNodeId;
+import com.github.ambry.clustermap.api.PartitionId;
+import com.github.ambry.clustermap.api.ReplicaId;
+
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;

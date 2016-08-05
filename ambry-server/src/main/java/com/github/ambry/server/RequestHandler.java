@@ -13,8 +13,9 @@
  */
 package com.github.ambry.server;
 
-import com.github.ambry.network.Request;
-import com.github.ambry.network.RequestResponseChannel;
+import com.github.ambry.network.api.Request;
+import com.github.ambry.network.api.RequestResponseChannel;
+import com.github.ambry.server.api.EmptyRequest;
 import com.github.ambry.utils.Utils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

@@ -13,7 +13,6 @@
  */
 package com.github.ambry.network;
 
-import com.github.ambry.config.SSLConfig;
 import java.io.File;
 import javax.net.ssl.SSLContext;
 import javax.net.ssl.SSLEngine;
@@ -23,6 +22,8 @@ import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
+
+import com.github.ambry.config.api.SSLConfig;
 
 
 public class SSLFactoryTest {

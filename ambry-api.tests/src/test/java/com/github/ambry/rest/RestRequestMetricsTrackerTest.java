@@ -15,6 +15,9 @@ package com.github.ambry.rest;
 
 import com.codahale.metrics.Histogram;
 import com.codahale.metrics.MetricRegistry;
+import com.github.ambry.rest.api.RestRequestMetrics;
+import com.github.ambry.rest.api.RestRequestMetricsTracker;
+
 import java.util.Map;
 import java.util.Random;
 import org.junit.Test;

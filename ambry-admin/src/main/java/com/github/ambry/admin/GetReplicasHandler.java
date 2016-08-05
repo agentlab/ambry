@@ -13,16 +13,17 @@
  */
 package com.github.ambry.admin;
 
-import com.github.ambry.clustermap.ClusterMap;
-import com.github.ambry.clustermap.PartitionId;
-import com.github.ambry.clustermap.ReplicaId;
+import com.github.ambry.clustermap.api.ClusterMap;
+import com.github.ambry.clustermap.api.PartitionId;
+import com.github.ambry.clustermap.api.ReplicaId;
 import com.github.ambry.commons.BlobId;
 import com.github.ambry.commons.ByteBufferReadableStreamChannel;
-import com.github.ambry.rest.RestResponseChannel;
-import com.github.ambry.rest.RestServiceErrorCode;
-import com.github.ambry.rest.RestServiceException;
-import com.github.ambry.rest.RestUtils;
-import com.github.ambry.router.ReadableStreamChannel;
+import com.github.ambry.rest.api.RestResponseChannel;
+import com.github.ambry.rest.api.RestServiceErrorCode;
+import com.github.ambry.rest.api.RestServiceException;
+import com.github.ambry.rest.api.RestUtils;
+import com.github.ambry.router.api.ReadableStreamChannel;
+
 import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.util.List;

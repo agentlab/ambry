@@ -13,8 +13,11 @@
  */
 package com.github.ambry.clustermap;
 
-import com.github.ambry.network.Port;
-import com.github.ambry.network.PortType;
+import com.github.ambry.clustermap.api.DataNodeId;
+import com.github.ambry.clustermap.api.HardwareState;
+import com.github.ambry.network.api.Port;
+import com.github.ambry.network.api.PortType;
+
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;

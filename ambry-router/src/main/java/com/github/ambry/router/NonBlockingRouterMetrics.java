@@ -18,8 +18,10 @@ import com.codahale.metrics.Gauge;
 import com.codahale.metrics.Histogram;
 import com.codahale.metrics.Meter;
 import com.codahale.metrics.MetricRegistry;
-import com.github.ambry.clustermap.ClusterMap;
-import com.github.ambry.clustermap.DataNodeId;
+import com.github.ambry.clustermap.api.ClusterMap;
+import com.github.ambry.clustermap.api.DataNodeId;
+import com.github.ambry.router.api.RouterException;
+
 import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -331,7 +333,7 @@ public class NonBlockingRouterMetrics {
   /**
    * A metrics class that tracks at the {@link DataNodeId} level. These metrics are collected based on the operation
    * requests sent to individual {@link DataNodeId}. An operation request is part of an operation, and conveys an actual
-   * request to a {@link com.github.ambry.clustermap.ReplicaId} in a {@link DataNodeId}. An operation request can be
+   * request to a {@link com.github.ambry.clustermap.api.ReplicaId} in a {@link DataNodeId}. An operation request can be
    * either for a metadata blob, or for a datachunk.
    */
   public class NodeLevelMetrics {

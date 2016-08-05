@@ -14,10 +14,11 @@
 package com.github.ambry.admin;
 
 import com.github.ambry.rest.MockRestRequest;
-import com.github.ambry.rest.RestMethod;
-import com.github.ambry.rest.RestRequest;
+import com.github.ambry.rest.api.RestMethod;
+import com.github.ambry.rest.api.RestRequest;
 import com.github.ambry.router.CopyingAsyncWritableChannel;
-import com.github.ambry.router.ReadableStreamChannel;
+import com.github.ambry.router.api.ReadableStreamChannel;
+
 import java.io.UnsupportedEncodingException;
 import java.net.URISyntaxException;
 import java.nio.ByteBuffer;

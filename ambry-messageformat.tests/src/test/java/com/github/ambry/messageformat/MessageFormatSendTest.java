@@ -14,8 +14,9 @@
 package com.github.ambry.messageformat;
 
 import com.codahale.metrics.MetricRegistry;
-import com.github.ambry.store.MessageReadSet;
-import com.github.ambry.store.StoreKey;
+import com.github.ambry.messageformat.api.MessageFormatFlags;
+import com.github.ambry.store.api.MessageReadSet;
+import com.github.ambry.store.api.StoreKey;
 import com.github.ambry.utils.ByteBufferOutputStream;
 import com.github.ambry.utils.Crc32;
 import org.junit.Assert;

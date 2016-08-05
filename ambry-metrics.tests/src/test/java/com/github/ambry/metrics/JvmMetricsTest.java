@@ -13,8 +13,9 @@
  */
 package com.github.ambry.metrics;
 
-import com.github.ambry.config.MetricsConfig;
-import com.github.ambry.config.VerifiableProperties;
+import com.github.ambry.config.api.MetricsConfig;
+import com.github.ambry.config.api.VerifiableProperties;
+import com.github.ambry.metrics.api.Metric;
 import com.github.ambry.utils.Utils;
 import org.junit.Assert;
 import org.junit.Test;

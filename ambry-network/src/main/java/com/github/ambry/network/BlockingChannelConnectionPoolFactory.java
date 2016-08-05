@@ -14,8 +14,11 @@
 package com.github.ambry.network;
 
 import com.codahale.metrics.MetricRegistry;
-import com.github.ambry.config.ConnectionPoolConfig;
-import com.github.ambry.config.SSLConfig;
+import com.github.ambry.config.api.ConnectionPoolConfig;
+import com.github.ambry.config.api.SSLConfig;
+import com.github.ambry.network.api.ConnectionPool;
+import com.github.ambry.network.api.ConnectionPoolFactory;
+
 import javax.net.ssl.SSLSocketFactory;
 
 

@@ -13,6 +13,7 @@
  */
 package com.github.ambry.messageformat;
 
+import com.github.ambry.messageformat.api.BlobProperties;
 import com.github.ambry.utils.Utils;
 import org.junit.Test;
 

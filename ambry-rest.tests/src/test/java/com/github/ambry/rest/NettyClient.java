@@ -13,8 +13,6 @@
  */
 package com.github.ambry.rest;
 
-import com.github.ambry.router.Callback;
-import com.github.ambry.router.FutureResult;
 import io.netty.bootstrap.Bootstrap;
 import io.netty.channel.ChannelFuture;
 import io.netty.channel.ChannelHandler;
@@ -42,6 +40,9 @@ import java.util.Queue;
 import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
+
+import com.github.ambry.router.api.Callback;
+import com.github.ambry.router.api.FutureResult;
 
 
 /**

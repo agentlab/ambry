@@ -13,8 +13,16 @@
  */
 package com.github.ambry.rest;
 
-import com.github.ambry.router.Router;
-import com.github.ambry.router.RouterFactory;
+import com.github.ambry.rest.api.BlobStorageService;
+import com.github.ambry.rest.api.BlobStorageServiceFactory;
+import com.github.ambry.rest.api.NioServer;
+import com.github.ambry.rest.api.NioServerFactory;
+import com.github.ambry.rest.api.RestRequestHandler;
+import com.github.ambry.rest.api.RestRequestHandlerFactory;
+import com.github.ambry.rest.api.RestResponseHandler;
+import com.github.ambry.rest.api.RestResponseHandlerFactory;
+import com.github.ambry.router.api.Router;
+import com.github.ambry.router.api.RouterFactory;
 
 
 /**

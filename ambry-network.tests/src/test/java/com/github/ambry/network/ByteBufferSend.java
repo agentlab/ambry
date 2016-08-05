@@ -17,6 +17,8 @@ import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.nio.channels.WritableByteChannel;
 
+import com.github.ambry.network.api.Send;
+
 
 /**
  * A byte buffer version of Send that sends a materialized byte buffer. This breaks the contract of Send (only

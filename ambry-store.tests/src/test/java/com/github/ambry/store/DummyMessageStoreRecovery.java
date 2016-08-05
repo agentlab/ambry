@@ -17,6 +17,11 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.github.ambry.store.api.MessageInfo;
+import com.github.ambry.store.api.MessageStoreRecovery;
+import com.github.ambry.store.api.Read;
+import com.github.ambry.store.api.StoreKeyFactory;
+
 
 public class DummyMessageStoreRecovery implements MessageStoreRecovery {
 

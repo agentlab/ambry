@@ -25,7 +25,7 @@ import java.nio.channels.ClosedChannelException;
 import java.util.Random;
 import com.github.ambry.utils.ByteBufferInputStream;
 import com.github.ambry.metrics.MetricsRegistryMap;
-import com.github.ambry.metrics.ReadableMetricsRegistry;
+import com.github.ambry.metrics.api.ReadableMetricsRegistry;
 
 
 public class LogTest {

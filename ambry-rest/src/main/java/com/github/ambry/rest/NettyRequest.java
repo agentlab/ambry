@@ -13,9 +13,16 @@
  */
 package com.github.ambry.rest;
 
-import com.github.ambry.router.AsyncWritableChannel;
-import com.github.ambry.router.Callback;
-import com.github.ambry.router.FutureResult;
+import com.github.ambry.rest.api.RestMethod;
+import com.github.ambry.rest.api.RestRequest;
+import com.github.ambry.rest.api.RestRequestMetricsTracker;
+import com.github.ambry.rest.api.RestServiceErrorCode;
+import com.github.ambry.rest.api.RestServiceException;
+import com.github.ambry.rest.api.RestUtils;
+import com.github.ambry.router.api.AsyncWritableChannel;
+import com.github.ambry.router.api.Callback;
+import com.github.ambry.router.api.FutureResult;
+
 import io.netty.handler.codec.http.CookieDecoder;
 import io.netty.handler.codec.http.HttpContent;
 import io.netty.handler.codec.http.HttpHeaders;

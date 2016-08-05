@@ -13,11 +13,11 @@
  */
 package com.github.ambry.rest;
 
-import com.github.ambry.clustermap.ClusterMap;
 import com.github.ambry.clustermap.MockClusterMap;
+import com.github.ambry.clustermap.api.ClusterMap;
 import com.github.ambry.commons.LoggingNotificationSystem;
-import com.github.ambry.config.VerifiableProperties;
-import com.github.ambry.notification.NotificationSystem;
+import com.github.ambry.config.api.VerifiableProperties;
+import com.github.ambry.notification.api.NotificationSystem;
 import com.github.ambry.router.InMemoryRouterFactory;
 import java.io.IOException;
 import java.util.Properties;

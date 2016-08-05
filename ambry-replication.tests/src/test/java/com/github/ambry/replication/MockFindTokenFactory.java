@@ -13,12 +13,12 @@
  */
 package com.github.ambry.replication;
 
-import com.github.ambry.store.FindToken;
-import com.github.ambry.store.FindTokenFactory;
-
 import java.io.DataInputStream;
 import java.io.IOException;
 import java.nio.ByteBuffer;
+
+import com.github.ambry.store.api.FindToken;
+import com.github.ambry.store.api.FindTokenFactory;
 
 
 public class MockFindTokenFactory implements FindTokenFactory {

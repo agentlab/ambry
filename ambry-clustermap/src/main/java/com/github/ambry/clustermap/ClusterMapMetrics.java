@@ -15,6 +15,12 @@ package com.github.ambry.clustermap;
 
 import com.codahale.metrics.Gauge;
 import com.codahale.metrics.MetricRegistry;
+import com.github.ambry.clustermap.api.ClusterMap;
+import com.github.ambry.clustermap.api.HardwareState;
+import com.github.ambry.clustermap.api.PartitionId;
+import com.github.ambry.clustermap.api.PartitionState;
+import com.github.ambry.clustermap.api.ReplicaId;
+
 import java.util.ArrayList;
 import java.util.List;
 

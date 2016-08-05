@@ -16,6 +16,12 @@ package com.github.ambry.metrics;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.github.ambry.metrics.api.Counter;
+import com.github.ambry.metrics.api.Gauge;
+import com.github.ambry.metrics.api.Metric;
+import com.github.ambry.metrics.api.ReadableMetricsRegistry;
+import com.github.ambry.metrics.api.ReadableMetricsRegistryListener;
+
 import java.util.HashSet;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.Set;

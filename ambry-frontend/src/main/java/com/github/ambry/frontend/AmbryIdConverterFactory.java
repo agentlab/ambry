@@ -14,15 +14,16 @@
 package com.github.ambry.frontend;
 
 import com.codahale.metrics.MetricRegistry;
-import com.github.ambry.config.VerifiableProperties;
-import com.github.ambry.rest.IdConverter;
-import com.github.ambry.rest.IdConverterFactory;
-import com.github.ambry.rest.RestMethod;
-import com.github.ambry.rest.RestRequest;
-import com.github.ambry.rest.RestServiceErrorCode;
-import com.github.ambry.rest.RestServiceException;
-import com.github.ambry.router.Callback;
-import com.github.ambry.router.FutureResult;
+import com.github.ambry.config.api.VerifiableProperties;
+import com.github.ambry.rest.api.IdConverter;
+import com.github.ambry.rest.api.IdConverterFactory;
+import com.github.ambry.rest.api.RestMethod;
+import com.github.ambry.rest.api.RestRequest;
+import com.github.ambry.rest.api.RestServiceErrorCode;
+import com.github.ambry.rest.api.RestServiceException;
+import com.github.ambry.router.api.Callback;
+import com.github.ambry.router.api.FutureResult;
+
 import java.util.concurrent.Future;
 
 
@@ -60,7 +61,7 @@ public class AmbryIdConverterFactory implements IdConverterFactory {
      * On {@link RestMethod#POST}, adds a leading slash to indicate that the ID represents the path of the resource
      * created.
      * On any other {@link RestMethod}, removes the leading slash in order to convert the path into an ID that the
-     * {@link com.github.ambry.router.Router} will understand.
+     * {@link com.github.ambry.router.api.Router} will understand.
      * @param restRequest {@link RestRequest} representing the request.
      * @param input the ID that needs to be converted.
      * @param callback the {@link Callback} to invoke once the converted ID is available. Can be null.

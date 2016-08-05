@@ -14,12 +14,23 @@
 package com.github.ambry.store;
 
 import com.codahale.metrics.MetricRegistry;
-import com.github.ambry.clustermap.DataNodeId;
 import com.github.ambry.clustermap.MockClusterMap;
-import com.github.ambry.clustermap.ReplicaId;
-import com.github.ambry.config.StoreConfig;
-import com.github.ambry.config.VerifiableProperties;
+import com.github.ambry.clustermap.api.DataNodeId;
+import com.github.ambry.clustermap.api.ReplicaId;
+import com.github.ambry.config.api.StoreConfig;
+import com.github.ambry.config.api.VerifiableProperties;
 import com.github.ambry.metrics.MetricsRegistryMap;
+import com.github.ambry.store.api.MessageInfo;
+import com.github.ambry.store.api.MessageReadSet;
+import com.github.ambry.store.api.MessageWriteSet;
+import com.github.ambry.store.api.Store;
+import com.github.ambry.store.api.StoreErrorCodes;
+import com.github.ambry.store.api.StoreException;
+import com.github.ambry.store.api.StoreGetOptions;
+import com.github.ambry.store.api.StoreInfo;
+import com.github.ambry.store.api.StoreKey;
+import com.github.ambry.store.api.StoreKeyFactory;
+import com.github.ambry.store.api.Write;
 import com.github.ambry.utils.ByteBufferOutputStream;
 import com.github.ambry.utils.Scheduler;
 import com.github.ambry.utils.SystemTime;

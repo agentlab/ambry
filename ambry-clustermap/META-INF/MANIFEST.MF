@@ -1,12 +1,17 @@
 Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: ambry-clustermap
-Bundle-SymbolicName: ambry-clustermap
+Bundle-SymbolicName: ambry-clustermap;singleton:=true
 Bundle-Version: 0.1.0.qualifier
-Export-Package: com.github.ambry.clustermap
+Export-Package: com.github.ambry.clustermap;
+  uses:="org.json,
+   com.codahale.metrics,
+   com.github.ambry.config,
+   com.github.ambry.network"
 Require-Bundle: ambry-api;bundle-version="0.1.0",
  ambry-utils;bundle-version="0.1.0"
 Bundle-RequiredExecutionEnvironment: JavaSE-1.7
 Import-Package: com.codahale.metrics,
  org.json,
  org.slf4j;version="1.7.2"
+Bundle-ActivationPolicy: lazy

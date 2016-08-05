@@ -13,16 +13,16 @@
  */
 package com.github.ambry.admin;
 
-import com.github.ambry.clustermap.ClusterMap;
 import com.github.ambry.clustermap.MockClusterMap;
+import com.github.ambry.clustermap.api.ClusterMap;
 import com.github.ambry.commons.ByteBufferReadableStreamChannel;
 import com.github.ambry.commons.LoggingNotificationSystem;
-import com.github.ambry.config.VerifiableProperties;
-import com.github.ambry.messageformat.BlobProperties;
+import com.github.ambry.config.api.VerifiableProperties;
+import com.github.ambry.messageformat.api.BlobProperties;
 import com.github.ambry.rest.NettyClient;
 import com.github.ambry.rest.RestServer;
 import com.github.ambry.rest.RestTestUtils;
-import com.github.ambry.rest.RestUtils;
+import com.github.ambry.rest.api.RestUtils;
 import com.github.ambry.router.InMemoryRouter;
 import com.github.ambry.router.InMemoryRouterFactory;
 import com.github.ambry.utils.Utils;

@@ -13,7 +13,7 @@
  */
 package com.github.ambry.server;
 
-import com.github.ambry.messageformat.BlobProperties;
+import com.github.ambry.messageformat.api.BlobProperties;
 
 
 /**

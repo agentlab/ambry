@@ -15,7 +15,8 @@ package com.github.ambry.store;
 
 import com.codahale.metrics.MetricRegistry;
 import com.github.ambry.metrics.MetricsRegistryMap;
-import com.github.ambry.metrics.ReadableMetricsRegistry;
+import com.github.ambry.metrics.api.ReadableMetricsRegistry;
+import com.github.ambry.store.api.MessageReadSet;
 import com.github.ambry.utils.ByteBufferOutputStream;
 import org.junit.Assert;
 import org.junit.Test;

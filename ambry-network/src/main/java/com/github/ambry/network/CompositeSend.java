@@ -17,6 +17,8 @@ import java.io.IOException;
 import java.nio.channels.WritableByteChannel;
 import java.util.List;
 
+import com.github.ambry.network.api.Send;
+
 
 /**
  * Holds multiple Send instances and sends them over the network

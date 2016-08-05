@@ -13,7 +13,13 @@
  */
 package com.github.ambry.clustermap;
 
-import com.github.ambry.config.ClusterMapConfig;
+import com.github.ambry.clustermap.api.DataNodeId;
+import com.github.ambry.clustermap.api.DiskId;
+import com.github.ambry.clustermap.api.HardwareState;
+import com.github.ambry.clustermap.api.Resource;
+import com.github.ambry.clustermap.api.ResourceStatePolicy;
+import com.github.ambry.clustermap.api.ResourceStatePolicyFactory;
+import com.github.ambry.config.api.ClusterMapConfig;
 
 
 public class FixedBackoffResourceStatePolicyFactory implements ResourceStatePolicyFactory {

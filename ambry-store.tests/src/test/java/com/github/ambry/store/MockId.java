@@ -13,6 +13,7 @@
  */
 package com.github.ambry.store;
 
+import com.github.ambry.store.api.StoreKey;
 import com.github.ambry.utils.Utils;
 
 import java.io.DataInputStream;

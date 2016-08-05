@@ -15,9 +15,15 @@ package com.github.ambry.store;
 
 import com.codahale.metrics.MetricRegistry;
 import com.github.ambry.clustermap.Partition;
-import com.github.ambry.clustermap.PartitionId;
-import com.github.ambry.clustermap.ReplicaId;
-import com.github.ambry.config.StoreConfig;
+import com.github.ambry.clustermap.api.PartitionId;
+import com.github.ambry.clustermap.api.ReplicaId;
+import com.github.ambry.config.api.StoreConfig;
+import com.github.ambry.store.api.MessageStoreHardDelete;
+import com.github.ambry.store.api.MessageStoreRecovery;
+import com.github.ambry.store.api.Store;
+import com.github.ambry.store.api.StoreErrorCodes;
+import com.github.ambry.store.api.StoreException;
+import com.github.ambry.store.api.StoreKeyFactory;
 import com.github.ambry.utils.Scheduler;
 import com.github.ambry.utils.Time;
 import java.io.File;

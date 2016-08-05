@@ -14,7 +14,9 @@
 package com.github.ambry.network;
 
 import com.codahale.metrics.MetricRegistry;
-import com.github.ambry.config.SSLConfig;
+import com.github.ambry.config.api.SSLConfig;
+import com.github.ambry.network.api.BoundedByteBufferSend;
+
 import java.io.DataInputStream;
 import java.io.File;
 import java.io.IOException;

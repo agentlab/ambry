@@ -13,13 +13,13 @@
  */
 package com.github.ambry.server;
 
-import com.github.ambry.clustermap.DataNodeId;
 import com.github.ambry.clustermap.MockClusterMap;
 import com.github.ambry.clustermap.MockDataNodeId;
-import com.github.ambry.config.VerifiableProperties;
-import com.github.ambry.messageformat.BlobProperties;
-import com.github.ambry.notification.BlobReplicaSourceType;
-import com.github.ambry.notification.NotificationSystem;
+import com.github.ambry.clustermap.api.DataNodeId;
+import com.github.ambry.config.api.VerifiableProperties;
+import com.github.ambry.messageformat.api.BlobProperties;
+import com.github.ambry.notification.api.BlobReplicaSourceType;
+import com.github.ambry.notification.api.NotificationSystem;
 import com.github.ambry.utils.Time;
 import com.github.ambry.utils.Utils;
 import java.io.IOException;

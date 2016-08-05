@@ -13,9 +13,10 @@
  */
 package com.github.ambry.commons;
 
-import com.github.ambry.messageformat.BlobProperties;
-import com.github.ambry.notification.BlobReplicaSourceType;
-import com.github.ambry.notification.NotificationSystem;
+import com.github.ambry.messageformat.api.BlobProperties;
+import com.github.ambry.notification.api.BlobReplicaSourceType;
+import com.github.ambry.notification.api.NotificationSystem;
+
 import java.io.IOException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

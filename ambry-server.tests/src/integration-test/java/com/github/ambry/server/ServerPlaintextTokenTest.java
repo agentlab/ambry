@@ -13,9 +13,9 @@
  */
 package com.github.ambry.server;
 
-import com.github.ambry.clustermap.DataNodeId;
-import com.github.ambry.network.Port;
-import com.github.ambry.network.PortType;
+import com.github.ambry.clustermap.api.DataNodeId;
+import com.github.ambry.network.api.Port;
+import com.github.ambry.network.api.PortType;
 import com.github.ambry.utils.SystemTime;
 import com.github.ambry.utils.Utils;
 import java.io.IOException;

@@ -15,11 +15,12 @@ package com.github.ambry.tools.perf.rest;
 
 import com.codahale.metrics.Histogram;
 import com.codahale.metrics.MetricRegistry;
-import com.github.ambry.clustermap.ClusterMap;
-import com.github.ambry.config.VerifiableProperties;
-import com.github.ambry.notification.NotificationSystem;
-import com.github.ambry.router.Router;
-import com.github.ambry.router.RouterFactory;
+import com.github.ambry.clustermap.api.ClusterMap;
+import com.github.ambry.config.api.VerifiableProperties;
+import com.github.ambry.notification.api.NotificationSystem;
+import com.github.ambry.router.api.Router;
+import com.github.ambry.router.api.RouterFactory;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

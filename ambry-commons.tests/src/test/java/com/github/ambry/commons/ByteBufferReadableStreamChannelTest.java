@@ -13,9 +13,9 @@
  */
 package com.github.ambry.commons;
 
-import com.github.ambry.router.AsyncWritableChannel;
-import com.github.ambry.router.Callback;
-import com.github.ambry.router.FutureResult;
+import com.github.ambry.router.api.AsyncWritableChannel;
+import com.github.ambry.router.api.Callback;
+import com.github.ambry.router.api.FutureResult;
 import com.github.ambry.utils.Utils;
 import java.io.IOException;
 import java.nio.ByteBuffer;

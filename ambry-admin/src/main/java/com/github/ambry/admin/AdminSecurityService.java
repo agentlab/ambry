@@ -13,19 +13,19 @@
  */
 package com.github.ambry.admin;
 
-import com.github.ambry.config.AdminConfig;
-import com.github.ambry.messageformat.BlobInfo;
-import com.github.ambry.messageformat.BlobProperties;
-import com.github.ambry.rest.ResponseStatus;
-import com.github.ambry.rest.RestMethod;
-import com.github.ambry.rest.RestRequest;
-import com.github.ambry.rest.RestResponseChannel;
-import com.github.ambry.rest.RestServiceErrorCode;
-import com.github.ambry.rest.RestServiceException;
-import com.github.ambry.rest.RestUtils;
-import com.github.ambry.rest.SecurityService;
-import com.github.ambry.router.Callback;
-import com.github.ambry.router.FutureResult;
+import com.github.ambry.config.api.AdminConfig;
+import com.github.ambry.messageformat.api.BlobInfo;
+import com.github.ambry.messageformat.api.BlobProperties;
+import com.github.ambry.rest.api.ResponseStatus;
+import com.github.ambry.rest.api.RestMethod;
+import com.github.ambry.rest.api.RestRequest;
+import com.github.ambry.rest.api.RestResponseChannel;
+import com.github.ambry.rest.api.RestServiceErrorCode;
+import com.github.ambry.rest.api.RestServiceException;
+import com.github.ambry.rest.api.RestUtils;
+import com.github.ambry.rest.api.SecurityService;
+import com.github.ambry.router.api.Callback;
+import com.github.ambry.router.api.FutureResult;
 import com.github.ambry.utils.Time;
 import com.github.ambry.utils.Utils;
 import java.util.Date;

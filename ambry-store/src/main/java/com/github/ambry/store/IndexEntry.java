@@ -13,6 +13,8 @@
  */
 package com.github.ambry.store;
 
+import com.github.ambry.store.api.StoreKey;
+
 /**
  * A key and value that represents an index entry
  */

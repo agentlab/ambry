@@ -13,6 +13,7 @@
  */
 package com.github.ambry.messageformat;
 
+import com.github.ambry.messageformat.api.BlobType;
 import com.github.ambry.utils.ByteBufferInputStream;
 
 

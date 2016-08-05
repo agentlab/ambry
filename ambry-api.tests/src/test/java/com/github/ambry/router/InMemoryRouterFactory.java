@@ -13,9 +13,11 @@
  */
 package com.github.ambry.router;
 
-import com.github.ambry.clustermap.ClusterMap;
-import com.github.ambry.config.VerifiableProperties;
-import com.github.ambry.notification.NotificationSystem;
+import com.github.ambry.clustermap.api.ClusterMap;
+import com.github.ambry.config.api.VerifiableProperties;
+import com.github.ambry.notification.api.NotificationSystem;
+import com.github.ambry.router.api.Router;
+import com.github.ambry.router.api.RouterFactory;
 
 
 /**

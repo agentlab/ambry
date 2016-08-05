@@ -13,12 +13,13 @@
  */
 package com.github.ambry.protocol;
 
-import com.github.ambry.clustermap.ClusterMap;
-import com.github.ambry.clustermap.PartitionId;
+import com.github.ambry.clustermap.api.ClusterMap;
+import com.github.ambry.clustermap.api.PartitionId;
 import com.github.ambry.commons.ServerErrorCode;
-import com.github.ambry.store.FindToken;
-import com.github.ambry.store.FindTokenFactory;
-import com.github.ambry.store.MessageInfo;
+import com.github.ambry.store.api.FindToken;
+import com.github.ambry.store.api.FindTokenFactory;
+import com.github.ambry.store.api.MessageInfo;
+
 import java.io.DataInputStream;
 import java.io.IOException;
 import java.nio.ByteBuffer;

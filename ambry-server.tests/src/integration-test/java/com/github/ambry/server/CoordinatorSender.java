@@ -13,8 +13,9 @@
  */
 package com.github.ambry.server;
 
-import com.github.ambry.coordinator.Coordinator;
-import com.github.ambry.messageformat.BlobProperties;
+import com.github.ambry.coordinator.api.Coordinator;
+import com.github.ambry.messageformat.api.BlobProperties;
+
 import java.io.ByteArrayInputStream;
 import java.nio.ByteBuffer;
 import java.util.Random;

@@ -13,6 +13,9 @@
  */
 package com.github.ambry.clustermap;
 
+import com.github.ambry.clustermap.api.DiskId;
+import com.github.ambry.clustermap.api.HardwareState;
+
 public class MockDiskId implements DiskId {
   String mountPath;
   MockDataNodeId dataNode;

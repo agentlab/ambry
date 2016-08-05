@@ -13,7 +13,12 @@
  */
 package com.github.ambry.store;
 
-import com.github.ambry.config.StoreConfig;
+import com.github.ambry.config.api.StoreConfig;
+import com.github.ambry.store.api.MessageInfo;
+import com.github.ambry.store.api.StoreErrorCodes;
+import com.github.ambry.store.api.StoreException;
+import com.github.ambry.store.api.StoreKey;
+import com.github.ambry.store.api.StoreKeyFactory;
 import com.github.ambry.utils.ByteBufferInputStream;
 import com.github.ambry.utils.CrcInputStream;
 import com.github.ambry.utils.CrcOutputStream;

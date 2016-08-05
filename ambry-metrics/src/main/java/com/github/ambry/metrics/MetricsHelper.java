@@ -15,6 +15,10 @@ package com.github.ambry.metrics;
 
 import java.util.concurrent.Callable;
 
+import com.github.ambry.metrics.api.Counter;
+import com.github.ambry.metrics.api.Gauge;
+import com.github.ambry.metrics.api.MetricsRegistry;
+
 
 /**
  * MetricsHelper is a little helper class to make it easy to register and

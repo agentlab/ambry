@@ -13,9 +13,11 @@
  */
 package com.github.ambry.network;
 
-import com.github.ambry.config.NetworkConfig;
-import com.github.ambry.config.RouterConfig;
-import com.github.ambry.config.VerifiableProperties;
+import com.github.ambry.config.api.NetworkConfig;
+import com.github.ambry.config.api.RouterConfig;
+import com.github.ambry.config.api.VerifiableProperties;
+import com.github.ambry.network.api.Port;
+import com.github.ambry.network.api.PortType;
 import com.github.ambry.utils.MockTime;
 import com.github.ambry.utils.Time;
 import java.io.IOException;

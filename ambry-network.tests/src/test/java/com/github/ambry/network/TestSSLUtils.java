@@ -13,8 +13,8 @@
  */
 package com.github.ambry.network;
 
-import com.github.ambry.config.SSLConfig;
-import com.github.ambry.config.VerifiableProperties;
+import com.github.ambry.config.api.SSLConfig;
+import com.github.ambry.config.api.VerifiableProperties;
 import com.github.ambry.network.SSLFactory;
 import java.io.EOFException;
 import java.io.File;

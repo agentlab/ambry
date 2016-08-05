@@ -15,7 +15,7 @@ package com.github.ambry.server;
 
 import com.github.ambry.commons.ServerErrorCode;
 import com.github.ambry.messageformat.MessageFormatErrorCodes;
-import com.github.ambry.store.StoreErrorCodes;
+import com.github.ambry.store.api.StoreErrorCodes;
 
 import java.util.Collections;
 import java.util.HashMap;

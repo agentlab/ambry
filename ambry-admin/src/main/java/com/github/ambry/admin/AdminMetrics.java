@@ -17,7 +17,7 @@ import com.codahale.metrics.Counter;
 import com.codahale.metrics.Histogram;
 import com.codahale.metrics.Meter;
 import com.codahale.metrics.MetricRegistry;
-import com.github.ambry.rest.RestRequestMetrics;
+import com.github.ambry.rest.api.RestRequestMetrics;
 
 
 /**

@@ -13,7 +13,7 @@
  */
 package com.github.ambry.network;
 
-import com.github.ambry.config.NetworkConfig;
+import com.github.ambry.config.api.NetworkConfig;
 import com.github.ambry.utils.Time;
 import java.io.IOException;
 

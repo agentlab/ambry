@@ -15,6 +15,12 @@ package com.github.ambry.rest;
 
 import java.util.concurrent.atomic.AtomicBoolean;
 
+import com.github.ambry.rest.api.BlobStorageService;
+import com.github.ambry.rest.api.RestRequestHandler;
+import com.github.ambry.rest.api.RestRequestHandlerFactory;
+import com.github.ambry.rest.api.RestResponseHandler;
+import com.github.ambry.rest.api.RestResponseHandlerFactory;
+
 
 /**
  * Implementation of {@link RestRequestHandlerFactory} and {@link RestResponseHandlerFactory} that can be used in tests.

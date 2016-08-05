@@ -13,10 +13,13 @@
  */
 package com.github.ambry.router;
 
-import com.github.ambry.clustermap.ClusterMap;
-import com.github.ambry.clustermap.ReplicaId;
+import com.github.ambry.clustermap.api.ClusterMap;
+import com.github.ambry.clustermap.api.ReplicaId;
 import com.github.ambry.commons.BlobId;
-import com.github.ambry.config.RouterConfig;
+import com.github.ambry.config.api.RouterConfig;
+import com.github.ambry.router.api.RouterErrorCode;
+import com.github.ambry.router.api.RouterException;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

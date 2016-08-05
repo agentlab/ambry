@@ -13,8 +13,6 @@
  */
 package com.github.ambry.coordinator;
 
-import com.github.ambry.clustermap.PartitionId;
-import com.github.ambry.clustermap.ReplicaId;
 import java.util.ArrayDeque;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -25,6 +23,11 @@ import java.util.Map;
 import java.util.Queue;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import com.github.ambry.clustermap.api.PartitionId;
+import com.github.ambry.clustermap.api.ReplicaId;
+import com.github.ambry.coordinator.api.CoordinatorError;
+import com.github.ambry.coordinator.api.CoordinatorException;
 
 import static java.lang.Math.min;
 

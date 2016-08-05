@@ -13,7 +13,12 @@
  */
 package com.github.ambry.rest;
 
-import com.github.ambry.messageformat.BlobProperties;
+import com.github.ambry.messageformat.api.BlobProperties;
+import com.github.ambry.rest.api.RestMethod;
+import com.github.ambry.rest.api.RestRequest;
+import com.github.ambry.rest.api.RestServiceErrorCode;
+import com.github.ambry.rest.api.RestServiceException;
+import com.github.ambry.rest.api.RestUtils;
 import com.github.ambry.utils.Crc32;
 import com.github.ambry.utils.Utils;
 import java.io.UnsupportedEncodingException;

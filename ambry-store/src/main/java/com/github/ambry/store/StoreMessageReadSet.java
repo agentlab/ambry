@@ -17,6 +17,12 @@ import java.io.DataInputStream;
 import java.nio.ByteBuffer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import com.github.ambry.store.api.MessageInfo;
+import com.github.ambry.store.api.MessageReadSet;
+import com.github.ambry.store.api.StoreKey;
+import com.github.ambry.store.api.StoreKeyFactory;
+
 import java.io.File;
 import java.io.IOException;
 import java.nio.channels.FileChannel;

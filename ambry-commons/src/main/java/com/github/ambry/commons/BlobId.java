@@ -13,9 +13,9 @@
  */
 package com.github.ambry.commons;
 
-import com.github.ambry.clustermap.ClusterMap;
-import com.github.ambry.clustermap.PartitionId;
-import com.github.ambry.store.StoreKey;
+import com.github.ambry.clustermap.api.ClusterMap;
+import com.github.ambry.clustermap.api.PartitionId;
+import com.github.ambry.store.api.StoreKey;
 import com.github.ambry.utils.ByteBufferInputStream;
 import com.github.ambry.utils.Utils;
 

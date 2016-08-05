@@ -16,6 +16,10 @@ package com.github.ambry.store;
 import java.io.DataInputStream;
 import java.io.IOException;
 
+import com.github.ambry.store.api.FindToken;
+import com.github.ambry.store.api.FindTokenFactory;
+import com.github.ambry.store.api.StoreKeyFactory;
+
 
 /**
  * Factory that creates the store token from an inputstream

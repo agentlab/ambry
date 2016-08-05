@@ -17,6 +17,12 @@ import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.github.ambry.clustermap.api.DataNodeId;
+import com.github.ambry.clustermap.api.DiskId;
+import com.github.ambry.clustermap.api.HardwareState;
+import com.github.ambry.clustermap.api.PartitionId;
+import com.github.ambry.clustermap.api.ReplicaId;
+
 
 public class MockReplicaId implements ReplicaId {
 

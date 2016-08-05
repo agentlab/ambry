@@ -13,9 +13,9 @@
  */
 package com.github.ambry.protocol;
 
-import com.github.ambry.clustermap.ClusterMap;
+import com.github.ambry.clustermap.api.ClusterMap;
 import com.github.ambry.commons.ServerErrorCode;
-import com.github.ambry.store.FindTokenFactory;
+import com.github.ambry.store.api.FindTokenFactory;
 import com.github.ambry.utils.Utils;
 
 import java.io.DataInputStream;

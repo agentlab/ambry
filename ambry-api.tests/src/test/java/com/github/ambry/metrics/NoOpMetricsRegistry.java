@@ -13,6 +13,10 @@
  */
 package com.github.ambry.metrics;
 
+import com.github.ambry.metrics.api.Counter;
+import com.github.ambry.metrics.api.Gauge;
+import com.github.ambry.metrics.api.MetricsRegistry;
+
 public class NoOpMetricsRegistry implements MetricsRegistry {
   @Override
   public Counter newCounter(String group, String name) {

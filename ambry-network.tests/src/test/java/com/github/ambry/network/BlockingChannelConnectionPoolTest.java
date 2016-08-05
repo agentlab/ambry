@@ -14,10 +14,16 @@
 package com.github.ambry.network;
 
 import com.codahale.metrics.MetricRegistry;
-import com.github.ambry.config.ConnectionPoolConfig;
-import com.github.ambry.config.NetworkConfig;
-import com.github.ambry.config.SSLConfig;
-import com.github.ambry.config.VerifiableProperties;
+import com.github.ambry.config.api.ConnectionPoolConfig;
+import com.github.ambry.config.api.NetworkConfig;
+import com.github.ambry.config.api.SSLConfig;
+import com.github.ambry.config.api.VerifiableProperties;
+import com.github.ambry.network.api.ConnectedChannel;
+import com.github.ambry.network.api.ConnectionPool;
+import com.github.ambry.network.api.ConnectionPoolTimeoutException;
+import com.github.ambry.network.api.Port;
+import com.github.ambry.network.api.PortType;
+
 import java.io.File;
 import java.util.ArrayList;
 import java.util.HashMap;

@@ -15,7 +15,7 @@ package com.github.ambry.network;
 
 import com.codahale.metrics.Counter;
 import com.codahale.metrics.MetricRegistry;
-import com.github.ambry.config.SSLConfig;
+import com.github.ambry.config.api.SSLConfig;
 import com.github.ambry.utils.Utils;
 import java.io.IOException;
 import java.net.InetSocketAddress;

@@ -14,11 +14,17 @@
 package com.github.ambry.rest;
 
 import com.codahale.metrics.MetricRegistry;
-import com.github.ambry.config.NettyConfig;
-import com.github.ambry.config.VerifiableProperties;
-import com.github.ambry.messageformat.BlobProperties;
-import com.github.ambry.notification.BlobReplicaSourceType;
-import com.github.ambry.notification.NotificationSystem;
+import com.github.ambry.config.api.NettyConfig;
+import com.github.ambry.config.api.VerifiableProperties;
+import com.github.ambry.messageformat.api.BlobProperties;
+import com.github.ambry.notification.api.BlobReplicaSourceType;
+import com.github.ambry.notification.api.NotificationSystem;
+import com.github.ambry.rest.api.BlobStorageService;
+import com.github.ambry.rest.api.RestMethod;
+import com.github.ambry.rest.api.RestRequestHandler;
+import com.github.ambry.rest.api.RestRequestMetricsTracker;
+import com.github.ambry.rest.api.RestServiceErrorCode;
+import com.github.ambry.rest.api.RestUtils;
 import com.github.ambry.router.InMemoryRouter;
 import io.netty.buffer.Unpooled;
 import io.netty.channel.embedded.EmbeddedChannel;

@@ -14,8 +14,9 @@
 package com.github.ambry.commons;
 
 import com.github.ambry.clustermap.Partition;
-import com.github.ambry.clustermap.PartitionId;
-import com.github.ambry.clustermap.PartitionState;
+import com.github.ambry.clustermap.api.PartitionId;
+import com.github.ambry.clustermap.api.PartitionState;
+
 import org.junit.Test;
 
 import static org.junit.Assert.assertEquals;

@@ -14,8 +14,14 @@
 package com.github.ambry.clustermap;
 
 import com.codahale.metrics.MetricRegistry;
-import com.github.ambry.network.Port;
-import com.github.ambry.network.PortType;
+import com.github.ambry.clustermap.api.ClusterMap;
+import com.github.ambry.clustermap.api.DataNodeId;
+import com.github.ambry.clustermap.api.PartitionId;
+import com.github.ambry.clustermap.api.ReplicaEventType;
+import com.github.ambry.clustermap.api.ReplicaId;
+import com.github.ambry.network.api.Port;
+import com.github.ambry.network.api.PortType;
+
 import java.io.DataInputStream;
 import java.io.File;
 import java.io.IOException;

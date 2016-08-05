@@ -15,9 +15,13 @@ package com.github.ambry.rest;
 
 import com.codahale.metrics.MetricRegistry;
 import com.github.ambry.commons.ByteBufferAsyncWritableChannel;
-import com.github.ambry.router.AsyncWritableChannel;
-import com.github.ambry.router.Callback;
+import com.github.ambry.rest.api.RestRequestMetricsTracker;
+import com.github.ambry.rest.api.RestServiceErrorCode;
+import com.github.ambry.rest.api.RestServiceException;
+import com.github.ambry.rest.api.RestUtils;
 import com.github.ambry.router.CopyingAsyncWritableChannel;
+import com.github.ambry.router.api.AsyncWritableChannel;
+import com.github.ambry.router.api.Callback;
 import com.github.ambry.utils.Utils;
 import io.netty.buffer.Unpooled;
 import io.netty.handler.codec.http.DefaultFullHttpRequest;

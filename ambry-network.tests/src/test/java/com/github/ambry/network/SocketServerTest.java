@@ -14,9 +14,15 @@
 package com.github.ambry.network;
 
 import com.codahale.metrics.MetricRegistry;
-import com.github.ambry.config.NetworkConfig;
-import com.github.ambry.config.SSLConfig;
-import com.github.ambry.config.VerifiableProperties;
+import com.github.ambry.config.api.NetworkConfig;
+import com.github.ambry.config.api.SSLConfig;
+import com.github.ambry.config.api.VerifiableProperties;
+import com.github.ambry.network.api.BoundedByteBufferSend;
+import com.github.ambry.network.api.Port;
+import com.github.ambry.network.api.PortType;
+import com.github.ambry.network.api.Request;
+import com.github.ambry.network.api.RequestResponseChannel;
+
 import java.io.File;
 import javax.net.ssl.SSLContext;
 import javax.net.ssl.SSLSocketFactory;

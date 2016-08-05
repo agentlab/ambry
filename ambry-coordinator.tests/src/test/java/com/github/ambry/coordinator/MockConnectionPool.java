@@ -13,13 +13,14 @@
  */
 package com.github.ambry.coordinator;
 
-import com.github.ambry.config.ConnectionPoolConfig;
+import com.github.ambry.config.api.ConnectionPoolConfig;
 import com.github.ambry.network.BlockingChannel;
-import com.github.ambry.network.ConnectedChannel;
-import com.github.ambry.network.ConnectionPool;
-import com.github.ambry.network.ConnectionPoolTimeoutException;
-import com.github.ambry.network.Port;
-import com.github.ambry.network.PortType;
+import com.github.ambry.network.api.ConnectedChannel;
+import com.github.ambry.network.api.ConnectionPool;
+import com.github.ambry.network.api.ConnectionPoolTimeoutException;
+import com.github.ambry.network.api.Port;
+import com.github.ambry.network.api.PortType;
+
 import java.io.IOException;
 
 

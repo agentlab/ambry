@@ -13,3 +13,4 @@ Require-Bundle: ambry-api;bundle-version="0.1.0",
  ambry-utils;bundle-version="0.1.0",
  ambry-commons;bundle-version="0.1.0",
  ambry-rest;bundle-version="0.1.0"
+Bundle-ActivationPolicy: lazy

@@ -1,7 +1,7 @@
 Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: ambry-router
-Bundle-SymbolicName: ambry-router
+Bundle-SymbolicName: ambry-router;singleton:=true
 Bundle-Version: 0.1.0.qualifier
 Export-Package: com.github.ambry.router
 Import-Package: com.codahale.metrics,
@@ -14,3 +14,4 @@ Require-Bundle: ambry-api;bundle-version="0.1.0",
  ambry-protocol;bundle-version="0.1.0",
  ambry-coordinator;bundle-version="0.1.0",
  ambry-messageformat;bundle-version="0.1.0"
+Bundle-ActivationPolicy: lazy

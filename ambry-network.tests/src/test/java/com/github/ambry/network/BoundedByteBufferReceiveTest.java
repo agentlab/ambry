@@ -13,6 +13,7 @@
  */
 package com.github.ambry.network;
 
+import com.github.ambry.network.api.BoundedByteBufferReceive;
 import com.github.ambry.utils.ByteBufferInputStream;
 import org.junit.Assert;
 import org.junit.Test;

@@ -16,6 +16,8 @@ package com.github.ambry.store;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.github.ambry.store.api.StoreKey;
+
 import java.util.ArrayList;
 import java.util.Map;
 import java.util.concurrent.ConcurrentNavigableMap;

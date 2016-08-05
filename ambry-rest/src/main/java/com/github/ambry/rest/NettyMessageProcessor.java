@@ -13,7 +13,6 @@
  */
 package com.github.ambry.rest;
 
-import com.github.ambry.config.NettyConfig;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.SimpleChannelInboundHandler;
 import io.netty.handler.codec.http.HttpContent;
@@ -28,6 +27,16 @@ import java.nio.channels.ClosedChannelException;
 import java.util.concurrent.atomic.AtomicBoolean;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import com.github.ambry.config.api.NettyConfig;
+import com.github.ambry.rest.api.BlobStorageService;
+import com.github.ambry.rest.api.ResponseStatus;
+import com.github.ambry.rest.api.RestMethod;
+import com.github.ambry.rest.api.RestRequest;
+import com.github.ambry.rest.api.RestRequestHandler;
+import com.github.ambry.rest.api.RestResponseChannel;
+import com.github.ambry.rest.api.RestServiceErrorCode;
+import com.github.ambry.rest.api.RestServiceException;
 
 
 /**

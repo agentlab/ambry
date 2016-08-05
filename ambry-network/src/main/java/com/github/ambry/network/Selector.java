@@ -13,6 +13,10 @@
  */
 package com.github.ambry.network;
 
+import com.github.ambry.network.api.NetworkReceive;
+import com.github.ambry.network.api.NetworkSend;
+import com.github.ambry.network.api.PortType;
+import com.github.ambry.network.api.Selectable;
 import com.github.ambry.utils.Time;
 import java.io.EOFException;
 import java.io.IOException;

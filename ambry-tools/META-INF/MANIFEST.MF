@@ -1,7 +1,7 @@
 Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: ambry-tools
-Bundle-SymbolicName: ambry-tools
+Bundle-SymbolicName: ambry-tools;singleton:=true
 Bundle-Version: 0.1.0.qualifier
 Export-Package: com.github.ambry.tools.admin,
  com.github.ambry.tools.perf,
@@ -31,3 +31,4 @@ Require-Bundle: ambry-api;bundle-version="0.1.0",
  ambry-store;bundle-version="0.1.0",
  ambry-coordinator;bundle-version="0.1.0",
  ambry-rest;bundle-version="0.1.0"
+Bundle-ActivationPolicy: lazy

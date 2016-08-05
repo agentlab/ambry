@@ -13,15 +13,15 @@
  */
 package com.github.ambry.admin;
 
-import com.github.ambry.clustermap.ClusterMap;
-import com.github.ambry.config.AdminConfig;
-import com.github.ambry.config.VerifiableProperties;
-import com.github.ambry.rest.BlobStorageService;
-import com.github.ambry.rest.BlobStorageServiceFactory;
-import com.github.ambry.rest.IdConverterFactory;
-import com.github.ambry.rest.RestResponseHandler;
-import com.github.ambry.rest.SecurityServiceFactory;
-import com.github.ambry.router.Router;
+import com.github.ambry.clustermap.api.ClusterMap;
+import com.github.ambry.config.api.AdminConfig;
+import com.github.ambry.config.api.VerifiableProperties;
+import com.github.ambry.rest.api.BlobStorageService;
+import com.github.ambry.rest.api.BlobStorageServiceFactory;
+import com.github.ambry.rest.api.IdConverterFactory;
+import com.github.ambry.rest.api.RestResponseHandler;
+import com.github.ambry.rest.api.SecurityServiceFactory;
+import com.github.ambry.router.api.Router;
 import com.github.ambry.utils.Utils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

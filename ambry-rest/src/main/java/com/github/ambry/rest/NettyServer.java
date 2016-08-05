@@ -13,7 +13,6 @@
  */
 package com.github.ambry.rest;
 
-import com.github.ambry.config.NettyConfig;
 import io.netty.bootstrap.ServerBootstrap;
 import io.netty.channel.ChannelInitializer;
 import io.netty.channel.ChannelOption;
@@ -26,6 +25,10 @@ import io.netty.handler.logging.LoggingHandler;
 import java.util.concurrent.TimeUnit;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import com.github.ambry.config.api.NettyConfig;
+import com.github.ambry.rest.api.NioServer;
+import com.github.ambry.rest.api.RestResponseChannel;
 
 
 /**

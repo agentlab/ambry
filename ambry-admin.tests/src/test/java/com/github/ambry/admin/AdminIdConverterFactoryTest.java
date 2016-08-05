@@ -14,14 +14,14 @@
 package com.github.ambry.admin;
 
 import com.codahale.metrics.MetricRegistry;
-import com.github.ambry.config.VerifiableProperties;
-import com.github.ambry.rest.IdConverter;
+import com.github.ambry.config.api.VerifiableProperties;
 import com.github.ambry.rest.MockRestRequest;
-import com.github.ambry.rest.RestMethod;
-import com.github.ambry.rest.RestRequest;
-import com.github.ambry.rest.RestServiceErrorCode;
-import com.github.ambry.rest.RestServiceException;
-import com.github.ambry.router.Callback;
+import com.github.ambry.rest.api.IdConverter;
+import com.github.ambry.rest.api.RestMethod;
+import com.github.ambry.rest.api.RestRequest;
+import com.github.ambry.rest.api.RestServiceErrorCode;
+import com.github.ambry.rest.api.RestServiceException;
+import com.github.ambry.router.api.Callback;
 import com.github.ambry.utils.UtilsTest;
 import java.util.Properties;
 import java.util.concurrent.ExecutionException;

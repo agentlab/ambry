@@ -15,10 +15,10 @@ package com.github.ambry.tools.admin;
 
 import com.github.ambry.clustermap.ClusterMapManager;
 import com.github.ambry.clustermap.HardwareLayout;
-import com.github.ambry.clustermap.PartitionId;
 import com.github.ambry.clustermap.PartitionLayout;
-import com.github.ambry.config.ClusterMapConfig;
-import com.github.ambry.config.VerifiableProperties;
+import com.github.ambry.clustermap.api.PartitionId;
+import com.github.ambry.config.api.ClusterMapConfig;
+import com.github.ambry.config.api.VerifiableProperties;
 import com.github.ambry.utils.Utils;
 import java.util.Properties;
 import joptsimple.ArgumentAcceptingOptionSpec;

@@ -14,16 +14,18 @@
 package com.github.ambry.coordinator;
 
 import com.github.ambry.commons.ResponseHandler;
+import com.github.ambry.clustermap.api.ReplicaId;
 import com.github.ambry.commons.BlobId;
 import com.github.ambry.commons.ServerErrorCode;
-import com.github.ambry.clustermap.ReplicaId;
+import com.github.ambry.coordinator.api.CoordinatorError;
+import com.github.ambry.coordinator.api.CoordinatorException;
 import com.github.ambry.messageformat.MessageFormatErrorCodes;
 import com.github.ambry.messageformat.MessageFormatException;
-import com.github.ambry.network.ConnectedChannel;
-import com.github.ambry.network.ConnectionPool;
-import com.github.ambry.network.ConnectionPoolTimeoutException;
-import com.github.ambry.network.Port;
-import com.github.ambry.network.PortType;
+import com.github.ambry.network.api.ConnectedChannel;
+import com.github.ambry.network.api.ConnectionPool;
+import com.github.ambry.network.api.ConnectionPoolTimeoutException;
+import com.github.ambry.network.api.Port;
+import com.github.ambry.network.api.PortType;
 import com.github.ambry.protocol.RequestOrResponse;
 import com.github.ambry.protocol.Response;
 import com.github.ambry.utils.SystemTime;

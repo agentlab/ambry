@@ -13,7 +13,7 @@
  */
 package com.github.ambry.protocol;
 
-import com.github.ambry.clustermap.ClusterMap;
+import com.github.ambry.clustermap.api.ClusterMap;
 import com.github.ambry.commons.BlobId;
 import com.github.ambry.utils.Utils;
 

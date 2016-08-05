@@ -15,14 +15,22 @@ package com.github.ambry.rest;
 
 import com.codahale.metrics.MetricRegistry;
 import com.github.ambry.commons.ByteBufferReadableStreamChannel;
-import com.github.ambry.config.VerifiableProperties;
-import com.github.ambry.router.AsyncWritableChannel;
+import com.github.ambry.config.api.VerifiableProperties;
+import com.github.ambry.rest.api.BlobStorageService;
+import com.github.ambry.rest.api.RestMethod;
+import com.github.ambry.rest.api.RestRequest;
+import com.github.ambry.rest.api.RestRequestMetricsTracker;
+import com.github.ambry.rest.api.RestResponseChannel;
+import com.github.ambry.rest.api.RestServiceErrorCode;
+import com.github.ambry.rest.api.RestServiceException;
 import com.github.ambry.router.ByteBufferRSC;
-import com.github.ambry.router.Callback;
-import com.github.ambry.router.FutureResult;
 import com.github.ambry.router.InMemoryRouter;
-import com.github.ambry.router.ReadableStreamChannel;
-import com.github.ambry.router.Router;
+import com.github.ambry.router.api.AsyncWritableChannel;
+import com.github.ambry.router.api.Callback;
+import com.github.ambry.router.api.FutureResult;
+import com.github.ambry.router.api.ReadableStreamChannel;
+import com.github.ambry.router.api.Router;
+
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.net.URISyntaxException;

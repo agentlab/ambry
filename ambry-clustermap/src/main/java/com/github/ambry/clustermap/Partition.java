@@ -13,6 +13,9 @@
  */
 package com.github.ambry.clustermap;
 
+import com.github.ambry.clustermap.api.PartitionId;
+import com.github.ambry.clustermap.api.PartitionState;
+import com.github.ambry.clustermap.api.ReplicaId;
 import com.github.ambry.utils.Utils;
 import org.json.JSONArray;
 import org.json.JSONException;

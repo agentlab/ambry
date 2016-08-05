@@ -13,10 +13,11 @@
  */
 package com.github.ambry.messageformat;
 
-import com.github.ambry.network.Send;
-import com.github.ambry.store.MessageReadSet;
-import com.github.ambry.store.StoreKey;
-import com.github.ambry.store.StoreKeyFactory;
+import com.github.ambry.messageformat.api.MessageFormatFlags;
+import com.github.ambry.network.api.Send;
+import com.github.ambry.store.api.MessageReadSet;
+import com.github.ambry.store.api.StoreKey;
+import com.github.ambry.store.api.StoreKeyFactory;
 import com.github.ambry.utils.ByteBufferOutputStream;
 import com.github.ambry.utils.SystemTime;
 import java.io.DataInputStream;

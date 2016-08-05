@@ -13,10 +13,11 @@
  */
 package com.github.ambry.protocol;
 
-import com.github.ambry.clustermap.ClusterMap;
-import com.github.ambry.clustermap.PartitionId;
+import com.github.ambry.clustermap.api.ClusterMap;
+import com.github.ambry.clustermap.api.PartitionId;
 import com.github.ambry.commons.BlobId;
-import com.github.ambry.store.StoreKey;
+import com.github.ambry.store.api.StoreKey;
+
 import java.io.DataInputStream;
 import java.io.IOException;
 import java.nio.ByteBuffer;

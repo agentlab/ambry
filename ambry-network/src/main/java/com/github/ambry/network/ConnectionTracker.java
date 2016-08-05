@@ -16,6 +16,9 @@ package com.github.ambry.network;
 import java.util.HashMap;
 import java.util.LinkedList;
 
+import com.github.ambry.network.api.Port;
+import com.github.ambry.network.api.PortType;
+
 
 /**
  * The ConnectionTracker keeps track of current connections to datanodes, and provides methods to check out and

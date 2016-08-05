@@ -19,6 +19,9 @@ import org.json.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.github.ambry.clustermap.api.PartitionId;
+import com.github.ambry.clustermap.api.PartitionState;
+
 import java.io.DataInputStream;
 import java.io.IOException;
 import java.nio.ByteBuffer;

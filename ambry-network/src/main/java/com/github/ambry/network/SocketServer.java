@@ -14,8 +14,14 @@
 package com.github.ambry.network;
 
 import com.codahale.metrics.MetricRegistry;
-import com.github.ambry.config.NetworkConfig;
-import com.github.ambry.config.SSLConfig;
+import com.github.ambry.config.api.NetworkConfig;
+import com.github.ambry.config.api.SSLConfig;
+import com.github.ambry.network.api.NetworkReceive;
+import com.github.ambry.network.api.NetworkSend;
+import com.github.ambry.network.api.NetworkServer;
+import com.github.ambry.network.api.Port;
+import com.github.ambry.network.api.PortType;
+import com.github.ambry.network.api.RequestResponseChannel;
 import com.github.ambry.utils.ByteBufferInputStream;
 import com.github.ambry.utils.SystemTime;
 import com.github.ambry.utils.Time;

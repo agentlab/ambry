@@ -13,12 +13,15 @@
  */
 package com.github.ambry.router;
 
-import com.github.ambry.clustermap.ClusterMap;
-import com.github.ambry.config.RouterConfig;
-import com.github.ambry.config.VerifiableProperties;
+import com.github.ambry.clustermap.api.ClusterMap;
+import com.github.ambry.config.api.RouterConfig;
+import com.github.ambry.config.api.VerifiableProperties;
 import com.github.ambry.coordinator.AmbryCoordinator;
-import com.github.ambry.coordinator.Coordinator;
-import com.github.ambry.notification.NotificationSystem;
+import com.github.ambry.coordinator.api.Coordinator;
+import com.github.ambry.notification.api.NotificationSystem;
+import com.github.ambry.router.api.Router;
+import com.github.ambry.router.api.RouterFactory;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

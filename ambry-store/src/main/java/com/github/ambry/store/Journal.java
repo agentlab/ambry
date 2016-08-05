@@ -15,6 +15,8 @@ package com.github.ambry.store;
 
 import java.util.List;
 
+import com.github.ambry.store.api.StoreKey;
+
 
 /**
  * Represents the journal used by the index. The journal supports methods to add <offset, StoreKey> pair

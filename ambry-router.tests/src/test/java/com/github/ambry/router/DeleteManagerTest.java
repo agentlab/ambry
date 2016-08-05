@@ -13,15 +13,18 @@
  */
 package com.github.ambry.router;
 
-import com.github.ambry.clustermap.DataNodeId;
 import com.github.ambry.clustermap.MockClusterMap;
-import com.github.ambry.clustermap.PartitionId;
-import com.github.ambry.clustermap.ReplicaId;
+import com.github.ambry.clustermap.api.DataNodeId;
+import com.github.ambry.clustermap.api.PartitionId;
+import com.github.ambry.clustermap.api.ReplicaId;
 import com.github.ambry.commons.BlobId;
 import com.github.ambry.commons.LoggingNotificationSystem;
 import com.github.ambry.commons.ServerErrorCode;
-import com.github.ambry.config.RouterConfig;
-import com.github.ambry.config.VerifiableProperties;
+import com.github.ambry.config.api.RouterConfig;
+import com.github.ambry.config.api.VerifiableProperties;
+import com.github.ambry.router.api.Callback;
+import com.github.ambry.router.api.RouterErrorCode;
+import com.github.ambry.router.api.RouterException;
 import com.github.ambry.utils.MockTime;
 import com.github.ambry.utils.TestUtils;
 import com.github.ambry.utils.Time;

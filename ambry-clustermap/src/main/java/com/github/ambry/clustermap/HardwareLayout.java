@@ -13,7 +13,9 @@
  */
 package com.github.ambry.clustermap;
 
-import com.github.ambry.config.ClusterMapConfig;
+import com.github.ambry.clustermap.api.HardwareState;
+import com.github.ambry.config.api.ClusterMapConfig;
+
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;

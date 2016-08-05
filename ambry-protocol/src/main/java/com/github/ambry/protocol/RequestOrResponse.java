@@ -13,9 +13,10 @@
  */
 package com.github.ambry.protocol;
 
-import com.github.ambry.network.Send;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import com.github.ambry.network.api.Send;
 
 import java.nio.ByteBuffer;
 

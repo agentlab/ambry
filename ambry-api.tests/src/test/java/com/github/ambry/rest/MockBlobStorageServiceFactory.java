@@ -13,9 +13,12 @@
  */
 package com.github.ambry.rest;
 
-import com.github.ambry.clustermap.ClusterMap;
-import com.github.ambry.config.VerifiableProperties;
-import com.github.ambry.router.Router;
+import com.github.ambry.clustermap.api.ClusterMap;
+import com.github.ambry.config.api.VerifiableProperties;
+import com.github.ambry.rest.api.BlobStorageService;
+import com.github.ambry.rest.api.BlobStorageServiceFactory;
+import com.github.ambry.rest.api.RestResponseHandler;
+import com.github.ambry.router.api.Router;
 
 
 /**

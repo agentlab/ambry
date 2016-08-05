@@ -14,10 +14,10 @@
 package com.github.ambry.coordinator;
 
 import com.codahale.metrics.MetricRegistry;
-import com.github.ambry.config.ConnectionPoolConfig;
-import com.github.ambry.config.SSLConfig;
-import com.github.ambry.network.ConnectionPool;
-import com.github.ambry.network.ConnectionPoolFactory;
+import com.github.ambry.config.api.ConnectionPoolConfig;
+import com.github.ambry.config.api.SSLConfig;
+import com.github.ambry.network.api.ConnectionPool;
+import com.github.ambry.network.api.ConnectionPoolFactory;
 
 
 public class MockConnectionPoolFactory implements ConnectionPoolFactory {

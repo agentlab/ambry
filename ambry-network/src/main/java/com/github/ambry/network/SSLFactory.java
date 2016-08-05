@@ -13,7 +13,7 @@
  */
 package com.github.ambry.network;
 
-import com.github.ambry.config.SSLConfig;
+import com.github.ambry.config.api.SSLConfig;
 import com.github.ambry.utils.Utils;
 import java.io.FileInputStream;
 import java.io.IOException;

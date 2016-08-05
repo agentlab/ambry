@@ -13,13 +13,13 @@
  */
 package com.github.ambry.router;
 
-import com.github.ambry.clustermap.ClusterMap;
+import com.github.ambry.clustermap.api.ClusterMap;
 import com.github.ambry.commons.ServerErrorCode;
-import com.github.ambry.messageformat.BlobProperties;
 import com.github.ambry.messageformat.MessageFormatRecord;
-import com.github.ambry.network.BoundedByteBufferReceive;
+import com.github.ambry.messageformat.api.BlobProperties;
 import com.github.ambry.network.ByteBufferSend;
-import com.github.ambry.network.Send;
+import com.github.ambry.network.api.BoundedByteBufferReceive;
+import com.github.ambry.network.api.Send;
 import com.github.ambry.protocol.DeleteRequest;
 import com.github.ambry.protocol.DeleteResponse;
 import com.github.ambry.protocol.GetRequest;
@@ -30,8 +30,8 @@ import com.github.ambry.protocol.PutRequest;
 import com.github.ambry.protocol.PutResponse;
 import com.github.ambry.protocol.RequestOrResponse;
 import com.github.ambry.protocol.RequestOrResponseType;
-import com.github.ambry.store.MessageInfo;
-import com.github.ambry.store.StoreKey;
+import com.github.ambry.store.api.MessageInfo;
+import com.github.ambry.store.api.StoreKey;
 import com.github.ambry.utils.ByteBufferChannel;
 import com.github.ambry.utils.ByteBufferInputStream;
 import com.github.ambry.utils.Crc32;

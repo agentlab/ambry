@@ -17,6 +17,12 @@ import java.util.concurrent.locks.ReentrantLock;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.github.ambry.rest.api.BlobStorageService;
+import com.github.ambry.rest.api.RestRequestHandler;
+import com.github.ambry.rest.api.RestRequestHandlerFactory;
+import com.github.ambry.rest.api.RestResponseHandler;
+import com.github.ambry.rest.api.RestResponseHandlerFactory;
+
 
 /**
  * {@link AsyncRequestResponseHandler} specific implementation of {@link RestRequestHandlerFactory} and

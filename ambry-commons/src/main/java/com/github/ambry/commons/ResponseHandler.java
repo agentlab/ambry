@@ -13,10 +13,11 @@
  */
 package com.github.ambry.commons;
 
-import com.github.ambry.clustermap.ClusterMap;
-import com.github.ambry.clustermap.ReplicaEventType;
-import com.github.ambry.clustermap.ReplicaId;
-import com.github.ambry.network.ConnectionPoolTimeoutException;
+import com.github.ambry.clustermap.api.ClusterMap;
+import com.github.ambry.clustermap.api.ReplicaEventType;
+import com.github.ambry.clustermap.api.ReplicaId;
+import com.github.ambry.network.api.ConnectionPoolTimeoutException;
+
 import java.io.IOException;
 import java.net.SocketException;
 

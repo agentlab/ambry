@@ -13,7 +13,12 @@
  */
 package com.github.ambry.network;
 
-import com.github.ambry.config.NetworkConfig;
+import com.github.ambry.config.api.NetworkConfig;
+import com.github.ambry.network.api.ClientNetworkRequestMetrics;
+import com.github.ambry.network.api.NetworkReceive;
+import com.github.ambry.network.api.NetworkSend;
+import com.github.ambry.network.api.Port;
+import com.github.ambry.network.api.Send;
 import com.github.ambry.utils.Time;
 import java.io.Closeable;
 import java.io.IOException;

@@ -13,7 +13,8 @@
  */
 package com.github.ambry.messageformat;
 
-import com.github.ambry.store.MessageInfo;
+import com.github.ambry.store.api.MessageInfo;
+import com.github.ambry.store.api.Write;
 import com.github.ambry.utils.ByteBufferInputStream;
 import org.junit.Assert;
 import org.junit.Test;
@@ -23,8 +24,6 @@ import java.nio.ByteBuffer;
 import java.nio.channels.ReadableByteChannel;
 import java.util.ArrayList;
 import java.util.List;
-
-import com.github.ambry.store.Write;
 
 
 public class MessageFormatWriteSetTest {

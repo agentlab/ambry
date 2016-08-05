@@ -13,9 +13,9 @@
  */
 package com.github.ambry.commons;
 
-import com.github.ambry.clustermap.ClusterMap;
-import com.github.ambry.store.StoreKey;
-import com.github.ambry.store.StoreKeyFactory;
+import com.github.ambry.clustermap.api.ClusterMap;
+import com.github.ambry.store.api.StoreKey;
+import com.github.ambry.store.api.StoreKeyFactory;
 
 import java.io.IOException;
 import java.io.DataInputStream;

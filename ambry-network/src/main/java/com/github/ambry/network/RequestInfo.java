@@ -13,6 +13,9 @@
  */
 package com.github.ambry.network;
 
+import com.github.ambry.network.api.Port;
+import com.github.ambry.network.api.Send;
+
 /**
  * A class that consists of a request to be sent over the network in the form of {@link Send}, and a destination for it
  * in the form of a host and a {@link Port}.

@@ -14,15 +14,17 @@
 package com.github.ambry.coordinator;
 
 import com.github.ambry.commons.ServerErrorCode;
-import com.github.ambry.clustermap.ClusterMap;
+import com.github.ambry.config.api.ClusterMapConfig;
+import com.github.ambry.config.api.VerifiableProperties;
+import com.github.ambry.coordinator.api.CoordinatorError;
+import com.github.ambry.coordinator.api.CoordinatorException;
+import com.github.ambry.messageformat.api.BlobOutput;
+import com.github.ambry.messageformat.api.BlobProperties;
+import com.github.ambry.store.api.StoreException;
 import com.github.ambry.clustermap.ClusterMapManager;
 import com.github.ambry.clustermap.HardwareLayout;
 import com.github.ambry.clustermap.PartitionLayout;
-import com.github.ambry.config.ClusterMapConfig;
-import com.github.ambry.config.VerifiableProperties;
-import com.github.ambry.messageformat.BlobOutput;
-import com.github.ambry.messageformat.BlobProperties;
-import com.github.ambry.store.StoreException;
+import com.github.ambry.clustermap.api.ClusterMap;
 import com.github.ambry.utils.ByteBufferInputStream;
 import com.github.ambry.utils.Utils;
 import java.util.ArrayList;

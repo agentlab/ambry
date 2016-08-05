@@ -14,7 +14,13 @@
 package com.github.ambry.clustermap;
 
 import com.codahale.metrics.MetricRegistry;
-import com.github.ambry.config.ClusterMapConfig;
+import com.github.ambry.clustermap.api.ClusterMap;
+import com.github.ambry.clustermap.api.DataNodeId;
+import com.github.ambry.clustermap.api.PartitionId;
+import com.github.ambry.clustermap.api.ReplicaEventType;
+import com.github.ambry.clustermap.api.ReplicaId;
+import com.github.ambry.config.api.ClusterMapConfig;
+
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;

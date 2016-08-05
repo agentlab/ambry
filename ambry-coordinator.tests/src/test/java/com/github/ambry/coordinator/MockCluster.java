@@ -13,11 +13,11 @@
  */
 package com.github.ambry.coordinator;
 
-import com.github.ambry.clustermap.ClusterMap;
-import com.github.ambry.clustermap.DataNodeId;
-
 import java.util.HashMap;
 import java.util.Map;
+
+import com.github.ambry.clustermap.api.ClusterMap;
+import com.github.ambry.clustermap.api.DataNodeId;
 
 
 /**

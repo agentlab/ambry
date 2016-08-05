@@ -1,7 +1,7 @@
 Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: ambry-replication
-Bundle-SymbolicName: ambry-replication
+Bundle-SymbolicName: ambry-replication;singleton:=true
 Bundle-Version: 0.1.0.qualifier
 Export-Package: com.github.ambry.replication
 Import-Package: com.codahale.metrics,
@@ -13,3 +13,4 @@ Require-Bundle: ambry-api;bundle-version="0.1.0",
  ambry-messageformat;bundle-version="0.1.0",
  ambry-protocol;bundle-version="0.1.0",
  ambry-store;bundle-version="0.1.0"
+Bundle-ActivationPolicy: lazy

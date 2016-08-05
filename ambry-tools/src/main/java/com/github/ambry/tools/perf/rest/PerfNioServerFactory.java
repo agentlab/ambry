@@ -17,12 +17,13 @@ import com.codahale.metrics.Counter;
 import com.codahale.metrics.Histogram;
 import com.codahale.metrics.Meter;
 import com.codahale.metrics.MetricRegistry;
-import com.github.ambry.config.VerifiableProperties;
-import com.github.ambry.rest.NioServer;
-import com.github.ambry.rest.NioServerFactory;
+import com.github.ambry.config.api.VerifiableProperties;
 import com.github.ambry.rest.PublicAccessLogger;
-import com.github.ambry.rest.RestRequestHandler;
 import com.github.ambry.rest.RestServerState;
+import com.github.ambry.rest.api.NioServer;
+import com.github.ambry.rest.api.NioServerFactory;
+import com.github.ambry.rest.api.RestRequestHandler;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

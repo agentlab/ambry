@@ -13,8 +13,13 @@
  */
 package com.github.ambry.rest;
 
-import com.github.ambry.router.Callback;
-import com.github.ambry.router.FutureResult;
+import com.github.ambry.rest.api.ResponseStatus;
+import com.github.ambry.rest.api.RestMethod;
+import com.github.ambry.rest.api.RestResponseChannel;
+import com.github.ambry.rest.api.RestServiceErrorCode;
+import com.github.ambry.rest.api.RestServiceException;
+import com.github.ambry.router.api.Callback;
+import com.github.ambry.router.api.FutureResult;
 import com.github.ambry.utils.Utils;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;

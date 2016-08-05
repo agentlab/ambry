@@ -14,12 +14,12 @@
 package com.github.ambry.router;
 
 import com.codahale.metrics.MetricRegistry;
-import com.github.ambry.network.BoundedByteBufferReceive;
 import com.github.ambry.network.NetworkMetrics;
-import com.github.ambry.network.NetworkReceive;
-import com.github.ambry.network.NetworkSend;
-import com.github.ambry.network.PortType;
 import com.github.ambry.network.Selector;
+import com.github.ambry.network.api.BoundedByteBufferReceive;
+import com.github.ambry.network.api.NetworkReceive;
+import com.github.ambry.network.api.NetworkSend;
+import com.github.ambry.network.api.PortType;
 import com.github.ambry.utils.Time;
 import java.io.IOException;
 import java.net.InetSocketAddress;

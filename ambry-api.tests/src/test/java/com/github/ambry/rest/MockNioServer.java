@@ -13,6 +13,8 @@
  */
 package com.github.ambry.rest;
 
+import com.github.ambry.rest.api.NioServer;
+
 /**
  * Implementation of {@link NioServer} that can be used in tests.
  * <p/>

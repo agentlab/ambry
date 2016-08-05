@@ -16,6 +16,8 @@ package com.github.ambry.store;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.github.ambry.store.api.StoreKey;
+
 
 /**
  * A mock journal that makes use of InMemoryJournal in the background, and provides support for pausing and

@@ -13,15 +13,17 @@
  */
 package com.github.ambry.coordinator;
 
-import com.github.ambry.clustermap.DataNodeId;
-import com.github.ambry.clustermap.DiskId;
-import com.github.ambry.clustermap.HardwareState;
 import com.github.ambry.clustermap.MockClusterMap;
-import com.github.ambry.clustermap.PartitionId;
-import com.github.ambry.clustermap.PartitionState;
-import com.github.ambry.clustermap.ReplicaId;
-import com.github.ambry.network.Port;
-import com.github.ambry.network.PortType;
+import com.github.ambry.clustermap.api.DataNodeId;
+import com.github.ambry.clustermap.api.DiskId;
+import com.github.ambry.clustermap.api.HardwareState;
+import com.github.ambry.clustermap.api.PartitionId;
+import com.github.ambry.clustermap.api.PartitionState;
+import com.github.ambry.clustermap.api.ReplicaId;
+import com.github.ambry.coordinator.api.CoordinatorException;
+import com.github.ambry.network.api.Port;
+import com.github.ambry.network.api.PortType;
+
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
