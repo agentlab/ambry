@@ -10,4 +10,13 @@ Require-Bundle: ambry-network;bundle-version="0.1.0",
  ambry-utils;bundle-version="0.1.0",
  ambry-utils.tests;bundle-version="0.1.0"
 Import-Package: com.codahale.metrics,
+ org.bouncycastle.asn1.x500;version="1.52.0",
+ org.bouncycastle.asn1.x509;version="1.52.0",
+ org.bouncycastle.cert;version="1.52.0",
+ org.bouncycastle.cert.jcajce;version="1.52.0",
+ org.bouncycastle.crypto.params;version="1.52.0",
+ org.bouncycastle.crypto.util;version="1.52.0",
+ org.bouncycastle.jce.provider;version="1.52.0",
+ org.bouncycastle.operator;version="1.52.0",
+ org.bouncycastle.operator.bc;version="1.52.0",
  org.junit;version="4.12.0"
