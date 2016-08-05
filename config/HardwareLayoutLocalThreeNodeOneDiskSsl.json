@@ -9,7 +9,7 @@
                         {
                             "capacityInBytes": 21474836480,
                             "hardwareState": "AVAILABLE",
-                            "mountPath": "/tmp/1"
+                            "mountPath": "C:/Users/Ivanov_AM/AppData/Local/Temp/1"
                         }
                     ],
                     "hardwareState": "AVAILABLE",
@@ -22,7 +22,7 @@
                         {
                             "capacityInBytes": 21474836480,
                             "hardwareState": "AVAILABLE",
-                            "mountPath": "/tmp/2"
+                            "mountPath": "C:/Users/Ivanov_AM/AppData/Local/Temp/2"
                         }
                     ],
                     "hardwareState": "AVAILABLE",
@@ -36,7 +36,7 @@
                         {
                             "capacityInBytes": 21474836480,
                             "hardwareState": "AVAILABLE",
-                            "mountPath": "/tmp/3"
+                            "mountPath": "C:/Users/Ivanov_AM/AppData/Local/Temp/3"
                         }
                     ],
                     "hardwareState": "AVAILABLE",
