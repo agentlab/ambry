@@ -14,12 +14,19 @@ public class Activator implements BundleActivator {
 	@Override
 	public void start(BundleContext context) throws Exception {
 		Activator.context = context;
-		String[] args = {
-				"--serverPropsFilePath", "../config/server.properties",
-				"--hardwareLayoutFilePath", "../config/HardwareLayout.json",
-				"--partitionLayoutFilePath", "../config/PartitionLayout.json"
+		String confDir = System.getProperty("configDir");
+		final String[] args = {
+				"--serverPropsFilePath", confDir + "/server.properties",
+				"--hardwareLayoutFilePath", confDir + "/HardwareLayout.json",
+				"--partitionLayoutFilePath", confDir + "/PartitionLayout.json"
 		};
-		AmbryMain.main(args);
+		
+		new Thread(new Runnable() {
+			@Override
+			public void run() {
+				AmbryMain.main(args);
+			}
+		}).start();
 	}
 
 	@Override

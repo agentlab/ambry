@@ -14,12 +14,19 @@ public class AmbryFrontendActivator implements BundleActivator {
 	@Override
 	public void start(BundleContext context) throws Exception {
 		AmbryFrontendActivator.context = context;
-		String[] args = {
-				"--serverPropsFilePath", "../config/frontend.properties",
-				"--hardwareLayoutFilePath", "../config/HardwareLayout.json",
-				"--partitionLayoutFilePath", "../config/PartitionLayout.json"
+		String confDir = System.getProperty("configDir");
+		final String[] args = {
+				"--serverPropsFilePath", confDir + "/frontend.properties",
+				"--hardwareLayoutFilePath", confDir + "/HardwareLayout.json",
+				"--partitionLayoutFilePath", confDir + "/PartitionLayout.json"
 		};
-		AmbryFrontendMain.main(args);
+		
+		new Thread(new Runnable() {
+			@Override
+			public void run() {
+				AmbryFrontendMain.main(args);
+			}
+		}).start();
 	}
 
 	@Override

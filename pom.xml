@@ -5,8 +5,8 @@
   
   <groupId>com.github.ambry</groupId>
   <artifactId>ambry-parent</artifactId>
+  <version>0.1.0-SNAPSHOT</version>
   <packaging>pom</packaging>
-  <version>0.1.0</version>
   
   <parent>
 		<groupId>org.eclipseorbit</groupId>
@@ -27,6 +27,8 @@
   </scm>
   
   <modules>
+    <module>net.sf.jopt-simple</module>
+    <module>com.github.ambry.target</module>
     <module>ambry-api</module>
     <module>ambry-server</module>
     <module>ambry-network</module>
@@ -62,4 +64,53 @@
     <module>ambry-router.tests</module>
     <module>ambry-frontend.tests</module>
   </modules>
+  <build>
+  <plugins>
+			<plugin>
+        <groupId>org.eclipse.tycho</groupId>
+        <artifactId>target-platform-configuration</artifactId>
+        <configuration>
+        <resolver>p2</resolver>
+					<target>
+						<artifact>
+							<groupId>com.github.ambry</groupId>
+							<artifactId>com.github.ambry.target</artifactId>
+							<version>0.1.0</version>
+						</artifact>
+					</target>
+          <environments>
+            <environment>
+              <os>linux</os>
+              <ws>gtk</ws>
+              <arch>x86</arch>
+            </environment>
+            <environment>
+              <os>linux</os>
+              <ws>gtk</ws>
+              <arch>x86_64</arch>
+            </environment>
+            <environment>
+              <os>win32</os>
+              <ws>win32</ws>
+              <arch>x86</arch>
+            </environment>
+            <environment>
+              <os>win32</os>
+              <ws>win32</ws>
+              <arch>x86_64</arch>
+            </environment>
+            <environment>
+              <os>*</os>
+              <ws>*</ws>
+              <arch>*</arch>
+            </environment>
+          </environments>
+        </configuration>
+      </plugin>
+			<plugin>
+				<groupId>org.eclipse.tycho</groupId>
+				<artifactId>tycho-surefire-plugin</artifactId>
+			</plugin>
+			</plugins>
+			</build>
 </project>
