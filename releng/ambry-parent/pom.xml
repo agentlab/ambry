@@ -66,6 +66,7 @@
     <module>../../tests/ambry-router.tests</module>
     <module>../../tests/ambry-frontend.tests</module>
     
+    <module>../../releng/com.github.ambry.frontend.product</module>
     <module>../../releng/com.github.ambry.server.product</module>
   </modules>
   <build>
