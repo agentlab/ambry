@@ -28,7 +28,9 @@
   
   <modules>
     <module>../../releng/com.github.ambry.target</module>
+    
     <module>../../bundles/net.sf.jopt-simple</module>
+    
     <module>../../bundles/ambry-api</module>
     <module>../../bundles/ambry-server</module>
     <module>../../bundles/ambry-network</module>
@@ -63,6 +65,8 @@
     <module>../../tests/ambry-admin.tests</module>
     <module>../../tests/ambry-router.tests</module>
     <module>../../tests/ambry-frontend.tests</module>
+    
+    <module>../../releng/com.github.ambry.server.product</module>
   </modules>
   <build>
   <plugins>
@@ -79,32 +83,22 @@
 						</artifact>
 					</target>
           <environments>
-            <environment>
-              <os>linux</os>
-              <ws>gtk</ws>
-              <arch>x86</arch>
-            </environment>
-            <environment>
-              <os>linux</os>
-              <ws>gtk</ws>
-              <arch>x86_64</arch>
-            </environment>
-            <environment>
-              <os>win32</os>
-              <ws>win32</ws>
-              <arch>x86</arch>
-            </environment>
-            <environment>
-              <os>win32</os>
-              <ws>win32</ws>
-              <arch>x86_64</arch>
-            </environment>
-            <environment>
-              <os>*</os>
-              <ws>*</ws>
-              <arch>*</arch>
-            </environment>
-          </environments>
+						<environment>
+							<os>linux</os>
+							<ws>gtk</ws>
+							<arch>x86_64</arch>
+						</environment>
+						<environment>
+							<os>win32</os>
+							<ws>win32</ws>
+							<arch>x86_64</arch>
+						</environment>
+						<environment>
+							<os>macosx</os>
+							<ws>cocoa</ws>
+							<arch>x86_64</arch>
+						</environment>
+					</environments>
         </configuration>
       </plugin>
 			<plugin>
