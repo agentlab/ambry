@@ -9,10 +9,16 @@
    <launcherArgs>
       <programArgs>-consoleLog -console
       </programArgs>
-      <vmArgs>-Declipse.ignoreApp=true -Dosgi.noShutdown=true -Dlog4j.configuration=file:../config/log4j.properties -DconfigDir=git/ambry/config
+      <vmArgs>-Declipse.ignoreApp=true
       </vmArgs>
-      <vmArgsMac>-XstartOnFirstThread -Dorg.eclipse.swt.internal.carbon.smallFonts
+      <vmArgsLin>-Dosgi.noShutdown=true -DconfigDir=../../config
+      </vmArgsLin>
+      <vmArgsMac>-Dosgi.noShutdown=true -DconfigDir=../../config -XstartOnFirstThread -Dorg.eclipse.swt.internal.carbon.smallFonts
       </vmArgsMac>
+      <vmArgsSol>-Dosgi.noShutdown=true -DconfigDir=../../config
+      </vmArgsSol>
+      <vmArgsWin>-Dosgi.noShutdown=true -DconfigDir=../../config-win
+      </vmArgsWin>
    </launcherArgs>
 
    <launcher>
@@ -43,8 +49,6 @@
       <plugin id="ch.qos.logback.core"/>
       <plugin id="ch.qos.logback.slf4j" fragment="true"/>
       <plugin id="com.codahale.metrics.core"/>
-      <plugin id="com.ibm.icu"/>
-      <plugin id="javax.annotation"/>
       <plugin id="javax.inject"/>
       <plugin id="javax.xml"/>
       <plugin id="net.sf.jopt-simple"/>
@@ -53,22 +57,11 @@
       <plugin id="org.apache.felix.gogo.command"/>
       <plugin id="org.apache.felix.gogo.runtime"/>
       <plugin id="org.apache.felix.gogo.shell"/>
-      <plugin id="org.apache.log4j"/>
       <plugin id="org.eclipse.core.commands"/>
       <plugin id="org.eclipse.core.contenttype"/>
-      <plugin id="org.eclipse.core.databinding"/>
-      <plugin id="org.eclipse.core.databinding.observable"/>
-      <plugin id="org.eclipse.core.databinding.property"/>
       <plugin id="org.eclipse.core.expressions"/>
       <plugin id="org.eclipse.core.jobs"/>
       <plugin id="org.eclipse.core.runtime"/>
-      <plugin id="org.eclipse.core.runtime.compatibility.registry" fragment="true"/>
-      <plugin id="org.eclipse.e4.core.commands"/>
-      <plugin id="org.eclipse.e4.core.contexts"/>
-      <plugin id="org.eclipse.e4.core.di"/>
-      <plugin id="org.eclipse.e4.core.di.annotations"/>
-      <plugin id="org.eclipse.e4.core.di.extensions"/>
-      <plugin id="org.eclipse.e4.core.services"/>
       <plugin id="org.eclipse.equinox.app"/>
       <plugin id="org.eclipse.equinox.common"/>
       <plugin id="org.eclipse.equinox.console"/>
@@ -84,7 +77,10 @@
       <plugin id="org.eclipse.osgi.services"/>
       <plugin id="org.json"/>
       <plugin id="org.slf4j.api"/>
-      <plugin id="org.slf4j.impl.log4j12" fragment="true"/>
+      <plugin id="org.slf4j.ext"/>
+      <plugin id="org.slf4j.jcl"/>
+      <plugin id="org.slf4j.jul"/>
+      <plugin id="org.slf4j.log4j"/>
    </plugins>
 
    <configurations>

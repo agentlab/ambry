@@ -1,0 +1,18 @@
+{
+    "clusterName": "OneDiskOneReplica",
+    "version": 88,
+    "partitions": [
+        {
+            "id": 0,
+            "partitionState": "READ_WRITE",
+            "replicaCapacityInBytes": 10737418240,
+            "replicas": [
+                {
+                    "hostname": "localhost",
+                    "mountPath": "C:/Users/Ivanov_AM/AppData/Local/Temp",
+                    "port": 6667
+                }
+            ]
+        }
+    ]
+}
