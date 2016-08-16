@@ -2,9 +2,9 @@ Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: Jopt-simple
 Bundle-SymbolicName: net.sf.jopt-simple
-Bundle-Version: 0.1.0.qualifier
-Bundle-ClassPath: libs/jopt-simple-4.3.jar,
- .
+Bundle-Version: 4.3.0.qualifier
+Bundle-ClassPath: .,
+ target/dependency/jopt-simple-4.3.jar
 Export-Package: joptsimple,
  joptsimple.internal,
  joptsimple.util
