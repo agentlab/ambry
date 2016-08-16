@@ -5,20 +5,11 @@
 
 	<artifactId>com.github.ambry.target</artifactId>
 	<packaging>eclipse-target-definition</packaging>
-	
+
 	<parent>
 		<groupId>com.github.ambry</groupId>
 		<artifactId>com.github.ambry.releng</artifactId>
 		<version>0.1.0-SNAPSHOT</version>
 		<relativePath>../com.github.ambry.releng/pom.xml</relativePath>
 	</parent>
-	
-	<build>
-		<plugins>
-			<plugin>
-				<groupId>org.eclipse.tycho</groupId>
-				<artifactId>target-platform-configuration</artifactId>
-			</plugin>
-		</plugins>
-	</build>
 </project>

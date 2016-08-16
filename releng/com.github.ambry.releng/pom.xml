@@ -1,81 +1,82 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<project xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd" xmlns="http://maven.apache.org/POM/4.0.0"
-    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
-  <modelVersion>4.0.0</modelVersion>
-  
-  <groupId>com.github.ambry</groupId>
-  <artifactId>com.github.ambry.releng</artifactId>
-  <version>0.1.0-SNAPSHOT</version>
-  <packaging>pom</packaging>
-  
-  <parent>
+<project
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd"
+	xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+	<modelVersion>4.0.0</modelVersion>
+
+	<groupId>com.github.ambry</groupId>
+	<artifactId>com.github.ambry.releng</artifactId>
+	<version>0.1.0-SNAPSHOT</version>
+	<packaging>pom</packaging>
+
+	<parent>
 		<groupId>org.eclipseorbit</groupId>
 		<artifactId>org.eclipseorbit.parent</artifactId>
 		<relativePath>../../../orbit-parent/org.eclipseorbit.parent/pom.xml</relativePath>
 		<version>1.0.0-SNAPSHOT</version>
-  </parent>
-  
-  <name>Ambry - Parent</name>
-  
-  <description>
+	</parent>
+
+	<name>Ambry - Parent</name>
+
+	<description>
     LinkedIn Ambry is a file storage implemented in Java
   </description>
-  
-  <scm>
-    <url>https://github.com/eclipse-orbit/ambry.git</url>
-    <connection>scm:git:https://github.com/eclipse-orbit/ambry.git</connection>
-  </scm>
-  
-  <modules>
-    <module>../../releng/com.github.ambry.target</module>
-    
-    <module>../../bundles/net.sf.jopt-simple</module>
-    
-    <module>../../bundles/ambry-api</module>
-    <module>../../bundles/ambry-server</module>
-    <module>../../bundles/ambry-network</module>
-    <module>../../bundles/ambry-utils</module>
-    <module>../../bundles/ambry-store</module>
-    <module>../../bundles/ambry-commons</module>
-    <module>../../bundles/ambry-messageformat</module>
-    <module>../../bundles/ambry-replication</module>
-    <module>../../bundles/ambry-coordinator</module>
-    <module>../../bundles/ambry-clustermap</module>
-    <module>../../bundles/ambry-tools</module>
-    <module>../../bundles/ambry-metrics</module>
-    <module>../../bundles/ambry-protocol</module>
-    <module>../../bundles/ambry-rest</module>
-    <module>../../bundles/ambry-admin</module>
-    <module>../../bundles/ambry-router</module>
-    <module>../../bundles/ambry-frontend</module>
-    
-    <module>../../tests/ambry-api.tests</module>
-    <module>../../tests/ambry-server.tests</module>
-    <module>../../tests/ambry-network.tests</module>
-    <module>../../tests/ambry-utils.tests</module>
-    <module>../../tests/ambry-store.tests</module>
-    <module>../../tests/ambry-commons.tests</module>
-    <module>../../tests/ambry-messageformat.tests</module>
-    <module>../../tests/ambry-replication.tests</module>
-    <module>../../tests/ambry-coordinator.tests</module>
-    <module>../../tests/ambry-clustermap.tests</module>
-    <module>../../tests/ambry-metrics.tests</module>
-    <module>../../tests/ambry-protocol.tests</module>
-    <module>../../tests/ambry-rest.tests</module>
-    <module>../../tests/ambry-admin.tests</module>
-    <module>../../tests/ambry-router.tests</module>
-    <module>../../tests/ambry-frontend.tests</module>
-    
-    <module>../../releng/com.github.ambry.frontend.product</module>
-    <module>../../releng/com.github.ambry.server.product</module>
-  </modules>
-  <build>
-  <plugins>
+
+	<scm>
+		<url>https://github.com/eclipse-orbit/ambry.git</url>
+		<connection>scm:git:https://github.com/eclipse-orbit/ambry.git</connection>
+	</scm>
+
+	<modules>
+		<module>../../releng/com.github.ambry.target</module>
+
+		<module>../../bundles/net.sf.jopt-simple</module>
+
+		<module>../../bundles/ambry-api</module>
+		<module>../../bundles/ambry-server</module>
+		<module>../../bundles/ambry-network</module>
+		<module>../../bundles/ambry-utils</module>
+		<module>../../bundles/ambry-store</module>
+		<module>../../bundles/ambry-commons</module>
+		<module>../../bundles/ambry-messageformat</module>
+		<module>../../bundles/ambry-replication</module>
+		<module>../../bundles/ambry-coordinator</module>
+		<module>../../bundles/ambry-clustermap</module>
+		<module>../../bundles/ambry-tools</module>
+		<module>../../bundles/ambry-metrics</module>
+		<module>../../bundles/ambry-protocol</module>
+		<module>../../bundles/ambry-rest</module>
+		<module>../../bundles/ambry-admin</module>
+		<module>../../bundles/ambry-router</module>
+		<module>../../bundles/ambry-frontend</module>
+
+		<module>../../tests/ambry-api.tests</module>
+		<module>../../tests/ambry-server.tests</module>
+		<module>../../tests/ambry-network.tests</module>
+		<module>../../tests/ambry-utils.tests</module>
+		<module>../../tests/ambry-store.tests</module>
+		<module>../../tests/ambry-commons.tests</module>
+		<module>../../tests/ambry-messageformat.tests</module>
+		<module>../../tests/ambry-replication.tests</module>
+		<module>../../tests/ambry-coordinator.tests</module>
+		<module>../../tests/ambry-clustermap.tests</module>
+		<module>../../tests/ambry-metrics.tests</module>
+		<module>../../tests/ambry-protocol.tests</module>
+		<module>../../tests/ambry-rest.tests</module>
+		<module>../../tests/ambry-admin.tests</module>
+		<module>../../tests/ambry-router.tests</module>
+		<module>../../tests/ambry-frontend.tests</module>
+
+		<module>../../releng/com.github.ambry.frontend.product</module>
+		<module>../../releng/com.github.ambry.server.product</module>
+	</modules>
+	<build>
+		<plugins>
 			<plugin>
-        <groupId>org.eclipse.tycho</groupId>
-        <artifactId>target-platform-configuration</artifactId>
-        <configuration>
-        <resolver>p2</resolver>
+				<groupId>org.eclipse.tycho</groupId>
+				<artifactId>target-platform-configuration</artifactId>
+				<configuration>
+					<resolver>p2</resolver>
 					<target>
 						<artifact>
 							<groupId>com.github.ambry</groupId>
@@ -83,7 +84,7 @@
 							<version>0.1.0-SNAPSHOT</version>
 						</artifact>
 					</target>
-          <environments>
+ 					<environments>
 						<environment>
 							<os>linux</os>
 							<ws>gtk</ws>
@@ -100,12 +101,12 @@
 							<arch>x86_64</arch>
 						</environment>
 					</environments>
-        </configuration>
-      </plugin>
+				</configuration>
+			</plugin>
 			<plugin>
 				<groupId>org.eclipse.tycho</groupId>
 				<artifactId>tycho-surefire-plugin</artifactId>
 			</plugin>
-			</plugins>
-			</build>
+		</plugins>
+	</build>
 </project>
