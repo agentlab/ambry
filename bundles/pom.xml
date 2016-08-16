@@ -9,9 +9,9 @@
 	
 	<parent>
 		<groupId>com.github.ambry</groupId>
-		<artifactId>ambry-parent</artifactId>
+		<artifactId>com.github.ambry.releng</artifactId>
 		<version>0.1.0-SNAPSHOT</version>
-		<relativePath>../releng/ambry-parent/pom.xml</relativePath>
+		<relativePath>../releng/com.github.ambry.releng/pom.xml</relativePath>
 	</parent>
 	
 	<build>

@@ -18,9 +18,9 @@
 
   <parent>
     <groupId>com.github.ambry</groupId>
-    <artifactId>ambry-parent</artifactId>
+    <artifactId>com.github.ambry.releng</artifactId>
     <version>0.1.0-SNAPSHOT</version>
-	<relativePath>../ambry-parent</relativePath>
+	<relativePath>../com.github.ambry.releng</relativePath>
   </parent>
 
   <build>
