@@ -20,27 +20,37 @@ Reach out to us at ambrydev@googlegroups.com if you would like us to list a pape
 ##### Step 1: Download the code, build it and prepare for deployment.
 To get the latest code and build it, do
 
-    $ git clone https://github.com/linkedin/ambry.git 
+    $ git clone https://github.com/eclipse-orbit/ambry.git 
     $ cd ambry
-    $ ./gradlew allJar
-    $ cd target
-    $ mkdir logs
-Ambry uses files that provide information about the cluster to route requests from the frontend to servers and for replication between servers. We will use a simple clustermap that contains a single server with one partition. The partition will use `/tmp` as the mount point.
+    $ mvn clean package
 ##### Step 2: Deploy a server.
-    $ nohup java -Dlog4j.configuration=file:../config/log4j.properties -jar ambry.jar --serverPropsFilePath ../config/server.properties --hardwareLayoutFilePath ../config/HardwareLayout.json --partitionLayoutFilePath ../config/PartitionLayout.json > logs/server.log &
+You can set config folder in eclipse.ini file in -Dconfig line
 
-Through this command, we configure the log4j properties, provide the server with configuration options and cluster definitions and redirect output to a log. Note down the process ID returned (`serverProcessID`) because it will be needed for shutdown.  
-The log will be available at `logs/server.log`. Alternately, you can change the log4j properties to write the log messages to a file instead of standard output.
+To run go to target filder and run
+    ./eclipse
+File is located in releng/com.github.ambry.server.product/target/products
 ##### Step 3: Deploy a frontend.
-    $ nohup java -Dlog4j.configuration=file:../config/log4j.properties -cp "*" com.github.ambry.frontend.AmbryFrontendMain --serverPropsFilePath ../config/frontend.properties --hardwareLayoutFilePath ../config/HardwareLayout.json --partitionLayoutFilePath ../config/PartitionLayout.json > logs/frontend.log &
+You can set config folder in eclipse.ini file in -Dconfig line
 
-Note down the process ID returned (`frontendProcessID`) because it will be needed for shutdown. Make sure that the frontend is ready to receive requests.
+To run go to target filder and run
+    ./eclipse
+File is located in releng/com.github.ambry.frontend.product/target/products
+
+Make sure that the frontend is ready to receive requests.
 
     $ curl http://localhost:1174/healthCheck
     GOOD
-The log will be available at `logs/frontend.log`. Alternately, you can change the log4j properties to write the log messages to a file instead of standard output.
+
 ##### Step 4: Interact with Ambry !
 We are now ready to store and retrieve data from Ambry. Let us start by storing a simple image. For demonstration purposes, we will use an image `demo.gif` that has been copied into the `target` folder.
+
+## Docker image
+
+To build docker image run
+    $ docker build -t eclipse-orbit/ambry .
+
+To run image with external storage
+    $ docker run -d -p 1174:1174 -v /path/to/storage:/ambry/files eclipse-orbit/ambry
 ###### POST
     $ curl -i -H "x-ambry-blob-size : `wc -c demo.gif | xargs | cut -d" " -f1`" -H "x-ambry-service-id : CUrlUpload"  -H "x-ambry-owner-id : `whoami`" -H "x-ambry-content-type : image/gif" -H "x-ambry-um-description : Demonstration Image" http://localhost:1174/ --data-binary @demo.gif
     HTTP/1.1 201 Created

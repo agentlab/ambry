@@ -9,7 +9,7 @@
                         {
                             "capacityInBytes": 21474836480,
                             "hardwareState": "AVAILABLE",
-                            "mountPath": "/tmp"
+                            "mountPath": "/ambry/files"
                         }
                     ],
                     "hardwareState": "AVAILABLE",

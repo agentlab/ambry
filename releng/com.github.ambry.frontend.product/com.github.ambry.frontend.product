@@ -11,13 +11,13 @@
       </programArgs>
       <vmArgs>-Declipse.ignoreApp=true -Dosgi.noShutdown=true
       </vmArgs>
-      <vmArgsLin>-DconfigDir=../../config
+      <vmArgsLin>-DconfigDir=../config
       </vmArgsLin>
-      <vmArgsMac>-DconfigDir=../../config -XstartOnFirstThread -Dorg.eclipse.swt.internal.carbon.smallFonts
+      <vmArgsMac>-DconfigDir=../config -XstartOnFirstThread -Dorg.eclipse.swt.internal.carbon.smallFonts
       </vmArgsMac>
-      <vmArgsSol>-DconfigDir=../../config
+      <vmArgsSol>-DconfigDir=../config
       </vmArgsSol>
-      <vmArgsWin>-DconfigDir=../../config-win
+      <vmArgsWin>-DconfigDir=../config-win
       </vmArgsWin>
    </launcherArgs>
 
