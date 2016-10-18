@@ -111,8 +111,9 @@ public abstract class Operation {
     sendRequests();
     while (true) {
       try {
+    	  long tm = operationExpirationMs - SystemTime.getInstance().milliseconds();
         OperationResponse operationResponse =
-            responseQueue.poll(operationExpirationMs - SystemTime.getInstance().milliseconds(), TimeUnit.MILLISECONDS);
+            responseQueue.poll(tm, TimeUnit.MILLISECONDS);
         logger.trace("{} operation processing a response", context);
         logger.trace("Requests in flight {} " + requestsInFlight);
         if (operationResponse == null) {

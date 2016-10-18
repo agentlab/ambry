@@ -73,7 +73,7 @@ public class NetworkConfig {
    */
   @Config("socket.request.max.bytes")
   @Default("104857600")
-  public final int socketRequestMaxBytes;
+  public final long socketRequestMaxBytes;
 
   public NetworkConfig(VerifiableProperties verifiableProperties) {
 
@@ -84,7 +84,7 @@ public class NetworkConfig {
     socketSendBufferBytes = verifiableProperties.getInt("socket.send.buffer.bytes", 1 * 1024 * 1024);
     socketReceiveBufferBytes = verifiableProperties.getInt("socket.receive.buffer.bytes", 1 * 1024 * 1024);
     socketRequestMaxBytes =
-        verifiableProperties.getIntInRange("socket.request.max.bytes", 100 * 1024 * 1024, 1, Integer.MAX_VALUE);
+        verifiableProperties.getLongInRange("socket.request.max.bytes", 100 * 1024 * 1024, 1, Long.MAX_VALUE);
     queuedMaxRequests = verifiableProperties.getIntInRange("queued.max.requests", 500, 1, Integer.MAX_VALUE);
   }
 }

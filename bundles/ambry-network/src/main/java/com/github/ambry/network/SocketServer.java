@@ -60,7 +60,7 @@ public class SocketServer implements NetworkServer {
   private final int maxQueuedRequests;
   private final int sendBufferSize;
   private final int recvBufferSize;
-  private final int maxRequestSize;
+  private final long maxRequestSize;
   private final ArrayList<Processor> processors;
   private volatile ArrayList<Acceptor> acceptors;
   private final SocketRequestResponseChannel requestResponseChannel;
@@ -130,7 +130,7 @@ public class SocketServer implements NetworkServer {
     return recvBufferSize;
   }
 
-  public int getMaxRequestSize() {
+  public long getMaxRequestSize() {
     return maxRequestSize;
   }
 
@@ -409,7 +409,7 @@ class SSLAcceptor extends Acceptor {
  * each of which has its own selectors
  */
 class Processor extends AbstractServerThread {
-  private final int maxRequestSize;
+  private final long maxRequestSize;
   private final SocketRequestResponseChannel channel;
   private final int id;
   private final Time time;
@@ -419,7 +419,7 @@ class Processor extends AbstractServerThread {
   private final ServerNetworkMetrics metrics;
   private static final long pollTimeoutMs = 300;
 
-  Processor(int id, int maxRequestSize, RequestResponseChannel channel, ServerNetworkMetrics metrics,
+  Processor(int id, long maxRequestSize, RequestResponseChannel channel, ServerNetworkMetrics metrics,
       SSLFactory sslFactory)
       throws IOException {
     this.maxRequestSize = maxRequestSize;

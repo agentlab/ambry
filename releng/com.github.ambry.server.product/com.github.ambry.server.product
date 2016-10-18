@@ -21,7 +21,7 @@
       </vmArgsWin>
    </launcherArgs>
 
-   <launcher>
+   <launcher name="ambry-server">
       <solaris/>
       <win useIco="false">
          <bmp/>
