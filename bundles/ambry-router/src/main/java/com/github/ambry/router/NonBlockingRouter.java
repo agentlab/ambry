@@ -13,6 +13,19 @@
  */
 package com.github.ambry.router;
 
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.Future;
+import java.util.concurrent.ThreadLocalRandom;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.concurrent.atomic.AtomicInteger;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import com.github.ambry.clustermap.api.ClusterMap;
 import com.github.ambry.commons.ResponseHandler;
 import com.github.ambry.config.api.RouterConfig;
@@ -27,23 +40,14 @@ import com.github.ambry.protocol.RequestOrResponse;
 import com.github.ambry.protocol.RequestOrResponseType;
 import com.github.ambry.router.api.Callback;
 import com.github.ambry.router.api.FutureResult;
+import com.github.ambry.router.api.GetBlobOptions;
+import com.github.ambry.router.api.GetBlobResult;
 import com.github.ambry.router.api.ReadableStreamChannel;
 import com.github.ambry.router.api.Router;
 import com.github.ambry.router.api.RouterErrorCode;
 import com.github.ambry.router.api.RouterException;
 import com.github.ambry.utils.Time;
 import com.github.ambry.utils.Utils;
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.concurrent.CountDownLatch;
-import java.util.concurrent.Future;
-import java.util.concurrent.ThreadLocalRandom;
-import java.util.concurrent.TimeUnit;
-import java.util.concurrent.atomic.AtomicBoolean;
-import java.util.concurrent.atomic.AtomicInteger;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 
 /**
@@ -60,7 +64,6 @@ class NonBlockingRouter implements Router {
   private final NonBlockingRouterMetrics routerMetrics;
   private final ResponseHandler responseHandler;
   private final Time time;
-  private final List<String> idsToDelete = new ArrayList<String>();
 
   private static final Logger logger = LoggerFactory.getLogger(NonBlockingRouter.class);
   private final AtomicInteger currentOperationsCount = new AtomicInteger(0);
@@ -109,72 +112,51 @@ class NonBlockingRouter implements Router {
   }
 
   /**
-   * Requests for the {@link BlobInfo} asynchronously and returns a future that will eventually contain the
-   * {@link BlobInfo} on a successful response.
-   * @param blobId The ID of the blob for which the {@link BlobInfo} is requested.
-   * @return A future that would contain the {@link BlobInfo} eventually.
-   */
-  @Override
-  public Future<BlobInfo> getBlobInfo(String blobId) {
-    return getBlobInfo(blobId, null);
-  }
-
-  /**
-   * Requests for the {@link BlobInfo} asynchronously and invokes the {@link Callback} when the request completes.
-   * @param blobId The ID of the blob for which the {@link BlobInfo} is requested.
-   * @param callback The {@link Callback} which will be invoked on the completion of the request.
-   * @return A future that would contain the {@link BlobInfo} eventually.
-   */
-  @Override
-  public Future<BlobInfo> getBlobInfo(String blobId, Callback<BlobInfo> callback) {
-    currentOperationsCount.incrementAndGet();
-    routerMetrics.getBlobInfoOperationRate.mark();
-    routerMetrics.operationQueuingRate.mark();
-    FutureResult<BlobInfo> futureResult = new FutureResult<BlobInfo>();
-    if (isOpen.get()) {
-      getOperationController().getBlobInfo(blobId, futureResult, callback);
-    } else {
-      RouterException routerException =
-          new RouterException("Cannot accept operation because Router is closed", RouterErrorCode.RouterClosed);
-      routerMetrics.operationDequeuingRate.mark();
-      routerMetrics.getBlobInfoErrorCount.inc();
-      routerMetrics.countError(routerException);
-      operationCompleteCallback.completeOperation(futureResult, callback, null, routerException);
-    }
-    return futureResult;
-  }
-
-  /**
-   * Requests for blob data asynchronously and returns a future that will eventually contain a
-   * {@link ReadableStreamChannel} that represents blob data on a successful response.
+   * Requests for blob data asynchronously with user-set {@link GetBlobOptions} and returns a future that will
+   * eventually contain a {@link GetBlobResult} that can contain either the {@link BlobInfo}, the
+   * {@link ReadableStreamChannel} containing the blob data, or both.
    * @param blobId The ID of the blob for which blob data is requested.
-   * @return A future that would contain a {@link ReadableStreamChannel} that represents the blob data eventually.
+   * @param options The options associated with the request. This cannot be null.
+   * @return A future that would eventually contain a {@link GetBlobResult} that can contain either
+   *         the {@link BlobInfo}, the {@link ReadableStreamChannel} containing the blob data, or both.
    */
   @Override
-  public Future<ReadableStreamChannel> getBlob(String blobId) {
-    return getBlob(blobId, null);
+  public Future<GetBlobResult> getBlob(String blobId, GetBlobOptions options) {
+    return getBlob(blobId, options, null);
   }
 
   /**
-   * Requests for the blob data asynchronously and invokes the {@link Callback} when the request completes.
+   * Requests for the blob data asynchronously with user-set {@link GetBlobOptions} and invokes the {@link Callback}
+   * when the request completes.
    * @param blobId The ID of the blob for which blob data is requested.
+   * @param options The options associated with the request. This cannot be null.
    * @param callback The callback which will be invoked on the completion of the request.
-   * @return A future that would contain a {@link ReadableStreamChannel} that represents the blob data eventually.
+   * @return A future that would eventually contain a {@link GetBlobResult} that can contain either
+   *         the {@link BlobInfo}, the {@link ReadableStreamChannel} containing the blob data, or both.
    */
   @Override
-  public Future<ReadableStreamChannel> getBlob(String blobId, Callback<ReadableStreamChannel> callback) {
+  public Future<GetBlobResult> getBlob(String blobId, GetBlobOptions options, Callback<GetBlobResult> callback) {
+    if (blobId == null || options == null) {
+      throw new IllegalArgumentException("blobId or options must not be null");
+    }
     currentOperationsCount.incrementAndGet();
-    routerMetrics.getBlobOperationRate.mark();
+    if (options.getOperationType() == GetBlobOptions.OperationType.BlobInfo) {
+      routerMetrics.getBlobInfoOperationRate.mark();
+    } else {
+      routerMetrics.getBlobOperationRate.mark();
+    }
+    if (options.getRange() != null) {
+      routerMetrics.getBlobWithRangeOperationRate.mark();
+    }
     routerMetrics.operationQueuingRate.mark();
-    FutureResult<ReadableStreamChannel> futureResult = new FutureResult<ReadableStreamChannel>();
+    FutureResult<GetBlobResult> futureResult = new FutureResult<>();
     if (isOpen.get()) {
-      getOperationController().getBlob(blobId, futureResult, callback);
+      getOperationController().getBlob(blobId, options, futureResult, callback);
     } else {
       RouterException routerException =
           new RouterException("Cannot accept operation because Router is closed", RouterErrorCode.RouterClosed);
       routerMetrics.operationDequeuingRate.mark();
-      routerMetrics.getBlobErrorCount.inc();
-      routerMetrics.countError(routerException);
+      routerMetrics.onGetBlobError(routerException, options);
       operationCompleteCallback.completeOperation(futureResult, callback, null, routerException);
     }
     return futureResult;
@@ -204,6 +186,12 @@ class NonBlockingRouter implements Router {
   @Override
   public Future<String> putBlob(BlobProperties blobProperties, byte[] userMetadata, ReadableStreamChannel channel,
       Callback<String> callback) {
+    if (blobProperties == null || channel == null) {
+      throw new IllegalArgumentException("blobProperties or channel must not be null");
+    }
+    if (userMetadata == null) {
+      userMetadata = new byte[0];
+    }
     currentOperationsCount.incrementAndGet();
     routerMetrics.putBlobOperationRate.mark();
     routerMetrics.operationQueuingRate.mark();
@@ -214,8 +202,7 @@ class NonBlockingRouter implements Router {
       RouterException routerException =
           new RouterException("Cannot accept operation because Router is closed", RouterErrorCode.RouterClosed);
       routerMetrics.operationDequeuingRate.mark();
-      routerMetrics.putBlobErrorCount.inc();
-      routerMetrics.countError(routerException);
+      routerMetrics.onPutBlobError(routerException);
       operationCompleteCallback.completeOperation(futureResult, callback, null, routerException);
     }
     return futureResult;
@@ -240,6 +227,9 @@ class NonBlockingRouter implements Router {
    */
   @Override
   public Future<Void> deleteBlob(String blobId, Callback<Void> callback) {
+    if (blobId == null) {
+      throw new IllegalArgumentException("blobId must not be null");
+    }
     currentOperationsCount.incrementAndGet();
     routerMetrics.deleteBlobOperationRate.mark();
     routerMetrics.operationQueuingRate.mark();
@@ -250,8 +240,7 @@ class NonBlockingRouter implements Router {
       RouterException routerException =
           new RouterException("Cannot accept operation because Router is closed", RouterErrorCode.RouterClosed);
       routerMetrics.operationDequeuingRate.mark();
-      routerMetrics.deleteBlobErrorCount.inc();
-      routerMetrics.countError(routerException);
+      routerMetrics.onDeleteBlobError(routerException);
       operationCompleteCallback.completeOperation(futureResult, callback, null, routerException);
     }
     return futureResult;
@@ -331,6 +320,7 @@ class NonBlockingRouter implements Router {
     private final Thread requestResponseHandlerThread;
     private final CountDownLatch shutDownLatch = new CountDownLatch(1);
     private final ReadyForPollCallback readyForPollCallback;
+    private final List<String> idsToDeleteList = new ArrayList<String>();
 
     /**
      * Constructs an OperationController
@@ -342,7 +332,7 @@ class NonBlockingRouter implements Router {
       networkClient = networkClientFactory.getNetworkClient();
       readyForPollCallback = new ReadyForPollCallback(networkClient);
       putManager = new PutManager(clusterMap, responseHandler, notificationSystem, routerConfig, routerMetrics,
-          operationCompleteCallback, readyForPollCallback, index, time);
+          operationCompleteCallback, readyForPollCallback, idsToDeleteList, index, time);
       getManager = new GetManager(clusterMap, responseHandler, routerConfig, routerMetrics, operationCompleteCallback,
           readyForPollCallback, time);
       deleteManager = new DeleteManager(clusterMap, responseHandler, notificationSystem, routerConfig, routerMetrics,
@@ -353,26 +343,17 @@ class NonBlockingRouter implements Router {
     }
 
     /**
-     * Requests for the {@link BlobInfo} asynchronously and invokes the {@link Callback} when the request completes.
-     * @param blobId The ID of the blob for which the {@link BlobInfo} is requested.
-     * @param futureResult The future that would contain the {@link BlobInfo} eventually.
-     * @param callback The {@link Callback} which will be invoked on the completion of the request.
-     */
-    private void getBlobInfo(String blobId, FutureResult<BlobInfo> futureResult, Callback<BlobInfo> callback) {
-      getManager.submitGetBlobInfoOperation(blobId, futureResult, callback);
-      readyForPollCallback.onPollReady();
-    }
-
-    /**
-     * Requests for the blob data asynchronously and invokes the {@link Callback} when the request completes.
+     * Requests for the blob (info, data, or both) asynchronously and invokes the {@link Callback} when the request
+     * completes.
      * @param blobId The ID of the blob for which blob data is requested.
-     * @param futureResult A future that would contain a {@link ReadableStreamChannel} that represents the blob data
-     *                     eventually.
+     * @param options The {@link GetBlobOptions} associated with the request.
+     * @param futureResult A future that would eventually contain a {@link GetBlobResult} that can contain either
+     *                     the {@link BlobInfo}, the {@link ReadableStreamChannel} containing the blob data, or both.
      * @param callback The callback which will be invoked on the completion of the request.
      */
-    private void getBlob(String blobId, FutureResult<ReadableStreamChannel> futureResult,
-        Callback<ReadableStreamChannel> callback) {
-      getManager.submitGetBlobOperation(blobId, futureResult, callback);
+    private void getBlob(String blobId, GetBlobOptions options, FutureResult<GetBlobResult> futureResult,
+        Callback<GetBlobResult> callback) {
+      getManager.submitGetBlobOperation(blobId, options, futureResult, callback);
       readyForPollCallback.onPollReady();
     }
 
@@ -390,8 +371,7 @@ class NonBlockingRouter implements Router {
         RouterException routerException =
             new RouterException(" because Router is closed", RouterErrorCode.RouterClosed);
         routerMetrics.operationDequeuingRate.mark();
-        routerMetrics.putBlobErrorCount.inc();
-        routerMetrics.countError(routerException);
+        routerMetrics.onPutBlobError(routerException);
         operationCompleteCallback.completeOperation(futureResult, callback, null, routerException);
         // Close so that any existing operations are also disposed off.
         close();
@@ -436,19 +416,24 @@ class NonBlockingRouter implements Router {
      * @return a list of {@link RequestInfo} that contains the requests to be sent out.
      */
     private List<RequestInfo> pollForRequests() {
-      // these are ids that were successfully put for an operation that eventually failed
-      idsToDelete.clear();
-      putManager.getIdsToDelete(idsToDelete);
-      // this is a best effort to delete ids for cleanup purposes (these may fail and we will
-      // not do anything about it at this time).
-      for (String blobId : idsToDelete) {
-        // possibly add a batch api going forward.
-        deleteManager.submitDeleteBlobOperation(blobId, new FutureResult<Void>(), null);
+      List<RequestInfo> requests = new ArrayList<>();
+      try {
+        putManager.poll(requests);
+        getManager.poll(requests);
+        // Before polling the delete manager, submit pending deletes, if any.
+        for (String blobId : idsToDeleteList) {
+          // Although these deletes can be directly submitted to the delete manager of this operation controller,
+          // these will be submitted like regular delete operations so that they are evenly spread across the
+          // operation controllers and so that the metrics get tracked correctly.
+          // Also, since these are best-effort deletions, the outcomes are disregarded.
+          NonBlockingRouter.this.deleteBlob(blobId);
+        }
+        idsToDeleteList.clear();
+        deleteManager.poll(requests);
+      } catch (Exception e) {
+        logger.error("Operation Manager poll received an unexpected error: ", e);
+        routerMetrics.operationManagerPollErrorCount.inc();
       }
-      List<RequestInfo> requests = new ArrayList<RequestInfo>();
-      putManager.poll(requests);
-      getManager.poll(requests);
-      deleteManager.poll(requests);
       return requests;
     }
 
@@ -458,20 +443,25 @@ class NonBlockingRouter implements Router {
      */
     private void onResponse(List<ResponseInfo> responseInfoList) {
       for (ResponseInfo responseInfo : responseInfoList) {
-        RouterRequestInfo routerRequestInfo = (RouterRequestInfo) responseInfo.getRequestInfo();
-        RequestOrResponseType type = ((RequestOrResponse) routerRequestInfo.getRequest()).getRequestType();
-        switch (type) {
-          case PutRequest:
-            putManager.handleResponse(responseInfo);
-            break;
-          case GetRequest:
-            getManager.handleResponse(responseInfo);
-            break;
-          case DeleteRequest:
-            deleteManager.handleResponse(responseInfo);
-            break;
-          default:
-            logger.error("Unexpected response type: " + type + " received, discarding");
+        try {
+          RouterRequestInfo routerRequestInfo = (RouterRequestInfo) responseInfo.getRequestInfo();
+          RequestOrResponseType type = ((RequestOrResponse) routerRequestInfo.getRequest()).getRequestType();
+          switch (type) {
+            case PutRequest:
+              putManager.handleResponse(responseInfo);
+              break;
+            case GetRequest:
+              getManager.handleResponse(responseInfo);
+              break;
+            case DeleteRequest:
+              deleteManager.handleResponse(responseInfo);
+              break;
+            default:
+              logger.error("Unexpected response type: " + type + " received, discarding");
+          }
+        } catch (Exception e) {
+          logger.error("Unexpected error received while handling a response: ", e);
+          routerMetrics.operationManagerHandleResponseErrorCount.inc();
         }
       }
     }
@@ -495,6 +485,7 @@ class NonBlockingRouter implements Router {
         }
       } catch (Throwable e) {
         logger.error("Aborting, as requestResponseHandlerThread received an unexpected error: ", e);
+        routerMetrics.requestResponseHandlerUnexpectedErrorCount.inc();
       } finally {
         networkClient.close();
         shutDownLatch.countDown();
@@ -571,4 +562,3 @@ class ReadyForPollCallback {
     networkClient.wakeup();
   }
 }
-

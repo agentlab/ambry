@@ -24,6 +24,8 @@ import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.util.Random;
 
+import com.github.ambry.router.api.ByteRange;
+
 
 /**
  * Some common utilities used for tests in rest package
@@ -66,5 +68,21 @@ public class RestTestUtils {
     byte[] bytes = new byte[size];
     new Random().nextBytes(bytes);
     return bytes;
+  }
+
+  /**
+   * Build the range header value from a {@link ByteRange}
+   * @param range the {@link ByteRange} representing the range
+   * @return
+   */
+  public static String getRangeHeaderString(ByteRange range) {
+    switch (range.getType()) {
+      case LAST_N_BYTES:
+        return "bytes=-" + range.getLastNBytes();
+      case FROM_START_OFFSET:
+        return "bytes=" + range.getStartOffset() + "-";
+      default:
+        return "bytes=" + range.getStartOffset() + "-" + range.getEndOffset();
+    }
   }
 }

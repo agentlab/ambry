@@ -13,6 +13,22 @@
  */
 package com.github.ambry.tools.perf.rest;
 
+import java.io.IOException;
+import java.nio.ByteBuffer;
+import java.nio.channels.ClosedChannelException;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Random;
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.Future;
+import java.util.concurrent.LinkedBlockingQueue;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicBoolean;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import com.codahale.metrics.Snapshot;
 import com.github.ambry.rest.api.NioServer;
 import com.github.ambry.rest.api.ResponseStatus;
@@ -27,21 +43,6 @@ import com.github.ambry.router.api.AsyncWritableChannel;
 import com.github.ambry.router.api.Callback;
 import com.github.ambry.router.api.ReadableStreamChannel;
 import com.github.ambry.utils.Time;
-import java.io.IOException;
-import java.nio.ByteBuffer;
-import java.nio.channels.ClosedChannelException;
-import java.security.NoSuchAlgorithmException;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Random;
-import java.util.concurrent.CountDownLatch;
-import java.util.concurrent.Future;
-import java.util.concurrent.LinkedBlockingQueue;
-import java.util.concurrent.TimeUnit;
-import java.util.concurrent.atomic.AtomicBoolean;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 
 /**
@@ -291,14 +292,13 @@ class PerfNioServer implements NioServer {
     }
 
     @Override
-    public void setDigestAlgorithm(String digestAlgorithm)
-        throws NoSuchAlgorithmException {
-      readableStreamChannel.setDigestAlgorithm(digestAlgorithm);
+    public void setDigestAlgorithm(String digestAlgorithm) {
+      // no op;
     }
 
     @Override
     public byte[] getDigest() {
-      return readableStreamChannel.getDigest();
+      return null;
     }
 
     /**

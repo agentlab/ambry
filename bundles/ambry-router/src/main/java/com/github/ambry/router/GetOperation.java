@@ -13,6 +13,13 @@
  */
 package com.github.ambry.router;
 
+import java.util.Collections;
+import java.util.List;
+import java.util.concurrent.atomic.AtomicReference;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import com.github.ambry.clustermap.api.ClusterMap;
 import com.github.ambry.clustermap.api.ReplicaId;
 import com.github.ambry.commons.BlobId;
@@ -27,32 +34,29 @@ import com.github.ambry.protocol.GetResponse;
 import com.github.ambry.protocol.PartitionRequestInfo;
 import com.github.ambry.router.api.Callback;
 import com.github.ambry.router.api.FutureResult;
+import com.github.ambry.router.api.GetBlobOptions;
+import com.github.ambry.router.api.GetBlobResult;
 import com.github.ambry.router.api.RouterErrorCode;
 import com.github.ambry.router.api.RouterException;
 import com.github.ambry.utils.Time;
-import java.util.Collections;
-import java.util.List;
-import java.util.concurrent.atomic.AtomicReference;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 
 /**
  * An abstract class for a get operation.
- * @param <T> the type of the result of this operation.
  */
-abstract class GetOperation<T> {
+abstract class GetOperation {
   protected final RouterConfig routerConfig;
   protected final NonBlockingRouterMetrics routerMetrics;
   protected final ClusterMap clusterMap;
   protected final ResponseHandler responseHandler;
-  protected final FutureResult<T> operationFuture;
-  protected final Callback<T> operationCallback;
+  protected final FutureResult<GetBlobResult> operationFuture;
+  protected final Callback<GetBlobResult> operationCallback;
   protected final BlobId blobId;
+  protected final GetBlobOptions options;
   protected final Time time;
   protected volatile boolean operationCompleted = false;
   protected final AtomicReference<Exception> operationException = new AtomicReference<>();
-  protected T operationResult;
+  protected GetBlobResult operationResult;
   protected final long submissionTimeMs;
 
   private static final Logger logger = LoggerFactory.getLogger(GetOperation.class);
@@ -70,13 +74,14 @@ abstract class GetOperation<T> {
    * @throws RouterException if there is an error with any of the parameters, such as an invalid blob id.
    */
   GetOperation(RouterConfig routerConfig, NonBlockingRouterMetrics routerMetrics, ClusterMap clusterMap,
-      ResponseHandler responseHandler, String blobIdStr, FutureResult<T> futureResult, Callback<T> operationCallback,
-      Time time)
+      ResponseHandler responseHandler, String blobIdStr, GetBlobOptions options,
+      FutureResult<GetBlobResult> futureResult, Callback<GetBlobResult> operationCallback, Time time)
       throws RouterException {
     this.routerConfig = routerConfig;
     this.routerMetrics = routerMetrics;
     this.clusterMap = clusterMap;
     this.responseHandler = responseHandler;
+    this.options = options;
     this.operationFuture = futureResult;
     this.operationCallback = operationCallback;
     this.time = time;
@@ -88,7 +93,7 @@ abstract class GetOperation<T> {
    * Return the {@link FutureResult} associated with this operation.
    * @return the {@link FutureResult} associated with this operation.
    */
-  FutureResult<T> getFuture() {
+  FutureResult<GetBlobResult> getFuture() {
     return operationFuture;
   }
 
@@ -96,7 +101,7 @@ abstract class GetOperation<T> {
    * Return the {@link Callback} associated with this operation.
    * @return the {@link Callback} associated with this operation.
    */
-  Callback<T> getCallback() {
+  Callback<GetBlobResult> getCallback() {
     return operationCallback;
   }
 
@@ -112,7 +117,7 @@ abstract class GetOperation<T> {
    * Return the result of the operation.
    * @return the operation result.
    */
-  T getOperationResult() {
+  GetBlobResult getOperationResult() {
     return operationResult;
   }
 
@@ -125,18 +130,19 @@ abstract class GetOperation<T> {
   }
 
   /**
+   * @return The {@link GetBlobOptions} associated with this operation.
+   */
+  GetBlobOptions getOptions() {
+    return options;
+  }
+
+  /**
    * returns whether the operation has completed.
    * @return whether the operation has completed.
    */
   boolean isOperationComplete() {
     return operationCompleted;
   }
-
-  /**
-   * Return the {@link MessageFormatFlags} to associate with the requests for this operation.
-   * @return the {@link MessageFormatFlags} to associate with the requests for this operation.
-   */
-  abstract MessageFormatFlags getOperationFlag();
 
   /**
    * For this operation, create and populate get requests to send out.
@@ -164,10 +170,17 @@ abstract class GetOperation<T> {
    * previously received exception.
    * @param exception the {@link RouterException} to possibly set.
    */
-  void setOperationException(RouterException exception) {
-    if (operationException.get() == null || exception.getErrorCode() == RouterErrorCode.BlobDeleted
-        || exception.getErrorCode() == RouterErrorCode.BlobExpired) {
-      operationException.set(exception);
+  void setOperationException(Exception exception) {
+    if (exception instanceof RouterException) {
+      RouterErrorCode routerErrorCode = ((RouterException) exception).getErrorCode();
+      if (operationException.get() == null || routerErrorCode == RouterErrorCode.BlobDeleted
+          || routerErrorCode == RouterErrorCode.BlobExpired) {
+        operationException.set(exception);
+      }
+    } else {
+      if (operationException.get() == null) {
+        operationException.set(exception);
+      }
     }
   }
 
@@ -204,4 +217,3 @@ class GetRequestInfo {
     this.startTimeMs = startTimeMs;
   }
 }
-

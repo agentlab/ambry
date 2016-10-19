@@ -13,10 +13,22 @@
  */
 package com.github.ambry.router;
 
+import java.io.DataInputStream;
+import java.io.IOException;
+import java.nio.ByteBuffer;
+import java.nio.channels.Channels;
+import java.util.ArrayList;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
+
 import com.github.ambry.clustermap.api.ClusterMap;
 import com.github.ambry.commons.ServerErrorCode;
+import com.github.ambry.messageformat.MessageFormatException;
 import com.github.ambry.messageformat.MessageFormatRecord;
 import com.github.ambry.messageformat.api.BlobProperties;
+import com.github.ambry.messageformat.api.BlobType;
 import com.github.ambry.network.ByteBufferSend;
 import com.github.ambry.network.api.BoundedByteBufferReceive;
 import com.github.ambry.network.api.Send;
@@ -36,16 +48,6 @@ import com.github.ambry.utils.ByteBufferChannel;
 import com.github.ambry.utils.ByteBufferInputStream;
 import com.github.ambry.utils.Crc32;
 import com.github.ambry.utils.Utils;
-import java.io.DataInputStream;
-import java.io.IOException;
-import java.nio.ByteBuffer;
-import java.nio.channels.Channels;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
 
 
 /**
@@ -54,9 +56,10 @@ import java.util.concurrent.ConcurrentHashMap;
 class MockServer {
   private ServerErrorCode hardError = null;
   private LinkedList<ServerErrorCode> serverErrors = new LinkedList<ServerErrorCode>();
-  private final Map<String, ByteBuffer> blobs = new ConcurrentHashMap<String, ByteBuffer>();
-  private final HashMap<String, ServerErrorCode> blobIdToServerErrorCode = new HashMap<String, ServerErrorCode>();
+  private final Map<String, StoredBlob> blobs = new ConcurrentHashMap<>();
   private boolean shouldRespond = true;
+  private short blobFormatVersion = MessageFormatRecord.Blob_Version_V2;
+  private boolean getErrorOnDataBlobOnly = false;
   private final ClusterMap clusterMap;
   private final String dataCenter;
 
@@ -140,15 +143,27 @@ class MockServer {
 
     ServerErrorCode serverError;
     ServerErrorCode partitionError;
-    // getError could be at the server level or the partition level. For partition level errors,
-    // set it in the partitionResponseInfo
-    if (getError == ServerErrorCode.No_Error || getError == ServerErrorCode.Blob_Expired
-        || getError == ServerErrorCode.Blob_Deleted || getError == ServerErrorCode.Blob_Not_Found) {
-      partitionError = getError;
-      serverError = ServerErrorCode.No_Error;
+    boolean isDataBlob = false;
+    try {
+      String id = getRequest.getPartitionInfoList().get(0).getBlobIds().get(0).getID();
+      isDataBlob = blobs.get(id).type == BlobType.DataBlob;
+    } catch (Exception ignored) {
+    }
+
+    if (!getErrorOnDataBlobOnly || isDataBlob) {
+      // getError could be at the server level or the partition level. For partition level errors,
+      // set it in the partitionResponseInfo
+      if (getError == ServerErrorCode.No_Error || getError == ServerErrorCode.Blob_Expired
+          || getError == ServerErrorCode.Blob_Deleted || getError == ServerErrorCode.Blob_Not_Found) {
+        partitionError = getError;
+        serverError = ServerErrorCode.No_Error;
+      } else {
+        serverError = getError;
+        // does not matter - this will not be checked if serverError is not No_Error.
+        partitionError = ServerErrorCode.No_Error;
+      }
     } else {
-      serverError = getError;
-      // does not matter - this will not be checked if serverError is not No_Error.
+      serverError = ServerErrorCode.No_Error;
       partitionError = ServerErrorCode.No_Error;
     }
 
@@ -157,12 +172,12 @@ class MockServer {
       ByteBuffer byteBuffer;
       StoreKey key = getRequest.getPartitionInfoList().get(0).getBlobIds().get(0);
       if (blobs.containsKey(key.getID())) {
-        ByteBuffer buf = blobs.get(key.getID()).duplicate();
+        ByteBuffer buf = blobs.get(key.getID()).serializedSentPutRequest.duplicate();
         // read off the size
         buf.getLong();
         // read off the type.
         buf.getShort();
-        PutRequest originalBlobPutReq =
+        PutRequest.ReceivedPutRequest originalBlobPutReq =
             PutRequest.readFrom(new DataInputStream(new ByteBufferInputStream(buf)), clusterMap);
         switch (getRequest.getMessageFormatFlag()) {
           case BlobInfo:
@@ -175,16 +190,84 @@ class MockServer {
             MessageFormatRecord.UserMetadata_Format_V1.serializeUserMetadataRecord(byteBuffer, userMetadata);
             break;
           case Blob:
-            byteBufferSize =
-                (int) MessageFormatRecord.Blob_Format_V2.getBlobRecordSize((int) originalBlobPutReq.getBlobSize());
-            byteBuffer = ByteBuffer.allocate(byteBufferSize);
-            MessageFormatRecord.Blob_Format_V2
-                .serializePartialBlobRecord(byteBuffer, (int) originalBlobPutReq.getBlobSize(),
-                    originalBlobPutReq.getBlobType());
+            switch (blobFormatVersion) {
+              case MessageFormatRecord.Blob_Version_V2:
+                byteBufferSize =
+                    (int) MessageFormatRecord.Blob_Format_V2.getBlobRecordSize((int) originalBlobPutReq.getBlobSize());
+                byteBuffer = ByteBuffer.allocate(byteBufferSize);
+                MessageFormatRecord.Blob_Format_V2
+                    .serializePartialBlobRecord(byteBuffer, (int) originalBlobPutReq.getBlobSize(),
+                        originalBlobPutReq.getBlobType());
+                break;
+              case MessageFormatRecord.Blob_Version_V1:
+                byteBufferSize =
+                    (int) MessageFormatRecord.Blob_Format_V1.getBlobRecordSize((int) originalBlobPutReq.getBlobSize());
+                byteBuffer = ByteBuffer.allocate(byteBufferSize);
+                MessageFormatRecord.Blob_Format_V1
+                    .serializePartialBlobRecord(byteBuffer, (int) originalBlobPutReq.getBlobSize());
+                break;
+              default:
+                throw new IllegalStateException("Blob format version " + blobFormatVersion + " not supported.");
+            }
             byteBuffer.put(
                 Utils.readBytesFromStream(originalBlobPutReq.getBlobStream(), (int) originalBlobPutReq.getBlobSize()));
             Crc32 crc = new Crc32();
             crc.update(byteBuffer.array(), 0, byteBuffer.position());
+            byteBuffer.putLong(crc.getValue());
+            break;
+          case All:
+            blobProperties = originalBlobPutReq.getBlobProperties();
+            userMetadata = originalBlobPutReq.getUsermetadata();
+            int blobHeaderSize = MessageFormatRecord.MessageHeader_Format_V1.getHeaderSize();
+            int blobPropertiesSize =
+                MessageFormatRecord.BlobProperties_Format_V1.getBlobPropertiesRecordSize(blobProperties);
+            int userMetadataSize = MessageFormatRecord.UserMetadata_Format_V1.getUserMetadataSize(userMetadata);
+            int blobInfoSize = blobPropertiesSize + userMetadataSize;
+            int blobRecordSize;
+            switch (blobFormatVersion) {
+              case MessageFormatRecord.Blob_Version_V2:
+                blobRecordSize =
+                    (int) MessageFormatRecord.Blob_Format_V2.getBlobRecordSize((int) originalBlobPutReq.getBlobSize());
+                break;
+              case MessageFormatRecord.Blob_Version_V1:
+                blobRecordSize =
+                    (int) MessageFormatRecord.Blob_Format_V1.getBlobRecordSize((int) originalBlobPutReq.getBlobSize());
+                break;
+              default:
+                throw new IllegalStateException("Blob format version " + blobFormatVersion + " not supported.");
+            }
+            byteBufferSize = blobHeaderSize + key.sizeInBytes() + blobInfoSize + blobRecordSize;
+            byteBuffer = ByteBuffer.allocate(byteBufferSize);
+            try {
+              MessageFormatRecord.MessageHeader_Format_V1
+                  .serializeHeader(byteBuffer, blobInfoSize + blobRecordSize, blobHeaderSize + key.sizeInBytes(),
+                      MessageFormatRecord.Message_Header_Invalid_Relative_Offset,
+                      blobHeaderSize + key.sizeInBytes() + blobPropertiesSize,
+                      blobHeaderSize + key.sizeInBytes() + blobInfoSize);
+            } catch (MessageFormatException e) {
+              e.printStackTrace();
+            }
+            byteBuffer.put(key.toBytes());
+            MessageFormatRecord.BlobProperties_Format_V1.serializeBlobPropertiesRecord(byteBuffer, blobProperties);
+            MessageFormatRecord.UserMetadata_Format_V1.serializeUserMetadataRecord(byteBuffer, userMetadata);
+            int blobRecordStart = byteBuffer.position();
+            switch (blobFormatVersion) {
+              case MessageFormatRecord.Blob_Version_V2:
+                MessageFormatRecord.Blob_Format_V2
+                    .serializePartialBlobRecord(byteBuffer, (int) originalBlobPutReq.getBlobSize(),
+                        originalBlobPutReq.getBlobType());
+                break;
+              case MessageFormatRecord.Blob_Version_V1:
+                MessageFormatRecord.Blob_Format_V1
+                    .serializePartialBlobRecord(byteBuffer, (int) originalBlobPutReq.getBlobSize());
+                break;
+              default:
+                throw new IllegalStateException("Blob format version " + blobFormatVersion + " not supported.");
+            }
+            byteBuffer.put(
+                Utils.readBytesFromStream(originalBlobPutReq.getBlobStream(), (int) originalBlobPutReq.getBlobSize()));
+            crc = new Crc32();
+            crc.update(byteBuffer.array(), blobRecordStart, blobRecordSize - MessageFormatRecord.Crc_Size);
             byteBuffer.putLong(crc.getValue());
             break;
           default:
@@ -228,10 +311,6 @@ class MockServer {
    */
   DeleteResponse makeDeleteResponse(DeleteRequest deleteRequest, ServerErrorCode deleteError)
       throws IOException {
-    String blobIdString = deleteRequest.getBlobId().getID();
-    if (deleteError == ServerErrorCode.No_Error) {
-      deleteError = getErrorFromBlobIdStr(blobIdString);
-    }
     return new DeleteResponse(deleteRequest.getCorrelationId(), deleteRequest.getClientId(), deleteError);
   }
 
@@ -242,18 +321,14 @@ class MockServer {
    */
   private void updateBlobMap(PutRequest putRequest)
       throws IOException {
-    String id = putRequest.getBlobId().getID();
-    ByteBuffer buf = ByteBuffer.allocate((int) putRequest.sizeInBytes());
-    ByteBufferChannel bufChannel = new ByteBufferChannel(buf);
-    putRequest.writeTo(bufChannel);
-    buf.flip();
-    blobs.put(id, buf);
+    StoredBlob blob = new StoredBlob(putRequest, clusterMap);
+    blobs.put(blob.id, blob);
   }
 
   /**
    * @return the blobs that were put on this server.
    */
-  Map<String, ByteBuffer> getBlobs() {
+  Map<String, StoredBlob> getBlobs() {
     return blobs;
   }
 
@@ -289,12 +364,22 @@ class MockServer {
   }
 
   /**
+   * Set whether the mock server should set the error code for all blobs or just data blobs on get requests.
+   * @param getErrorOnDataBlobOnly {@code true} if the preset error code should be set only on data blobs in a get
+   *                               request, {@code false} otherwise
+   */
+  public void setGetErrorOnDataBlobOnly(boolean getErrorOnDataBlobOnly) {
+    this.getErrorOnDataBlobOnly = getErrorOnDataBlobOnly;
+  }
+
+  /**
    * Clear the error for subsequent requests. That is all responses from this point onwards will be successful
    * ({@link ServerErrorCode#No_Error}) until/unless another set error method is invoked.
    */
   public void resetServerErrors() {
     this.serverErrors.clear();
     this.hardError = null;
+    this.getErrorOnDataBlobOnly = false;
   }
 
   /**
@@ -306,23 +391,38 @@ class MockServer {
   }
 
   /**
-   * Get the pre-defined {@link ServerErrorCode} that this server should return for a given {@code blobIdString}.
-   * @param blobIdString The blob for which a {@link ServerErrorCode} needs to be returned.
-   * @return A {@code ServerErrorCode} if it is present. Otherwise {@code ServerErrorCode.Blob_Not_Found}.
+   * Set the blob format version that the server should respond to get requests with.
+   * @param blobFormatVersion The blob version to use.
    */
-  public ServerErrorCode getErrorFromBlobIdStr(String blobIdString) {
-    return blobIdToServerErrorCode.containsKey(blobIdString) ? blobIdToServerErrorCode.get(blobIdString)
-        : ServerErrorCode.Blob_Not_Found;
-  }
-
-  /**
-   * Set the mapping relationship between a {@code blobIdString} and the {@link ServerErrorCode} this server should
-   * return.
-   * @param blobIdString The key in this mapping relation.
-   * @param code The {@link ServerErrorCode} for the {@code blobIdString}.
-   */
-  public void setBlobIdToServerErrorCode(String blobIdString, ServerErrorCode code) {
-    blobIdToServerErrorCode.put(blobIdString, code);
+  public void setBlobFormatVersion(short blobFormatVersion) {
+    this.blobFormatVersion = blobFormatVersion;
   }
 }
 
+class StoredBlob {
+  final String id;
+  final BlobType type;
+  final BlobProperties properties;
+  final ByteBuffer userMetadata;
+  final ByteBuffer serializedSentPutRequest;
+  final PutRequest.ReceivedPutRequest receivedPutRequest;
+
+  StoredBlob(PutRequest putRequest, ClusterMap clusterMap)
+      throws IOException {
+    serializedSentPutRequest = ByteBuffer.allocate((int) putRequest.sizeInBytes());
+    ByteBufferChannel bufChannel = new ByteBufferChannel(serializedSentPutRequest);
+    putRequest.writeTo(bufChannel);
+    serializedSentPutRequest.flip();
+    DataInputStream receivedStream =
+        new DataInputStream(new ByteBufferInputStream(serializedSentPutRequest.duplicate()));
+    // read off the size
+    receivedStream.readLong();
+    // read of the RequestResponse type.
+    receivedStream.readShort();
+    receivedPutRequest = PutRequest.readFrom(receivedStream, clusterMap);
+    id = receivedPutRequest.getBlobId().getID();
+    type = receivedPutRequest.getBlobType();
+    properties = receivedPutRequest.getBlobProperties();
+    userMetadata = receivedPutRequest.getUsermetadata();
+  }
+}

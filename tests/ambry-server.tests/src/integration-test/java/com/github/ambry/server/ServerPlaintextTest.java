@@ -30,66 +30,68 @@ import org.junit.Test;
 
 
 public class ServerPlaintextTest {
-  private static Properties coordinatorProps;
-  private static MockNotificationSystem notificationSystem;
-  private static MockCluster plaintextCluster;
+	  private static Properties routerProps;
+	  private static MockNotificationSystem notificationSystem;
+	  private static MockCluster plaintextCluster;
 
-  @BeforeClass
-  public static void initializeTests()
-      throws Exception {
-    coordinatorProps = new Properties();
-    notificationSystem = new MockNotificationSystem(9);
-    plaintextCluster = new MockCluster(notificationSystem, false, SystemTime.getInstance());
-    plaintextCluster.startServers();
-  }
+	  @BeforeClass
+	  public static void initializeTests()
+	      throws Exception {
+	    routerProps = new Properties();
+	    notificationSystem = new MockNotificationSystem(9);
+	    plaintextCluster = new MockCluster(notificationSystem, false, SystemTime.getInstance());
+	    plaintextCluster.startServers();
+	  }
 
-  public ServerPlaintextTest()
-      throws Exception {
-  }
+	  public ServerPlaintextTest()
+	      throws Exception {
+	  }
 
-  @AfterClass
-  public static void cleanup()
-      throws IOException {
-    long start = System.currentTimeMillis();
-    // cleanup appears to hang sometimes. And, it sometimes takes a long time. Printing some info until cleanup is fast
-    // and reliable.
-    System.out.println("About to invoke cluster.cleanup()");
-    if (plaintextCluster != null) {
-      plaintextCluster.cleanup();
-    }
-    System.out.println("cluster.cleanup() took " + (System.currentTimeMillis() - start) + " ms.");
-  }
+	  @AfterClass
+	  public static void cleanup()
+	      throws IOException {
+	    long start = System.currentTimeMillis();
+	    // cleanup appears to hang sometimes. And, it sometimes takes a long time. Printing some info until cleanup is fast
+	    // and reliable.
+	    System.out.println("About to invoke cluster.cleanup()");
+	    if (plaintextCluster != null) {
+	      plaintextCluster.cleanup();
+	    }
+	    System.out.println("cluster.cleanup() took " + (System.currentTimeMillis() - start) + " ms.");
+	  }
 
-  @Test
-  public void startStopTest()
-      throws IOException, InstantiationException, URISyntaxException, GeneralSecurityException {
-  }
+	  @Test
+	  public void startStopTest()
+	      throws IOException, InstantiationException, URISyntaxException, GeneralSecurityException {
+	  }
 
-  @Test
-  public void endToEndTest()
-      throws InterruptedException, IOException, InstantiationException, URISyntaxException, GeneralSecurityException {
-    DataNodeId dataNodeId = plaintextCluster.getClusterMap().getDataNodeIds().get(0);
-    ServerTestUtil.endToEndTest(new Port(dataNodeId.getPort(), PortType.PLAINTEXT), "DC1", "", plaintextCluster, null,
-        null, coordinatorProps);
-  }
+	  @Test
+	  public void endToEndTest()
+	      throws InterruptedException, IOException, InstantiationException, URISyntaxException, GeneralSecurityException {
+	    DataNodeId dataNodeId = plaintextCluster.getClusterMap().getDataNodeIds().get(0);
+	    ServerTestUtil
+	        .endToEndTest(new Port(dataNodeId.getPort(), PortType.PLAINTEXT), "DC1", "", plaintextCluster, null, null,
+	            routerProps);
+	  }
 
-  @Test
-  public void endToEndReplicationWithMultiNodeMultiPartitionTest()
-      throws InterruptedException, IOException, InstantiationException, URISyntaxException, GeneralSecurityException {
-    DataNodeId dataNode = plaintextCluster.getClusterMap().getDataNodeIds().get(0);
-    ArrayList<String> dataCenterList = Utils.splitString("DC1,DC2,DC3", ",");
-    List<DataNodeId> dataNodes = plaintextCluster.getOneDataNodeFromEachDatacenter(dataCenterList);
-    ServerTestUtil.endToEndReplicationWithMultiNodeMultiPartitionTest(dataNode.getPort(),
-        new Port(dataNodes.get(0).getPort(), PortType.PLAINTEXT),
-        new Port(dataNodes.get(1).getPort(), PortType.PLAINTEXT),
-        new Port(dataNodes.get(2).getPort(), PortType.PLAINTEXT), plaintextCluster, null, null, null, null, null, null,
-        notificationSystem);
-  }
+	  @Test
+	  public void endToEndReplicationWithMultiNodeMultiPartitionTest()
+	      throws InterruptedException, IOException, InstantiationException, URISyntaxException, GeneralSecurityException {
+	    DataNodeId dataNode = plaintextCluster.getClusterMap().getDataNodeIds().get(0);
+	    ArrayList<String> dataCenterList = Utils.splitString("DC1,DC2,DC3", ",");
+	    List<DataNodeId> dataNodes = plaintextCluster.getOneDataNodeFromEachDatacenter(dataCenterList);
+	    ServerTestUtil.endToEndReplicationWithMultiNodeMultiPartitionTest(dataNode.getPort(),
+	        new Port(dataNodes.get(0).getPort(), PortType.PLAINTEXT),
+	        new Port(dataNodes.get(1).getPort(), PortType.PLAINTEXT),
+	        new Port(dataNodes.get(2).getPort(), PortType.PLAINTEXT), plaintextCluster, null, null, null, null, null, null,
+	        notificationSystem);
+	  }
 
-  @Test
-  public void endToEndReplicationWithMultiNodeMultiPartitionMultiDCTest()
-      throws Exception {
-    ServerTestUtil.endToEndReplicationWithMultiNodeMultiPartitionMultiDCTest("DC1", "", PortType.PLAINTEXT,
-        plaintextCluster, notificationSystem, coordinatorProps);
-  }
-}
+	  @Test
+	  public void endToEndReplicationWithMultiNodeMultiPartitionMultiDCTest()
+	      throws Exception {
+	    ServerTestUtil
+	        .endToEndReplicationWithMultiNodeMultiPartitionMultiDCTest("DC1", "", PortType.PLAINTEXT, plaintextCluster,
+	            notificationSystem, routerProps);
+	  }
+	}

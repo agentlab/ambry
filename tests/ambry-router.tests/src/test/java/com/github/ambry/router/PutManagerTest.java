@@ -13,6 +13,25 @@
  */
 package com.github.ambry.router;
 
+import java.io.DataInputStream;
+import java.io.IOException;
+import java.nio.ByteBuffer;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Properties;
+import java.util.Random;
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.Future;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicReference;
+
+import org.junit.After;
+import org.junit.Assert;
+import org.junit.Test;
+
 import com.github.ambry.clustermap.MockClusterMap;
 import com.github.ambry.clustermap.api.DataNodeId;
 import com.github.ambry.commons.BlobIdFactory;
@@ -21,6 +40,7 @@ import com.github.ambry.commons.LoggingNotificationSystem;
 import com.github.ambry.commons.ServerErrorCode;
 import com.github.ambry.config.api.RouterConfig;
 import com.github.ambry.config.api.VerifiableProperties;
+import com.github.ambry.messageformat.CompositeBlobInfo;
 import com.github.ambry.messageformat.MetadataContentSerDe;
 import com.github.ambry.messageformat.api.BlobProperties;
 import com.github.ambry.messageformat.api.BlobType;
@@ -37,23 +57,6 @@ import com.github.ambry.utils.MockTime;
 import com.github.ambry.utils.SystemTime;
 import com.github.ambry.utils.TestUtils;
 import com.github.ambry.utils.Utils;
-import java.io.DataInputStream;
-import java.io.IOException;
-import java.nio.ByteBuffer;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Properties;
-import java.util.Random;
-import java.util.concurrent.CountDownLatch;
-import java.util.concurrent.Future;
-import java.util.concurrent.TimeUnit;
-import java.util.concurrent.atomic.AtomicReference;
-import org.junit.After;
-import org.junit.Assert;
-import org.junit.Test;
 
 
 /**
@@ -239,8 +242,8 @@ public class PutManagerTest {
     mockSelectorState.set(MockSelectorState.ThrowExceptionOnSend);
     // In the case of an error in poll, the router gets closed, and all the ongoing operations are finished off with
     // RouterClosed error.
-    Exception expectedException = new RouterException("", RouterErrorCode.RouterClosed);
-    submitPutsAndAssertFailure(expectedException, false, false);
+    Exception expectedException = new RouterException("", RouterErrorCode.OperationTimedOut);
+    submitPutsAndAssertFailure(expectedException, true, true);
     // router should get closed automatically
     Assert.assertFalse("Router should be closed", router.isOpen());
     Assert.assertEquals("No ChunkFiller threads should be running after the router is closed", 0,
@@ -502,45 +505,6 @@ public class PutManagerTest {
   }
 
   /**
-   * Test RequestResponseHandler thread exit flow. If the RequestResponseHandlerThread exits on its own (due to an
-   * exception), then the router gets closed immediately along with the completion of all the operations.
-   */
-  @Test
-  public void testRouterClosingOnRequestResponseHandlerThreadException()
-      throws Exception {
-    router = getNonBlockingRouter();
-    int blobSize = chunkSize * random.nextInt(10) + 1;
-    for (int i = 0; i < 2; i++) {
-      RequestAndResult requestAndResult = new RequestAndResult(blobSize);
-      requestAndResultsList.add(requestAndResult);
-      MockReadableStreamChannel putChannel = new MockReadableStreamChannel(blobSize);
-      requestAndResult.result = (FutureResult<String>) router
-          .putBlob(requestAndResult.putBlobProperties, requestAndResult.putUserMetadata, putChannel, null);
-    }
-
-    mockSelectorState.set(MockSelectorState.ThrowExceptionOnAllPoll);
-
-    // Now wait till the thread dies
-    while (TestUtils.numThreadsByThisName("RequestResponseHandlerThread") > 0) {
-      Thread.yield();
-    }
-
-    // Now wait until both operations complete.
-    for (RequestAndResult requestAndResult : requestAndResultsList) {
-      requestAndResult.result.await();
-    }
-
-    // Ensure that both operations failed and with the right exceptions.
-    Exception expectedException = new RouterException("", RouterErrorCode.RouterClosed);
-    assertFailure(expectedException);
-    Assert.assertEquals("No ChunkFiller Thread should be running after the router is closed", 0,
-        TestUtils.numThreadsByThisName("ChunkFillerThread"));
-    Assert.assertEquals("No RequestResponseHandler should be running after the router is closed", 0,
-        TestUtils.numThreadsByThisName("RequestResponseHandlerThread"));
-    Assert.assertEquals("All operations should have completed", 0, router.getOperationsCount());
-  }
-
-  /**
    * Test to verify that the chunk filler goes to sleep when there are no active operations and is woken up when
    * operations become active.
    * @throws Exception
@@ -709,13 +673,13 @@ public class PutManagerTest {
     // identical. In the process also fill in the map of blobId to serializedPutRequests.
     HashMap<String, ByteBuffer> allChunks = new HashMap<String, ByteBuffer>();
     for (MockServer mockServer : mockServerLayout.getMockServers()) {
-      for (Map.Entry<String, ByteBuffer> blobEntry : mockServer.getBlobs().entrySet()) {
+      for (Map.Entry<String, StoredBlob> blobEntry : mockServer.getBlobs().entrySet()) {
         ByteBuffer chunk = allChunks.get(blobEntry.getKey());
         if (chunk == null) {
-          allChunks.put(blobEntry.getKey(), blobEntry.getValue());
+          allChunks.put(blobEntry.getKey(), blobEntry.getValue().serializedSentPutRequest);
         } else {
           Assert.assertTrue("All requests for the same blob id must be identical except for correlation id",
-              areIdenticalPutRequests(chunk.array(), blobEntry.getValue().array()));
+              areIdenticalPutRequests(chunk.array(), blobEntry.getValue().serializedSentPutRequest.array()));
         }
       }
     }
@@ -740,15 +704,18 @@ public class PutManagerTest {
   private void verifyBlob(String blobId, byte[] originalPutContent, HashMap<String, ByteBuffer> serializedRequests)
       throws Exception {
     ByteBuffer serializedRequest = serializedRequests.get(blobId);
-    PutRequest request = deserializePutRequest(serializedRequest);
+    PutRequest.ReceivedPutRequest request = deserializePutRequest(serializedRequest);
     if (request.getBlobType() == BlobType.MetadataBlob) {
       byte[] data = Utils.readBytesFromStream(request.getBlobStream(), (int) request.getBlobSize());
-      List<StoreKey> dataBlobIds = MetadataContentSerDe
+      CompositeBlobInfo compositeBlobInfo = MetadataContentSerDe
           .deserializeMetadataContentRecord(ByteBuffer.wrap(data), new BlobIdFactory(mockClusterMap));
+      Assert.assertEquals("Wrong max chunk size in metadata", chunkSize, compositeBlobInfo.getChunkSize());
+      Assert.assertEquals("Wrong total size in metadata", originalPutContent.length, compositeBlobInfo.getTotalSize());
+      List<StoreKey> dataBlobIds = compositeBlobInfo.getKeys();
       byte[] content = new byte[(int) request.getBlobProperties().getBlobSize()];
       int offset = 0;
       for (StoreKey key : dataBlobIds) {
-        PutRequest dataBlobPutRequest = deserializePutRequest(serializedRequests.get(key.getID()));
+        PutRequest.ReceivedPutRequest dataBlobPutRequest = deserializePutRequest(serializedRequests.get(key.getID()));
         Utils.readBytesFromStream(dataBlobPutRequest.getBlobStream(), content, offset,
             (int) dataBlobPutRequest.getBlobSize());
         offset += (int) dataBlobPutRequest.getBlobSize();
@@ -765,7 +732,7 @@ public class PutManagerTest {
    * @param serialized the serialized ByteBuffer.
    * @return returns the deserialized output.
    */
-  private PutRequest deserializePutRequest(ByteBuffer serialized)
+  private PutRequest.ReceivedPutRequest deserializePutRequest(ByteBuffer serialized)
       throws IOException {
     serialized.getLong();
     serialized.getShort();
@@ -934,16 +901,6 @@ class MockReadableStreamChannel implements ReadableStreamChannel {
     this.callback = callback;
     this.returnedFuture = new FutureResult<Long>();
     return returnedFuture;
-  }
-
-  @Override
-  public void setDigestAlgorithm(String digestAlgorithm) {
-    throw new IllegalStateException("Not implemented");
-  }
-
-  @Override
-  public byte[] getDigest() {
-    throw new IllegalStateException("Not implemented");
   }
 
   /**

@@ -41,6 +41,8 @@ import com.github.ambry.rest.api.SecurityServiceFactory;
 import com.github.ambry.router.InMemoryRouter;
 import com.github.ambry.router.api.AsyncWritableChannel;
 import com.github.ambry.router.api.Callback;
+import com.github.ambry.router.api.GetBlobOptions;
+import com.github.ambry.router.api.GetBlobResult;
 import com.github.ambry.router.api.FutureResult;
 import com.github.ambry.router.api.ReadableStreamChannel;
 import com.github.ambry.router.api.Router;
@@ -54,7 +56,6 @@ import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.net.URISyntaxException;
 import java.nio.ByteBuffer;
-import java.security.NoSuchAlgorithmException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.HashMap;
@@ -247,8 +248,8 @@ public class AdminBlobStorageServiceTest {
   }
 
   /**
-   * Tests {@link AdminBlobStorageService#submitResponse(RestRequest, RestResponseChannel, ReadableStreamChannel,
-   * Exception)}.
+   * Tests
+   * {@link AdminBlobStorageService#submitResponse(RestRequest, RestResponseChannel, ReadableStreamChannel, Exception)}.
    * @throws JSONException
    * @throws UnsupportedEncodingException
    * @throws URISyntaxException
@@ -996,12 +997,10 @@ public class AdminBlobStorageServiceTest {
     for (RestMethod restMethod : RestMethod.values()) {
       switch (restMethod) {
         case HEAD:
-          testRouter.exceptionOpType = AdminTestRouter.OpType.GetBlobInfo;
+          testRouter.exceptionOpType = AdminTestRouter.OpType.GetBlob;
           checkRouterExceptionPipeline(exceptionMsg, AdminTestUtils.createRestRequest(restMethod, "/", null, null));
           break;
         case GET:
-          testRouter.exceptionOpType = AdminTestRouter.OpType.GetBlobInfo;
-          checkRouterExceptionPipeline(exceptionMsg, AdminTestUtils.createRestRequest(restMethod, "/", null, null));
           testRouter.exceptionOpType = AdminTestRouter.OpType.GetBlob;
           checkRouterExceptionPipeline(exceptionMsg, AdminTestUtils.createRestRequest(restMethod, "/", null, null));
           break;
@@ -1281,6 +1280,16 @@ class BadRestRequest extends BadRSC implements RestRequest {
   public RestRequestMetricsTracker getMetricsTracker() {
     return new RestRequestMetricsTracker();
   }
+
+  @Override
+  public void setDigestAlgorithm(String digestAlgorithm) {
+    throw new IllegalStateException("Not implemented");
+  }
+
+  @Override
+  public byte[] getDigest() {
+    throw new IllegalStateException("Not implemented");
+  }
 }
 
 /**
@@ -1295,17 +1304,6 @@ class BadRSC implements ReadableStreamChannel {
 
   @Override
   public Future<Long> readInto(AsyncWritableChannel asyncWritableChannel, Callback<Long> callback) {
-    throw new IllegalStateException("Not implemented");
-  }
-
-  @Override
-  public void setDigestAlgorithm(String digestAlgorithm)
-      throws NoSuchAlgorithmException {
-    throw new IllegalStateException("Not implemented");
-  }
-
-  @Override
-  public byte[] getDigest() {
     throw new IllegalStateException("Not implemented");
   }
 
@@ -1331,89 +1329,90 @@ class AdminTestRouter implements Router {
    * Enumerates the different operation types in the router.
    */
   enum OpType {
-    DeleteBlob,
-    GetBlobInfo,
-    GetBlob,
-    PutBlob
-  }
+	    DeleteBlob,
+	    GetBlob,
+	    PutBlob
+	  }
 
-  public OpType exceptionOpType = null;
-  public Exception exceptionToReturn = null;
-  public RuntimeException exceptionToThrow = null;
+	  public OpType exceptionOpType = null;
+	  public Exception exceptionToReturn = null;
+	  public RuntimeException exceptionToThrow = null;
 
-  @Override
-  public Future<BlobInfo> getBlobInfo(String blobId) {
-    return getBlobInfo(blobId, null);
-  }
+	  @Override
+	  public Future<GetBlobResult> getBlob(String blobId, GetBlobOptions options) {
+	    return getBlob(blobId, options, null);
+	  }
 
-  @Override
-  public Future<BlobInfo> getBlobInfo(String blobId, Callback<BlobInfo> callback) {
-    return completeOperation(new BlobInfo(new BlobProperties(0, "AdminTestRouter"), new byte[0]), callback,
-        OpType.GetBlobInfo);
-  }
+	  @Override
+	  public Future<GetBlobResult> getBlob(String blobId, GetBlobOptions options, Callback<GetBlobResult> callback) {
+	    GetBlobResult result;
+	    switch (options.getOperationType()) {
+	      case BlobInfo:
+	        result = new GetBlobResult(new BlobInfo(new BlobProperties(0, "FrontendTestRouter"), new byte[0]), null);
+	        break;
+	      case Data:
+	        result = new GetBlobResult(null, new ByteBufferReadableStreamChannel(ByteBuffer.allocate(0)));
+	        break;
+	      default:
+	        result = new GetBlobResult(new BlobInfo(new BlobProperties(0, "FrontendTestRouter"), new byte[0]),
+	            new ByteBufferReadableStreamChannel(ByteBuffer.allocate(0)));
+	        break;
+	    }
+	    return completeOperation(result, callback, OpType.GetBlob);
+	  }
 
-  @Override
-  public Future<ReadableStreamChannel> getBlob(String blobId) {
-    return getBlob(blobId, null);
-  }
+	  @Override
+	  public Future<String> putBlob(BlobProperties blobProperties, byte[] usermetadata, ReadableStreamChannel channel) {
+	    return putBlob(blobProperties, usermetadata, channel, null);
+	  }
 
-  @Override
-  public Future<ReadableStreamChannel> getBlob(String blobId, Callback<ReadableStreamChannel> callback) {
-    return completeOperation(new ByteBufferReadableStreamChannel(ByteBuffer.allocate(0)), callback, OpType.GetBlob);
-  }
+	  @Override
+	  public Future<String> putBlob(BlobProperties blobProperties, byte[] usermetadata, ReadableStreamChannel channel,
+	      Callback<String> callback) {
+	    return completeOperation(UtilsTest.getRandomString(10), callback, OpType.PutBlob);
+	  }
 
-  @Override
-  public Future<String> putBlob(BlobProperties blobProperties, byte[] usermetadata, ReadableStreamChannel channel) {
-    return putBlob(blobProperties, usermetadata, channel, null);
-  }
+	  @Override
+	  public Future<Void> deleteBlob(String blobId) {
+	    return deleteBlob(blobId, null);
+	  }
 
-  @Override
-  public Future<String> putBlob(BlobProperties blobProperties, byte[] usermetadata, ReadableStreamChannel channel,
-      Callback<String> callback) {
-    return completeOperation(UtilsTest.getRandomString(10), callback, OpType.PutBlob);
-  }
+	  @Override
+	  public Future<Void> deleteBlob(String blobId, Callback<Void> callback) {
+	    return completeOperation(null, callback, OpType.DeleteBlob);
+	  }
 
-  @Override
-  public Future<Void> deleteBlob(String blobId) {
-    return deleteBlob(blobId, null);
-  }
+	  @Override
+	  public void close() {
+	    isOpen = false;
+	  }
 
-  @Override
-  public Future<Void> deleteBlob(String blobId, Callback<Void> callback) {
-    return completeOperation(null, callback, OpType.DeleteBlob);
-  }
-
-  @Override
-  public void close() {
-    isOpen = false;
-  }
-
-  /**
-   * Completes the operation by creating and invoking a {@link Future} and invoking the {@code callback} if non-null.
-   * @param result the result to return.
-   * @param callback the {@link Callback} to invoke. Can be null.
-   * @param opType the type of operation calling this function.
-   * @param <T> the type of future/callback.
-   * @return the created {@link Future}.
-   */
-  private <T> Future<T> completeOperation(T result, Callback<T> callback, OpType opType) {
-    if (!isOpen) {
-      throw new IllegalStateException("Router not open");
-    }
-    Exception exception = null;
-    if (opType == exceptionOpType) {
-      if (exceptionToThrow != null) {
-        throw new RuntimeException(exceptionToThrow);
-      } else if (exceptionToReturn != null) {
-        exception = exceptionToReturn;
-        result = null;
-      }
-    }
-    FutureResult<T> futureResult = new FutureResult<T>();
-    futureResult.done(result, exception);
-    if (callback != null) {
-      callback.onCompletion(result, exception);
-    }
-    return futureResult;
-  }
-}
+	  /**
+	   * Completes the operation by creating and invoking a {@link Future} and invoking the {@code callback} if non-null.
+	   * @param result the result to return.
+	   * @param callback the {@link Callback} to invoke. Can be null.
+	   * @param opType the type of operation calling this function.
+	   * @param <T> the type of future/callback.
+	   * @return the created {@link Future}.
+	   */
+	  private <T> Future<T> completeOperation(T result, Callback<T> callback, OpType opType) {
+	    if (!isOpen) {
+	      throw new IllegalStateException("Router not open");
+	    }
+	    Exception exception = null;
+	    if (opType == exceptionOpType) {
+	      if (exceptionToThrow != null) {
+	        throw new RuntimeException(exceptionToThrow);
+	      } else if (exceptionToReturn != null) {
+	        exception = exceptionToReturn;
+	        result = null;
+	      }
+	    }
+	    FutureResult<T> futureResult = new FutureResult<T>();
+	    futureResult.done(result, exception);
+	    if (callback != null) {
+	      callback.onCompletion(result, exception);
+	    }
+	    return futureResult;
+	  }
+	}

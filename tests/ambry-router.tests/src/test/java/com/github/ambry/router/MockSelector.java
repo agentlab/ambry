@@ -13,6 +13,13 @@
  */
 package com.github.ambry.router;
 
+import java.io.IOException;
+import java.net.InetSocketAddress;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.concurrent.atomic.AtomicReference;
+
 import com.codahale.metrics.MetricRegistry;
 import com.github.ambry.network.NetworkMetrics;
 import com.github.ambry.network.Selector;
@@ -21,12 +28,6 @@ import com.github.ambry.network.api.NetworkReceive;
 import com.github.ambry.network.api.NetworkSend;
 import com.github.ambry.network.api.PortType;
 import com.github.ambry.utils.Time;
-import java.io.IOException;
-import java.net.InetSocketAddress;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.concurrent.atomic.AtomicReference;
 
 
 /**
@@ -43,6 +44,7 @@ class MockSelector extends Selector {
   private final Time time;
   private final AtomicReference<MockSelectorState> state;
   private final MockServerLayout serverLayout;
+  private boolean isOpen = true;
 
   /**
    *
@@ -103,6 +105,9 @@ class MockSelector extends Selector {
       for (NetworkSend send : sends) {
         if (state.get() == MockSelectorState.ThrowExceptionOnSend) {
           throw new IOException("Mock exception on send");
+        }
+        if (state.get() == MockSelectorState.ThrowThrowableOnSend) {
+          throw new Error("Mock throwable on send");
         }
         if (state.get() == MockSelectorState.DisconnectOnSend) {
           disconnected.add(send.getConnectionId());
@@ -176,9 +181,21 @@ class MockSelector extends Selector {
     }
   }
 
+  /**
+   * Close the MockSelector
+   */
   @Override
   public void close() {
-    // no op.
+    isOpen = false;
+  }
+
+  /**
+   * Check whether the MockSelector is open.
+   * @return true if the MockSelector is open.
+   */
+  @Override
+  public boolean isOpen() {
+    return isOpen;
   }
 }
 
@@ -207,5 +224,9 @@ enum MockSelectorState {
    * not.
    */
   ThrowExceptionOnAllPoll,
+  /**
+   * Throw a throwable during poll that sends.
+   */
+  ThrowThrowableOnSend,
 }
 

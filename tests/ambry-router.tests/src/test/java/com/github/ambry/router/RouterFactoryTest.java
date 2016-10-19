@@ -13,18 +13,21 @@
  */
 package com.github.ambry.router;
 
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Properties;
+
+import org.junit.Test;
+
 import com.github.ambry.clustermap.MockClusterMap;
 import com.github.ambry.commons.LoggingNotificationSystem;
 import com.github.ambry.config.api.VerifiableProperties;
 import com.github.ambry.router.api.Router;
 import com.github.ambry.router.api.RouterFactory;
 import com.github.ambry.utils.Utils;
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Properties;
+
 import junit.framework.Assert;
-import org.junit.Test;
 
 
 public class RouterFactoryTest {
@@ -48,8 +51,6 @@ public class RouterFactoryTest {
    */
   private VerifiableProperties getVerifiableProperties() {
     Properties properties = new Properties();
-    properties.setProperty("coordinator.hostname", "localhost");
-    properties.setProperty("coordinator.datacenter.name", "DC1");
     properties.setProperty("router.hostname", "localhost");
     properties.setProperty("router.datacenter.name", "DC1");
     return new VerifiableProperties(properties);
@@ -66,8 +67,6 @@ public class RouterFactoryTest {
     List<FactoryAndRouter> factoryAndRouters = new ArrayList<FactoryAndRouter>();
     factoryAndRouters.add(new FactoryAndRouter("com.github.ambry.router.NonBlockingRouterFactory",
         "com.github.ambry.router.NonBlockingRouter"));
-    factoryAndRouters.add(new FactoryAndRouter("com.github.ambry.router.CoordinatorBackedRouterFactory",
-        "com.github.ambry.router.CoordinatorBackedRouter"));
 
     for (FactoryAndRouter factoryAndRouter : factoryAndRouters) {
       RouterFactory routerFactory = Utils

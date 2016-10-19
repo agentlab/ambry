@@ -83,25 +83,35 @@ class SimpleOperationTracker implements OperationTracker {
       int parallelism, boolean shuffleReplicas) {
     this.successTarget = successTarget;
     this.parallelism = parallelism;
+    // Order the replicas so that local healthy replicas are ordered and returned first,
+    // then the remote healthy ones, and finally the possibly down ones.
     List<ReplicaId> replicas = partitionId.getReplicaIds();
-    if (replicas.size() < successTarget) {
-      throw new IllegalArgumentException(
-          "Total Replica count " + replicas.size() + " is less than success target " + successTarget);
-    }
+    LinkedList<ReplicaId> downReplicas = new LinkedList<>();
     if (shuffleReplicas) {
       Collections.shuffle(replicas);
     }
     for (ReplicaId replicaId : replicas) {
+      String replicaDcName = replicaId.getDataNodeId().getDatacenterName();
       if (!replicaId.isDown()) {
-        String replicaDcName = replicaId.getDataNodeId().getDatacenterName();
         if (replicaDcName.equals(datacenterName)) {
-          replicaPool.add(0, replicaId);
+          replicaPool.addFirst(replicaId);
         } else if (crossColoEnabled) {
-          replicaPool.add(replicaId);
+          replicaPool.addLast(replicaId);
+        }
+      } else {
+        if (replicaDcName.equals(datacenterName)) {
+          downReplicas.addFirst(replicaId);
+        } else if (crossColoEnabled) {
+          downReplicas.addLast(replicaId);
         }
       }
     }
+    replicaPool.addAll(downReplicas);
     totalReplicaCount = replicaPool.size();
+    if (totalReplicaCount < successTarget) {
+      throw new IllegalArgumentException(
+          "Total Replica count " + totalReplicaCount + " is less than success target " + successTarget);
+    }
     this.otIterator = new OpTrackerIterator();
   }
 

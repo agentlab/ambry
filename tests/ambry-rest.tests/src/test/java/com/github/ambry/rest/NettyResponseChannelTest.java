@@ -83,6 +83,8 @@ public class NettyResponseChannelTest {
     REST_ERROR_CODE_TO_HTTP_STATUS.put(RestServiceErrorCode.ResourceDirty, HttpResponseStatus.FORBIDDEN);
     REST_ERROR_CODE_TO_HTTP_STATUS
         .put(RestServiceErrorCode.InternalServerError, HttpResponseStatus.INTERNAL_SERVER_ERROR);
+    REST_ERROR_CODE_TO_HTTP_STATUS
+        .put(RestServiceErrorCode.RangeNotSatisfiable, HttpResponseStatus.REQUESTED_RANGE_NOT_SATISFIABLE);
   }
 
   /**
@@ -407,10 +409,10 @@ public class NettyResponseChannelTest {
   }
 
   /**
-   * Tests that HEAD returns no body in error responses.
+   * Tests that error responses are correctly formed.
    */
   @Test
-  public void noBodyForHeadTest() {
+  public void errorResponseTest() {
     EmbeddedChannel channel = createEmbeddedChannel();
     for (Map.Entry<RestServiceErrorCode, HttpResponseStatus> entry : REST_ERROR_CODE_TO_HTTP_STATUS.entrySet()) {
       HttpHeaders httpHeaders = new DefaultHttpHeaders();
@@ -419,6 +421,12 @@ public class NettyResponseChannelTest {
           .createRequest(HttpMethod.HEAD, TestingUri.OnResponseCompleteWithRestException.toString(), httpHeaders));
       HttpResponse response = (HttpResponse) channel.readOutbound();
       assertEquals("Unexpected response status", entry.getValue(), response.getStatus());
+      boolean containsFailureReasonHeader = response.headers().contains(NettyResponseChannel.FAILURE_REASON_HEADER);
+      if (entry.getValue() == HttpResponseStatus.BAD_REQUEST) {
+        assertTrue("Could not find failure reason header.", containsFailureReasonHeader);
+      } else {
+        assertFalse("Should not have found failure reason header.", containsFailureReasonHeader);
+      }
       if (response instanceof FullHttpResponse) {
         // assert that there is no content
         assertEquals("The response should not contain content", 0,
@@ -701,9 +709,9 @@ public class NettyResponseChannelTest {
         while (channel.readOutbound() != null) {
         }
       }
-      boolean shouldBeAlive = keepAlive &&
-          !httpMethod.equals(HttpMethod.POST) && !NettyResponseChannel.CLOSE_CONNECTION_ERROR_STATUSES
-          .contains(expectedResponseStatus);
+      boolean shouldBeAlive =
+          keepAlive && !httpMethod.equals(HttpMethod.POST) && !NettyResponseChannel.CLOSE_CONNECTION_ERROR_STATUSES
+              .contains(expectedResponseStatus);
       assertEquals("Channel state (open/close) not as expected", shouldBeAlive, channel.isActive());
       assertEquals("Connection header should be consistent with channel state", shouldBeAlive,
           HttpHeaders.isKeepAlive(response));
@@ -899,7 +907,7 @@ class MockNettyMessageProcessor extends SimpleChannelInboundHandler<HttpObject> 
   private void handleRequest(HttpRequest httpRequest)
       throws Exception {
     writeCallbacksToVerify.clear();
-    request = new NettyRequest(httpRequest, nettyMetrics);
+    request = new NettyRequest(httpRequest, ctx.channel(), nettyMetrics);
     restResponseChannel = new NettyResponseChannel(ctx, nettyMetrics);
     restResponseChannel.setRequest(request);
     restResponseChannel.setHeader(RestUtils.Headers.CONTENT_TYPE, "application/octet-stream");

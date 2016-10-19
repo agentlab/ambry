@@ -15,6 +15,8 @@ package com.github.ambry.network;
 
 import java.nio.ByteBuffer;
 
+import com.github.ambry.network.api.NetworkClientErrorCode;
+
 
 /**
  * The response from a {@link NetworkClient} comes in the form of an object of this class.

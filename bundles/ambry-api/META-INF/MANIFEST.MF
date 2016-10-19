@@ -5,7 +5,6 @@ Bundle-SymbolicName: ambry-api;singleton:=true
 Bundle-Version: 0.1.0.qualifier
 Export-Package: com.github.ambry.clustermap.api,
  com.github.ambry.config.api,
- com.github.ambry.coordinator.api,
  com.github.ambry.messageformat.api,
  com.github.ambry.metrics.api,
  com.github.ambry.network.api,

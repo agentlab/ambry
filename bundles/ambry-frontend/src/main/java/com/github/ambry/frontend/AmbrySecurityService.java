@@ -13,6 +13,10 @@
  */
 package com.github.ambry.frontend;
 
+import java.util.Date;
+import java.util.GregorianCalendar;
+import java.util.concurrent.Future;
+
 import com.github.ambry.config.api.FrontendConfig;
 import com.github.ambry.messageformat.api.BlobInfo;
 import com.github.ambry.messageformat.api.BlobProperties;
@@ -26,11 +30,10 @@ import com.github.ambry.rest.api.RestUtils;
 import com.github.ambry.rest.api.SecurityService;
 import com.github.ambry.router.api.Callback;
 import com.github.ambry.router.api.FutureResult;
+import com.github.ambry.router.api.GetBlobOptions;
+import com.github.ambry.utils.Pair;
 import com.github.ambry.utils.Time;
 import com.github.ambry.utils.Utils;
-import java.util.Date;
-import java.util.GregorianCalendar;
-import java.util.concurrent.Future;
 
 
 /**
@@ -70,7 +73,8 @@ class AmbrySecurityService implements SecurityService {
               case UserMetadata:
                 break;
               default:
-                exception = new RestServiceException("Sub-resource [" + subresource + "] not allowed for GET", RestServiceErrorCode.BadRequest);
+                exception = new RestServiceException("Sub-resource [" + subresource + "] not allowed for GET",
+                    RestServiceErrorCode.BadRequest);
             }
           }
           break;
@@ -99,14 +103,16 @@ class AmbrySecurityService implements SecurityService {
         throw new IllegalArgumentException("One of the required params is null");
       }
       try {
+        GetBlobOptions options;
         responseChannel.setHeader(RestUtils.Headers.DATE, new GregorianCalendar().getTime());
         RestMethod restMethod = restRequest.getRestMethod();
         switch (restMethod) {
           case HEAD:
-            responseChannel.setStatus(ResponseStatus.Ok);
+            options = RestUtils.buildGetBlobOptions(restRequest.getArgs(), null);
+            responseChannel.setStatus(options.getRange() == null ? ResponseStatus.Ok : ResponseStatus.PartialContent);
             responseChannel.setHeader(RestUtils.Headers.LAST_MODIFIED,
                 new Date(blobInfo.getBlobProperties().getCreationTimeInMs()));
-            setHeadResponseHeaders(blobInfo, responseChannel);
+            setHeadResponseHeaders(blobInfo, options, responseChannel);
             break;
           case GET:
             responseChannel.setStatus(ResponseStatus.Ok);
@@ -119,9 +125,13 @@ class AmbrySecurityService implements SecurityService {
                 responseChannel.setStatus(ResponseStatus.NotModified);
                 responseChannel.setHeader(RestUtils.Headers.CONTENT_LENGTH, 0);
               } else {
+                options = RestUtils.buildGetBlobOptions(restRequest.getArgs(), null);
+                if (options.getRange() != null) {
+                  responseChannel.setStatus(ResponseStatus.PartialContent);
+                }
                 responseChannel.setHeader(RestUtils.Headers.LAST_MODIFIED,
                     new Date(blobInfo.getBlobProperties().getCreationTimeInMs()));
-                setGetBlobResponseHeaders(responseChannel, blobInfo);
+                setGetBlobResponseHeaders(blobInfo, options, responseChannel);
               }
             } else {
               responseChannel.setHeader(RestUtils.Headers.LAST_MODIFIED,
@@ -173,29 +183,49 @@ class AmbrySecurityService implements SecurityService {
   /**
    * Sets the required headers in the HEAD response.
    * @param blobInfo the {@link BlobInfo} to refer to while setting headers.
+   * @param options the {@link GetBlobOptions} associated with the request.
+   * @param restResponseChannel the {@link RestResponseChannel} to set headers on.
    * @throws RestServiceException if there was any problem setting the headers.
    */
-  private void setHeadResponseHeaders(BlobInfo blobInfo, RestResponseChannel restResponseChannel)
+  private void setHeadResponseHeaders(BlobInfo blobInfo, GetBlobOptions options,
+      RestResponseChannel restResponseChannel)
       throws RestServiceException {
     BlobProperties blobProperties = blobInfo.getBlobProperties();
-    restResponseChannel.setHeader(RestUtils.Headers.CONTENT_LENGTH, blobProperties.getBlobSize());
     if (blobProperties.getContentType() != null) {
       restResponseChannel.setHeader(RestUtils.Headers.CONTENT_TYPE, blobProperties.getContentType());
     }
+    restResponseChannel.setHeader(RestUtils.Headers.ACCEPT_RANGES, RestUtils.BYTE_RANGE_UNITS);
+    long contentLength = blobProperties.getBlobSize();
+    if (options.getRange() != null) {
+      Pair<String, Long> rangeAndLength = RestUtils.buildContentRangeAndLength(options.getRange(), contentLength);
+      restResponseChannel.setHeader(RestUtils.Headers.CONTENT_RANGE, rangeAndLength.getFirst());
+      contentLength = rangeAndLength.getSecond();
+    }
+    restResponseChannel.setHeader(RestUtils.Headers.CONTENT_LENGTH, contentLength);
     setBlobPropertiesHeaders(blobProperties, restResponseChannel);
   }
 
   /**
    * Sets the required headers in the response.
    * @param blobInfo the {@link BlobInfo} to refer to while setting headers.
+   * @param options the {@link GetBlobOptions} associated with the request.
+   * @param restResponseChannel the {@link RestResponseChannel} to set headers on.
    * @throws RestServiceException if there was any problem setting the headers.
    */
-  private void setGetBlobResponseHeaders(RestResponseChannel restResponseChannel, BlobInfo blobInfo)
+  private void setGetBlobResponseHeaders(BlobInfo blobInfo, GetBlobOptions options,
+      RestResponseChannel restResponseChannel)
       throws RestServiceException {
     BlobProperties blobProperties = blobInfo.getBlobProperties();
     restResponseChannel.setHeader(RestUtils.Headers.BLOB_SIZE, blobProperties.getBlobSize());
-    if (blobProperties.getBlobSize() < frontendConfig.frontendChunkedGetResponseThresholdInBytes) {
-      restResponseChannel.setHeader(RestUtils.Headers.CONTENT_LENGTH, blobProperties.getBlobSize());
+    restResponseChannel.setHeader(RestUtils.Headers.ACCEPT_RANGES, RestUtils.BYTE_RANGE_UNITS);
+    long contentLength = blobProperties.getBlobSize();
+    if (options.getRange() != null) {
+      Pair<String, Long> rangeAndLength = RestUtils.buildContentRangeAndLength(options.getRange(), contentLength);
+      restResponseChannel.setHeader(RestUtils.Headers.CONTENT_RANGE, rangeAndLength.getFirst());
+      contentLength = rangeAndLength.getSecond();
+    }
+    if (contentLength < frontendConfig.frontendChunkedGetResponseThresholdInBytes) {
+      restResponseChannel.setHeader(RestUtils.Headers.CONTENT_LENGTH, contentLength);
     }
     if (blobProperties.getContentType() != null) {
       restResponseChannel.setHeader(RestUtils.Headers.CONTENT_TYPE, blobProperties.getContentType());

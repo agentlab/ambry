@@ -13,6 +13,15 @@
  */
 package com.github.ambry.router;
 
+import java.nio.ByteBuffer;
+import java.util.Arrays;
+import java.util.Properties;
+import java.util.Random;
+import java.util.concurrent.atomic.AtomicReference;
+
+import org.junit.Before;
+import org.junit.Test;
+
 import com.github.ambry.clustermap.MockClusterMap;
 import com.github.ambry.commons.ByteBufferReadableStreamChannel;
 import com.github.ambry.commons.ResponseHandler;
@@ -23,14 +32,8 @@ import com.github.ambry.router.api.FutureResult;
 import com.github.ambry.router.api.ReadableStreamChannel;
 import com.github.ambry.utils.MockTime;
 import com.github.ambry.utils.Utils;
-import java.nio.ByteBuffer;
-import java.util.Arrays;
-import java.util.Properties;
-import java.util.Random;
-import java.util.concurrent.atomic.AtomicReference;
+
 import junit.framework.Assert;
-import org.junit.Before;
-import org.junit.Test;
 
 
 /**

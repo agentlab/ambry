@@ -13,8 +13,13 @@
  */
 package com.github.ambry.commons;
 
-import com.github.ambry.router.api.Callback;
-import com.github.ambry.utils.Utils;
+import static org.junit.Assert.assertArrayEquals;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
+
 import java.nio.ByteBuffer;
 import java.nio.channels.ClosedChannelException;
 import java.util.ArrayList;
@@ -23,9 +28,11 @@ import java.util.Random;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
 import java.util.concurrent.atomic.AtomicBoolean;
+
 import org.junit.Test;
 
-import static org.junit.Assert.*;
+import com.github.ambry.router.api.Callback;
+import com.github.ambry.utils.Utils;
 
 
 /**

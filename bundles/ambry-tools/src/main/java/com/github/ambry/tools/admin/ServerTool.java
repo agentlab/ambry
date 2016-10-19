@@ -25,8 +25,6 @@ import com.github.ambry.config.api.ClusterMapConfig;
 import com.github.ambry.config.api.ConnectionPoolConfig;
 import com.github.ambry.config.api.SSLConfig;
 import com.github.ambry.config.api.VerifiableProperties;
-import com.github.ambry.coordinator.AmbryCoordinator;
-import com.github.ambry.coordinator.api.CoordinatorException;
 import com.github.ambry.messageformat.api.BlobProperties;
 import com.github.ambry.messageformat.api.BlobType;
 import com.github.ambry.network.BlockingChannelConnectionPool;
@@ -36,6 +34,8 @@ import com.github.ambry.network.api.Port;
 import com.github.ambry.network.api.PortType;
 import com.github.ambry.protocol.PutRequest;
 import com.github.ambry.protocol.PutResponse;
+import com.github.ambry.utils.ByteBufferInputStream;
+
 import java.io.DataInputStream;
 import java.io.File;
 import java.io.FileInputStream;
@@ -124,7 +124,7 @@ public class ServerTool {
 
   public void walkDirectoryToCreateBlobs(String path, FileWriter writer, String datacenter,
       boolean enableVerboseLogging)
-      throws CoordinatorException, InterruptedException {
+      throws InterruptedException {
 
     File root = new File(path);
     File[] list = root.listFiles();
@@ -137,11 +137,15 @@ public class ServerTool {
     for (File f : list) {
       if (!f.isDirectory()) {
         System.out.println("File :" + f.getAbsoluteFile());
+        if (f.length() > Integer.MAX_VALUE) {
+          System.out.println("File length is " + f.length());
+          throw new IllegalArgumentException("File length is " + f.length() + "; files larger than " + Integer.MAX_VALUE
+              + " cannot be put using this tool.");
+        }
         BlobProperties props = new BlobProperties(f.length(), "migration");
         byte[] usermetadata = new byte[1];
         FileInputStream stream = null;
         try {
-          long startMs = System.currentTimeMillis();
           int replicaCount = 0;
           BlobId blobId = new BlobId(partitionId);
           List<ReplicaId> successList = new ArrayList<ReplicaId>();
@@ -214,9 +218,11 @@ public class ServerTool {
     try {
       blockingChannel = connectionPool.checkOutConnection(replicaId.getDataNodeId().getHostname(),
           new Port(replicaId.getDataNodeId().getPort(), PortType.PLAINTEXT), 100000);
+      int size = (int) blobProperties.getBlobSize();
+      ByteBufferInputStream blobStream = new ByteBufferInputStream(stream, size);
       PutRequest putRequest =
           new PutRequest(correlationId.incrementAndGet(), "consumerThread", blobId, blobProperties, userMetaData,
-              stream, blobProperties.getBlobSize(), BlobType.DataBlob);
+              blobStream.getByteBuffer(), size, BlobType.DataBlob);
 
       if (enableVerboseLogging) {
         System.out.println("Put Request to a replica : " + putRequest + " for blobId " + blobId);
@@ -238,7 +244,6 @@ public class ServerTool {
     } finally {
       if (stream != null) {
         stream.close();
-        stream = null;
       }
       if (blockingChannel != null) {
         connectionPool.checkInConnection(blockingChannel);
@@ -271,7 +276,6 @@ public class ServerTool {
 
   public static void main(String args[]) {
     FileWriter writer = null;
-    AmbryCoordinator coordinator = null;
     try {
       OptionParser parser = new OptionParser();
       ArgumentAcceptingOptionSpec<String> rootDirectoryOpt =
@@ -308,8 +312,8 @@ public class ServerTool {
               .withOptionalArg().describedAs("nodeHostname").ofType(String.class);
 
       ArgumentAcceptingOptionSpec<Integer> nodePortOpt =
-          parser.accepts("nodePort", "The port of the node to put to (if specifying single node)")
-              .withOptionalArg().describedAs("nodePort").ofType(Integer.class);
+          parser.accepts("nodePort", "The port of the node to put to (if specifying single node)").withOptionalArg()
+              .describedAs("nodePort").ofType(Integer.class);
 
       OptionSet options = parser.parse(args);
 
@@ -387,9 +391,6 @@ public class ServerTool {
         } catch (Exception e) {
           System.out.println("Error when closing the writer");
         }
-      }
-      if (coordinator != null) {
-        coordinator.close();
       }
     }
   }

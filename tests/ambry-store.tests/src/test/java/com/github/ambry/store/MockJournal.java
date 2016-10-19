@@ -20,11 +20,11 @@ import com.github.ambry.store.api.StoreKey;
 
 
 /**
- * A mock journal that makes use of InMemoryJournal in the background, and provides support for pausing and
- * resuming the addition of entries to the backing InMemoryJournal. This can be used to simulate the race
+ * A mock journal that makes use of Journal in the background, and provides support for pausing and
+ * resuming the addition of entries to the backing Journal. This can be used to simulate the race
  * condition of an entry getting added to the index but not yet to the journal.
  */
-class MockJournal extends InMemoryJournal {
+class MockJournal extends Journal {
   private List<Long> savedOffsets;
   private List<StoreKey> savedKeys;
   boolean paused;

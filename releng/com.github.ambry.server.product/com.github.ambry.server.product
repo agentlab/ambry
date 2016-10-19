@@ -36,7 +36,6 @@
       <plugin id="ambry-api"/>
       <plugin id="ambry-clustermap"/>
       <plugin id="ambry-commons"/>
-      <plugin id="ambry-coordinator"/>
       <plugin id="ambry-messageformat"/>
       <plugin id="ambry-metrics"/>
       <plugin id="ambry-network"/>

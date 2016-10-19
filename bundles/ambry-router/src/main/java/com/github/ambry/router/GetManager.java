@@ -13,40 +13,41 @@
  */
 package com.github.ambry.router;
 
-import com.github.ambry.clustermap.api.ClusterMap;
-import com.github.ambry.clustermap.api.ReplicaId;
-import com.github.ambry.commons.BlobIdFactory;
-import com.github.ambry.commons.ResponseHandler;
-import com.github.ambry.commons.ServerErrorCode;
-import com.github.ambry.config.api.RouterConfig;
-import com.github.ambry.messageformat.api.BlobInfo;
-import com.github.ambry.network.NetworkClientErrorCode;
-import com.github.ambry.network.RequestInfo;
-import com.github.ambry.network.ResponseInfo;
-import com.github.ambry.protocol.GetRequest;
-import com.github.ambry.protocol.GetResponse;
-import com.github.ambry.protocol.RequestOrResponse;
-import com.github.ambry.router.api.Callback;
-import com.github.ambry.router.api.FutureResult;
-import com.github.ambry.router.api.ReadableStreamChannel;
-import com.github.ambry.router.api.RouterErrorCode;
-import com.github.ambry.router.api.RouterException;
-import com.github.ambry.utils.ByteBufferInputStream;
-import com.github.ambry.utils.Time;
 import java.io.DataInputStream;
-import java.io.IOException;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.github.ambry.clustermap.api.ClusterMap;
+import com.github.ambry.clustermap.api.ReplicaId;
+import com.github.ambry.commons.BlobIdFactory;
+import com.github.ambry.commons.ResponseHandler;
+import com.github.ambry.commons.ServerErrorCode;
+import com.github.ambry.config.api.RouterConfig;
+import com.github.ambry.network.RequestInfo;
+import com.github.ambry.network.ResponseInfo;
+import com.github.ambry.network.api.NetworkClientErrorCode;
+import com.github.ambry.protocol.GetRequest;
+import com.github.ambry.protocol.GetResponse;
+import com.github.ambry.protocol.RequestOrResponse;
+import com.github.ambry.router.api.Callback;
+import com.github.ambry.router.api.FutureResult;
+import com.github.ambry.router.api.GetBlobOptions;
+import com.github.ambry.router.api.GetBlobResult;
+import com.github.ambry.router.api.RouterErrorCode;
+import com.github.ambry.router.api.RouterException;
+import com.github.ambry.utils.ByteBufferInputStream;
+import com.github.ambry.utils.Time;
+
 
 /**
- * GetManager manages GetBlob and GetBlobInfo operations. This is just a template for now.
+ * GetManager manages GetBlob and GetBlobInfo operations.
  * These methods have to be thread safe.
  */
 class GetManager {
@@ -110,41 +111,27 @@ class GetManager {
   }
 
   /**
-   * Submit an operation to get the BlobInfo associated with a blob asynchronously.
-   * @param blobId the blobId for which the BlobInfo is being requested, in string form.
-   * @param futureResult the {@link FutureResult} that contains the pending result of the operation.
-   * @param callback the {@link Callback} object to be called on completion of the operation.
-   */
-  void submitGetBlobInfoOperation(String blobId, FutureResult<BlobInfo> futureResult, Callback<BlobInfo> callback) {
-    try {
-      GetBlobInfoOperation getBlobInfoOperation =
-          new GetBlobInfoOperation(routerConfig, routerMetrics, clusterMap, responseHandler, blobId, futureResult,
-              callback, operationCompleteCallback, time);
-      getOperations.add(getBlobInfoOperation);
-    } catch (RouterException e) {
-      routerMetrics.getBlobInfoErrorCount.inc();
-      routerMetrics.countError(e);
-      routerMetrics.operationDequeuingRate.mark();
-      operationCompleteCallback.completeOperation(futureResult, callback, null, e);
-    }
-  }
-
-  /**
    * Submit an operation to get a blob asynchronously.
-   * @param blobId the blobId for which the BlobInfo is being requested, in string form.
-   * @param futureResult the {@link FutureResult} that contains the pending result of the operation.
-   * @param callback the {@link Callback} object to be called on completion of the operation.
+   * @param blobId The blobId for which the BlobInfo is being requested, in string form.
+   * @param options The {@link GetBlobOptions} associated witht the operation.
+   * @param futureResult The {@link FutureResult} that contains the pending result of the operation.
+   * @param callback The {@link Callback} object to be called on completion of the operation.
    */
-  void submitGetBlobOperation(String blobId, FutureResult<ReadableStreamChannel> futureResult,
-      Callback<ReadableStreamChannel> callback) {
+  void submitGetBlobOperation(String blobId, GetBlobOptions options, FutureResult<GetBlobResult> futureResult,
+      Callback<GetBlobResult> callback) {
     try {
-      GetBlobOperation getBlobOperation =
-          new GetBlobOperation(routerConfig, routerMetrics, clusterMap, responseHandler, blobId, futureResult, callback,
-              operationCompleteCallback, readyForPollCallback, blobIdFactory, time);
-      getOperations.add(getBlobOperation);
+      GetOperation getOperation;
+      if (options.getOperationType() == GetBlobOptions.OperationType.BlobInfo) {
+        getOperation =
+            new GetBlobInfoOperation(routerConfig, routerMetrics, clusterMap, responseHandler, blobId, options,
+                futureResult, callback, operationCompleteCallback, time);
+      } else {
+        getOperation = new GetBlobOperation(routerConfig, routerMetrics, clusterMap, responseHandler, blobId, options,
+            futureResult, callback, operationCompleteCallback, readyForPollCallback, blobIdFactory, time);
+      }
+      getOperations.add(getOperation);
     } catch (RouterException e) {
-      routerMetrics.getBlobErrorCount.inc();
-      routerMetrics.countError(e);
+      routerMetrics.onGetBlobError(e, options);
       routerMetrics.operationDequeuingRate.mark();
       operationCompleteCallback.completeOperation(futureResult, callback, null, e);
     }
@@ -196,7 +183,7 @@ class GetManager {
    */
   void handleResponse(ResponseInfo responseInfo) {
     long startTime = time.milliseconds();
-    GetResponse getResponse = extractPutResponseAndNotifyResponseHandler(responseInfo);
+    GetResponse getResponse = extractGetResponseAndNotifyResponseHandler(responseInfo);
     RouterRequestInfo routerRequestInfo = (RouterRequestInfo) responseInfo.getRequestInfo();
     GetRequest getRequest = (GetRequest) routerRequestInfo.getRequest();
     GetOperation getOperation = correlationIdToGetOperation.remove(getRequest.getCorrelationId());
@@ -221,13 +208,11 @@ class GetManager {
    * @param responseInfo the {@link ResponseInfo} from which the {@link GetResponse} is to be extracted.
    * @return the extracted {@link GetResponse} if there is one; null otherwise.
    */
-  private GetResponse extractPutResponseAndNotifyResponseHandler(ResponseInfo responseInfo) {
+  private GetResponse extractGetResponseAndNotifyResponseHandler(ResponseInfo responseInfo) {
     GetResponse getResponse = null;
     ReplicaId replicaId = ((RouterRequestInfo) responseInfo.getRequestInfo()).getReplicaId();
     NetworkClientErrorCode networkClientErrorCode = responseInfo.getError();
-    if (networkClientErrorCode != null) {
-      responseHandler.onRequestResponseException(replicaId, new IOException("NetworkClient error"));
-    } else {
+    if (networkClientErrorCode == null) {
       try {
         getResponse = GetResponse
             .readFrom(new DataInputStream(new ByteBufferInputStream(responseInfo.getResponse())), clusterMap);
@@ -235,12 +220,14 @@ class GetManager {
         if (serverError == ServerErrorCode.No_Error) {
           serverError = getResponse.getPartitionResponseInfoList().get(0).getErrorCode();
         }
-        responseHandler.onRequestResponseError(replicaId, serverError);
+        responseHandler.onEvent(replicaId, serverError);
       } catch (Exception e) {
         // Ignore. There is no value in notifying the response handler.
         logger.error("Response deserialization received unexpected error", e);
         routerMetrics.responseDeserializationErrorCount.inc();
       }
+    } else {
+      responseHandler.onEvent(replicaId, networkClientErrorCode);
     }
     return getResponse;
   }
@@ -268,8 +255,7 @@ class GetManager {
     if (remove(op)) {
       op.abort(abortCause);
       routerMetrics.operationAbortCount.inc();
-      routerMetrics.countError(abortCause);
+      routerMetrics.onGetBlobError(abortCause, op.getOptions());
     }
   }
 }
-

@@ -13,13 +13,6 @@
  */
 package com.github.ambry.network;
 
-import com.github.ambry.config.api.NetworkConfig;
-import com.github.ambry.network.api.ClientNetworkRequestMetrics;
-import com.github.ambry.network.api.NetworkReceive;
-import com.github.ambry.network.api.NetworkSend;
-import com.github.ambry.network.api.Port;
-import com.github.ambry.network.api.Send;
-import com.github.ambry.utils.Time;
 import java.io.Closeable;
 import java.io.IOException;
 import java.net.InetSocketAddress;
@@ -29,8 +22,18 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.ListIterator;
 import java.util.concurrent.atomic.AtomicLong;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import com.github.ambry.config.api.NetworkConfig;
+import com.github.ambry.network.api.ClientNetworkRequestMetrics;
+import com.github.ambry.network.api.NetworkClientErrorCode;
+import com.github.ambry.network.api.NetworkReceive;
+import com.github.ambry.network.api.NetworkSend;
+import com.github.ambry.network.api.Port;
+import com.github.ambry.network.api.Send;
+import com.github.ambry.utils.Time;
 
 
 /**
@@ -93,17 +96,15 @@ public class NetworkClient implements Closeable {
    * @param pollTimeoutMs the poll timeout.
    * @return a list of {@link ResponseInfo} representing the responses received for any requests that were sent out
    * so far.
-   * @throws IOException if the {@link Selector} associated with this NetworkClient throws
    * @throws IllegalStateException if the NetworkClient is closed.
    */
-  public List<ResponseInfo> sendAndPoll(List<RequestInfo> requestInfos, int pollTimeoutMs)
-      throws IOException {
+  public List<ResponseInfo> sendAndPoll(List<RequestInfo> requestInfos, int pollTimeoutMs) {
+    if (closed || !selector.isOpen()) {
+      throw new IllegalStateException("The NetworkClient is closed.");
+    }
     long startTime = time.milliseconds();
+    List<ResponseInfo> responseInfoList = new ArrayList<>();
     try {
-      if (closed) {
-        throw new IllegalStateException("The NetworkClient is closed.");
-      }
-      List<ResponseInfo> responseInfoList = new ArrayList<>();
       for (RequestInfo requestInfo : requestInfos) {
         ClientNetworkRequestMetrics clientNetworkRequestMetrics =
             new ClientNetworkRequestMetrics(networkMetrics.requestQueueTime, networkMetrics.requestSendTime,
@@ -113,12 +114,14 @@ public class NetworkClient implements Closeable {
       List<NetworkSend> sends = prepareSends(responseInfoList);
       selector.poll(pollTimeoutMs, sends);
       handleSelectorEvents(responseInfoList);
-      return responseInfoList;
+    } catch (Exception e) {
+      logger.error("Received an unexpected error during sendAndPoll(): ", e);
+      networkMetrics.networkClientException.inc();
     } finally {
       numPendingRequests.set(pendingRequests.size());
       networkMetrics.networkClientSendAndPollTime.update(time.milliseconds() - startTime);
-      logger.trace("Completing a send and poll cycle ");
     }
+    return responseInfoList;
   }
 
   /**
@@ -142,6 +145,10 @@ public class NetworkClient implements Closeable {
         logger.trace("Failing request to host {} port {} due to connection unavailability",
             requestMetadata.requestInfo.getHost(), requestMetadata.requestInfo.getPort());
         iter.remove();
+        if (requestMetadata.pendingConnectionId != null) {
+          pendingConnectionsToAssociatedRequests.remove(requestMetadata.pendingConnectionId);
+          requestMetadata.pendingConnectionId = null;
+        }
         networkMetrics.connectionTimeOutError.inc();
       } else {
         // Since requests are ordered by time, once the first request that cannot be dropped is found,

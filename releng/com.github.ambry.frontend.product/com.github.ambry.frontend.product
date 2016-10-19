@@ -21,7 +21,7 @@
       </vmArgsWin>
    </launcherArgs>
 
-   <launcher>
+   <launcher name="ambry-frontend">
       <solaris/>
       <win useIco="false">
          <bmp/>
@@ -36,7 +36,6 @@
       <plugin id="ambry-api"/>
       <plugin id="ambry-clustermap"/>
       <plugin id="ambry-commons"/>
-      <plugin id="ambry-coordinator"/>
       <plugin id="ambry-frontend"/>
       <plugin id="ambry-messageformat"/>
       <plugin id="ambry-metrics"/>

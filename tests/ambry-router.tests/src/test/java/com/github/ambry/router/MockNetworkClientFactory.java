@@ -13,6 +13,9 @@
  */
 package com.github.ambry.router;
 
+import java.io.IOException;
+import java.util.concurrent.atomic.AtomicReference;
+
 import com.codahale.metrics.MetricRegistry;
 import com.github.ambry.config.api.NetworkConfig;
 import com.github.ambry.config.api.VerifiableProperties;
@@ -20,8 +23,6 @@ import com.github.ambry.network.NetworkClient;
 import com.github.ambry.network.NetworkClientFactory;
 import com.github.ambry.network.NetworkMetrics;
 import com.github.ambry.utils.Time;
-import java.io.IOException;
-import java.util.concurrent.atomic.AtomicReference;
 
 
 /**
@@ -68,6 +69,18 @@ class MockNetworkClientFactory extends NetworkClientFactory {
       throws IOException {
     MockSelector selector = new MockSelector(serverLayout, state, time);
     return new NetworkClient(selector, networkConfig, new NetworkMetrics(new MetricRegistry()), maxPortsPlainText,
+        maxPortsSsl, checkoutTimeoutMs, time);
+  }
+
+  /**
+   * Return a {@link MockNetworkClient} instantiated with a {@link MockSelector}
+   * @return the constructed {@link MockNetworkClient}
+   * @throws IOException if the selector could not be constructed.
+   */
+  public MockNetworkClient getMockNetworkClient()
+      throws IOException {
+    MockSelector selector = new MockSelector(serverLayout, state, time);
+    return new MockNetworkClient(selector, networkConfig, new NetworkMetrics(new MetricRegistry()), maxPortsPlainText,
         maxPortsSsl, checkoutTimeoutMs, time);
   }
 }

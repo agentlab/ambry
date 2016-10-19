@@ -13,47 +13,52 @@
  */
 package com.github.ambry.router;
 
+import static com.github.ambry.router.RouterTestHelpers.setServerErrorCodes;
+import static com.github.ambry.router.RouterTestHelpers.testWithErrorCodes;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.fail;
+
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Properties;
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.Future;
+import java.util.concurrent.ThreadLocalRandom;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicReference;
+
+import org.junit.After;
+import org.junit.Assert;
+import org.junit.Before;
+import org.junit.Test;
+
 import com.github.ambry.clustermap.MockClusterMap;
 import com.github.ambry.clustermap.api.DataNodeId;
 import com.github.ambry.clustermap.api.PartitionId;
-import com.github.ambry.clustermap.api.ReplicaId;
 import com.github.ambry.commons.BlobId;
 import com.github.ambry.commons.LoggingNotificationSystem;
 import com.github.ambry.commons.ServerErrorCode;
 import com.github.ambry.config.api.RouterConfig;
 import com.github.ambry.config.api.VerifiableProperties;
+import com.github.ambry.router.RouterTestHelpers.ErrorCodeChecker;
 import com.github.ambry.router.api.Callback;
 import com.github.ambry.router.api.RouterErrorCode;
 import com.github.ambry.router.api.RouterException;
 import com.github.ambry.utils.MockTime;
 import com.github.ambry.utils.TestUtils;
 import com.github.ambry.utils.Time;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Properties;
-import java.util.concurrent.CountDownLatch;
-import java.util.concurrent.ExecutionException;
-import java.util.concurrent.Future;
-import java.util.concurrent.ThreadLocalRandom;
-import java.util.concurrent.TimeUnit;
-import java.util.concurrent.atomic.AtomicReference;
-import org.junit.After;
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Test;
-
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.fail;
 
 
 /**
  * Unit test for {@link DeleteManager} and {@link DeleteOperation}.
  */
+
 public class DeleteManagerTest {
-  private CountDownLatch operationCompleteLatch;
+  private static final int AWAIT_TIMEOUT_SECONDS = 200;
   private Time mockTime;
   private AtomicReference<MockSelectorState> mockSelectorState;
   private MockClusterMap clusterMap;
@@ -64,12 +69,28 @@ public class DeleteManagerTest {
   private PartitionId partition;
   private Future<Void> future;
 
+  /**
+   * A checker that either asserts that a delete operation succeeds or returns the specified error code.
+   */
+  private final ErrorCodeChecker deleteErrorCodeChecker = new ErrorCodeChecker() {
+    @Override
+    public void testAndAssert(RouterErrorCode expectedError)
+        throws Exception {
+      future = router.deleteBlob(blobIdString);
+      if (expectedError == null) {
+        future.get(AWAIT_TIMEOUT_SECONDS, TimeUnit.SECONDS);
+      } else {
+        assertFailureAndCheckErrorCode(future, expectedError);
+      }
+    }
+  };
+
   private static final int MAX_PORTS_PLAIN_TEXT = 3;
   private static final int MAX_PORTS_SSL = 3;
   private static final int CHECKOUT_TIMEOUT_MS = 1000;
 
   // The maximum number of inflight requests for a single delete operation.
-  private static final String DELETE_PARALLELISM = "9";
+  private static final String DELETE_PARALLELISM = "3";
 
   /**
    * Initializes ClusterMap, Router, mock servers, and an {@code BlobId} to be deleted.
@@ -78,7 +99,6 @@ public class DeleteManagerTest {
   public void init()
       throws Exception {
     VerifiableProperties vProps = new VerifiableProperties(getNonBlockingRouterProperties());
-    operationCompleteLatch = new CountDownLatch(1);
     mockTime = new MockTime();
     mockSelectorState = new AtomicReference<MockSelectorState>(MockSelectorState.Good);
     clusterMap = new MockClusterMap();
@@ -106,11 +126,8 @@ public class DeleteManagerTest {
   @Test
   public void testBasicDeletion()
       throws Exception {
-    ServerErrorCode[] serverErrorCodes = new ServerErrorCode[9];
-    Arrays.fill(serverErrorCodes, ServerErrorCode.No_Error);
-    presetServerErrorCode(serverErrorCodes);
-    future = router.deleteBlob(blobIdString, new ClientCallback());
-    future.get();
+    testWithErrorCodes(Collections.singletonMap(ServerErrorCode.No_Error, 9), serverLayout, null,
+        deleteErrorCodeChecker);
   }
 
   /**
@@ -120,34 +137,37 @@ public class DeleteManagerTest {
   @Test
   public void testBadCallback()
       throws Exception {
-    ServerErrorCode[] serverErrorCodes = new ServerErrorCode[9];
-    Arrays.fill(serverErrorCodes, ServerErrorCode.No_Error);
-    presetServerErrorCode(serverErrorCodes);
-    final CountDownLatch callbackCalled = new CountDownLatch(1);
-    List<Future> futures = new ArrayList<>();
-    for (int i = 0; i < 5; i++) {
-      if (i == 1) {
-        futures.add(router.deleteBlob(blobIdString, new Callback<Void>() {
+    testWithErrorCodes(Collections.singletonMap(ServerErrorCode.No_Error, 9), serverLayout, null,
+        new ErrorCodeChecker() {
           @Override
-          public void onCompletion(Void result, Exception exception) {
-            callbackCalled.countDown();
-            throw new RuntimeException("Throwing an exception in the user callback");
-          }
-        }));
-      } else {
-        futures.add(router.deleteBlob(blobIdString));
-      }
-    }
-    for (Future future : futures) {
-      future.get();
-    }
-    Assert.assertTrue("Callback not called.", callbackCalled.await(2, TimeUnit.SECONDS));
-    Assert.assertEquals("All operations should be finished.", 0, router.getOperationsCount());
-    Assert.assertTrue("Router should not be closed", router.isOpen());
+          public void testAndAssert(RouterErrorCode expectedError)
+              throws Exception {
+            final CountDownLatch callbackCalled = new CountDownLatch(1);
+            List<Future> futures = new ArrayList<>();
+            for (int i = 0; i < 5; i++) {
+              if (i == 1) {
+                futures.add(router.deleteBlob(blobIdString, new Callback<Void>() {
+                  @Override
+                  public void onCompletion(Void result, Exception exception) {
+                    callbackCalled.countDown();
+                    throw new RuntimeException("Throwing an exception in the user callback");
+                  }
+                }));
+              } else {
+                futures.add(router.deleteBlob(blobIdString));
+              }
+            }
+            for (Future future : futures) {
+              future.get(AWAIT_TIMEOUT_SECONDS, TimeUnit.SECONDS);
+            }
+            Assert.assertTrue("Callback not called.", callbackCalled.await(AWAIT_TIMEOUT_SECONDS, TimeUnit.SECONDS));
+            Assert.assertEquals("All operations should be finished.", 0, router.getOperationsCount());
+            Assert.assertTrue("Router should not be closed", router.isOpen());
 
-    //Test that DeleteManager is still operational
-    router.deleteBlob(blobIdString, new ClientCallback()).get();
-    Assert.assertTrue("Callback not called.", operationCompleteLatch.await(2, TimeUnit.SECONDS));
+            //Test that DeleteManager is still operational
+            router.deleteBlob(blobIdString).get();
+          }
+        });
   }
 
   /**
@@ -156,16 +176,10 @@ public class DeleteManagerTest {
   @Test
   public void testBlobIdNotValid()
       throws Exception {
-    String[] input = {"123", "abcd", "", "/", null};
+    String[] input = {"123", "abcd", "", "/"};
     for (String s : input) {
-      future = router.deleteBlob(s, new ClientCallback());
-      try {
-        future.get();
-        fail("Deletion should be unsuccessful. Exception is expected.");
-      } catch (Exception e) {
-        assertEquals("RouterErrorCode should be InvalidBlobId", RouterErrorCode.InvalidBlobId,
-            ((RouterException) e.getCause()).getErrorCode());
-      }
+      future = router.deleteBlob(s);
+      assertFailureAndCheckErrorCode(future, RouterErrorCode.InvalidBlobId);
     }
   }
 
@@ -181,15 +195,7 @@ public class DeleteManagerTest {
     ServerErrorCode[] serverErrorCodes = new ServerErrorCode[9];
     Arrays.fill(serverErrorCodes, ServerErrorCode.Blob_Not_Found);
     serverErrorCodes[5] = ServerErrorCode.Blob_Expired;
-    presetServerErrorCode(serverErrorCodes);
-    future = router.deleteBlob(blobIdString, new ClientCallback());
-    try {
-      future.get();
-      fail("Deletion should be unsuccessful. Error is expected.");
-    } catch (Exception e) {
-      assertEquals("RouterErrorCode should be BlobExpired", RouterErrorCode.BlobExpired,
-          ((RouterException) e.getCause()).getErrorCode());
-    }
+    testWithErrorCodes(serverErrorCodes, partition, serverLayout, RouterErrorCode.BlobExpired, deleteErrorCodeChecker);
   }
 
   /**
@@ -209,7 +215,8 @@ public class DeleteManagerTest {
       }
     }
     for (Map.Entry<ServerErrorCode, RouterErrorCode> entity : map.entrySet()) {
-      testResponseForServerErrorUtil(entity.getKey(), entity.getValue());
+      testWithErrorCodes(Collections.singletonMap(entity.getKey(), 9), serverLayout, entity.getValue(),
+          deleteErrorCodeChecker);
     }
   }
 
@@ -225,15 +232,8 @@ public class DeleteManagerTest {
     ServerErrorCode[] serverErrorCodes = new ServerErrorCode[9];
     Arrays.fill(serverErrorCodes, ServerErrorCode.Blob_Not_Found);
     serverErrorCodes[8] = ServerErrorCode.IO_Error;
-    presetServerErrorCode(serverErrorCodes);
-    future = router.deleteBlob(blobIdString, new ClientCallback());
-    try {
-      future.get();
-      fail("Deletion should be unsuccessful. Error is expected.");
-    } catch (Exception e) {
-      assertEquals("RouterErrorCode should be BlobDoesNotExist", RouterErrorCode.BlobDoesNotExist,
-          ((RouterException) e.getCause()).getErrorCode());
-    }
+    testWithErrorCodes(serverErrorCodes, partition, serverLayout, RouterErrorCode.BlobDoesNotExist,
+        deleteErrorCodeChecker);
   }
 
   /**
@@ -249,9 +249,7 @@ public class DeleteManagerTest {
     Arrays.fill(serverErrorCodes, ServerErrorCode.IO_Error);
     serverErrorCodes[5] = ServerErrorCode.Blob_Deleted;
     serverErrorCodes[8] = ServerErrorCode.Blob_Deleted;
-    presetServerErrorCode(serverErrorCodes);
-    future = router.deleteBlob(blobIdString, new ClientCallback());
-    future.get();
+    testWithErrorCodes(serverErrorCodes, partition, serverLayout, null, deleteErrorCodeChecker);
   }
 
   /**
@@ -265,15 +263,8 @@ public class DeleteManagerTest {
     ServerErrorCode[] serverErrorCodes = new ServerErrorCode[9];
     Arrays.fill(serverErrorCodes, ServerErrorCode.Unknown_Error);
     serverErrorCodes[7] = ServerErrorCode.Blob_Deleted;
-    presetServerErrorCode(serverErrorCodes);
-    future = router.deleteBlob(blobIdString, new ClientCallback());
-    try {
-      future.get();
-      fail("Deletion should be unsuccessful. Error is expected.");
-    } catch (Exception e) {
-      assertEquals("RouterErrorCode should be BlobDeleted", RouterErrorCode.UnexpectedInternalError,
-          ((RouterException) e.getCause()).getErrorCode());
-    }
+    testWithErrorCodes(serverErrorCodes, partition, serverLayout, RouterErrorCode.UnexpectedInternalError,
+        deleteErrorCodeChecker);
   }
 
   /**
@@ -295,15 +286,8 @@ public class DeleteManagerTest {
     serverErrorCodes[6] = ServerErrorCode.Data_Corrupt;
     serverErrorCodes[7] = ServerErrorCode.Unknown_Error;
     serverErrorCodes[8] = ServerErrorCode.Disk_Unavailable;
-    presetServerErrorCode(serverErrorCodes);
-    future = router.deleteBlob(blobIdString, new ClientCallback());
-    try {
-      future.get();
-      fail("Deletion should be unsuccessful. Error is expected.");
-    } catch (Exception e) {
-      assertEquals("RouterErrorCode should be AmbryUnavailable", RouterErrorCode.AmbryUnavailable,
-          ((RouterException) e.getCause()).getErrorCode());
-    }
+    testWithErrorCodes(serverErrorCodes, partition, serverLayout, RouterErrorCode.AmbryUnavailable,
+        deleteErrorCodeChecker);
   }
 
   /**
@@ -334,15 +318,8 @@ public class DeleteManagerTest {
     serverErrorCodes[6] = ServerErrorCode.Data_Corrupt;
     serverErrorCodes[7] = ServerErrorCode.Unknown_Error;
     serverErrorCodes[8] = ServerErrorCode.Disk_Unavailable;
-    presetServerErrorCode(serverErrorCodes);
-    future = router.deleteBlob(blobIdString, new ClientCallback());
-    try {
-      future.get();
-      fail("Deletion should be unsuccessful. Exception is expected.");
-    } catch (Exception e) {
-      assertEquals("RouterErrorCode should be AmbryUnavailable", RouterErrorCode.AmbryUnavailable,
-          ((RouterException) e.getCause()).getErrorCode());
-    }
+    testWithErrorCodes(serverErrorCodes, partition, serverLayout, RouterErrorCode.AmbryUnavailable,
+        deleteErrorCodeChecker);
   }
 
   /**
@@ -355,21 +332,20 @@ public class DeleteManagerTest {
   public void testResponseTimeout()
       throws Exception {
     setServerResponse(false);
-    ServerErrorCode[] serverErrorCodes = new ServerErrorCode[9];
-    Arrays.fill(serverErrorCodes, ServerErrorCode.No_Error);
-    presetServerErrorCode(serverErrorCodes);
-    future = router.deleteBlob(blobIdString, new ClientCallback());
-    do {
-      // increment mock time
-      mockTime.sleep(1000);
-    } while (!operationCompleteLatch.await(10, TimeUnit.MILLISECONDS));
-    try {
-      future.get();
-      fail("Deletion should be unsuccessful. Exception is expected.");
-    } catch (Exception e) {
-      assertEquals("RouterErrorCode should be OperationTimedOut", RouterErrorCode.OperationTimedOut,
-          ((RouterException) e.getCause()).getErrorCode());
-    }
+    testWithErrorCodes(Collections.singletonMap(ServerErrorCode.No_Error, 9), serverLayout,
+        RouterErrorCode.OperationTimedOut, new ErrorCodeChecker() {
+          @Override
+          public void testAndAssert(RouterErrorCode expectedError)
+              throws Exception {
+            CountDownLatch operationCompleteLatch = new CountDownLatch(1);
+            future = router.deleteBlob(blobIdString, new ClientCallback(operationCompleteLatch));
+            do {
+              // increment mock time
+              mockTime.sleep(1000);
+            } while (!operationCompleteLatch.await(10, TimeUnit.MILLISECONDS));
+            assertFailureAndCheckErrorCode(future, expectedError);
+          }
+        });
   }
 
   /**
@@ -383,27 +359,23 @@ public class DeleteManagerTest {
     Arrays.fill(serverErrorCodes, ServerErrorCode.No_Error);
     HashMap<MockSelectorState, RouterErrorCode> errorCodeHashMap = new HashMap<>();
     errorCodeHashMap.put(MockSelectorState.DisconnectOnSend, RouterErrorCode.OperationTimedOut);
-    errorCodeHashMap.put(MockSelectorState.ThrowExceptionOnAllPoll, RouterErrorCode.RouterClosed);
+    errorCodeHashMap.put(MockSelectorState.ThrowExceptionOnAllPoll, RouterErrorCode.OperationTimedOut);
     errorCodeHashMap.put(MockSelectorState.ThrowExceptionOnConnect, RouterErrorCode.OperationTimedOut);
-    errorCodeHashMap.put(MockSelectorState.ThrowExceptionOnSend, RouterErrorCode.RouterClosed);
+    errorCodeHashMap.put(MockSelectorState.ThrowExceptionOnSend, RouterErrorCode.OperationTimedOut);
+    errorCodeHashMap.put(MockSelectorState.ThrowThrowableOnSend, RouterErrorCode.RouterClosed);
     for (MockSelectorState state : MockSelectorState.values()) {
       if (state == MockSelectorState.Good) {
         continue;
       }
       mockSelectorState.set(state);
-      presetServerErrorCode(serverErrorCodes);
-      future = router.deleteBlob(blobIdString, new ClientCallback());
+      setServerErrorCodes(serverErrorCodes, partition, serverLayout);
+      CountDownLatch operationCompleteLatch = new CountDownLatch(1);
+      future = router.deleteBlob(blobIdString, new ClientCallback(operationCompleteLatch));
       do {
         // increment mock time
         mockTime.sleep(1000);
       } while (!operationCompleteLatch.await(10, TimeUnit.MILLISECONDS));
-      try {
-        future.get();
-        fail("Deletion should be unsuccessful. Exception is expected.");
-      } catch (Exception e) {
-        assertEquals("RouterErrorCode should be the same as pre defined", errorCodeHashMap.get(state),
-            ((RouterException) e.getCause()).getErrorCode());
-      }
+      assertFailureAndCheckErrorCode(future, errorCodeHashMap.get(state));
     }
   }
 
@@ -414,40 +386,28 @@ public class DeleteManagerTest {
   @Test
   public void testRouterClosedDuringOperation()
       throws Exception {
-    ServerErrorCode[] serverErrorCodes = new ServerErrorCode[9];
-    Arrays.fill(serverErrorCodes, ServerErrorCode.No_Error);
-    setServerResponse(false);
-    presetServerErrorCode(serverErrorCodes);
-    future = router.deleteBlob(blobIdString, new ClientCallback());
-    router.close();
-    try {
-      future.get();
-      fail("Deletion should be unsuccessful. Exception is expected.");
-    } catch (ExecutionException e) {
-      assertEquals("RouterErrorCode should be RouterClosed", RouterErrorCode.RouterClosed,
-          ((RouterException) e.getCause()).getErrorCode());
-    }
-  }
-
-  /**
-   * Prepare {@link MockServer}"s" so that each of them will respond to a request with a predefined
-   * {@link ServerErrorCode}. Since each server will have only one replica, so the size of {@code
-   * serverErrorCodes} should be the same as the number of replicas for a {@link com.github.ambry.clustermap.Partition}.
-   * @param serverErrorCodes The array of {@link ServerErrorCode}.
-   */
-  private void presetServerErrorCode(ServerErrorCode[] serverErrorCodes) {
-    int i = 0;
-    for (ReplicaId replica : partition.getReplicaIds()) {
-      DataNodeId node = replica.getDataNodeId();
-      MockServer mockServer = serverLayout.getMockServer(node.getHostname(), node.getPort());
-      mockServer.setBlobIdToServerErrorCode(blobIdString, serverErrorCodes[i++]);
-    }
+    testWithErrorCodes(Collections.singletonMap(ServerErrorCode.No_Error, 9), serverLayout,
+        RouterErrorCode.RouterClosed, new ErrorCodeChecker() {
+          @Override
+          public void testAndAssert(RouterErrorCode expectedError)
+              throws Exception {
+            future = router.deleteBlob(blobIdString);
+            router.close();
+            assertFailureAndCheckErrorCode(future, expectedError);
+          }
+        });
   }
 
   /**
    * User callback that is called when the {@link DeleteOperation} is completed.
    */
   private class ClientCallback implements Callback<Void> {
+    private final CountDownLatch operationCompleteLatch;
+
+    ClientCallback(CountDownLatch operationCompleteLatch) {
+      this.operationCompleteLatch = operationCompleteLatch;
+    }
+
     @Override
     public void onCompletion(Void t, Exception e) {
       operationCompleteLatch.countDown();
@@ -479,6 +439,21 @@ public class DeleteManagerTest {
   }
 
   /**
+   * Check that a delete operation has failed with a router exception with the specified error code.
+   * @param future the {@link Future} for the delete operation
+   * @param expectedError the expected {@link RouterErrorCode}
+   */
+  private void assertFailureAndCheckErrorCode(Future<Void> future, RouterErrorCode expectedError) {
+    try {
+      future.get(AWAIT_TIMEOUT_SECONDS, TimeUnit.SECONDS);
+      fail("Deletion should be unsuccessful. Exception is expected.");
+    } catch (Exception e) {
+      assertEquals("RouterErrorCode should be " + expectedError, expectedError,
+          ((RouterException) e.getCause()).getErrorCode());
+    }
+  }
+
+  /**
    * Generates {@link Properties} that includes initial configuration.
    *
    * @return Properties
@@ -489,26 +464,5 @@ public class DeleteManagerTest {
     properties.setProperty("router.datacenter.name", "DC1");
     properties.setProperty("router.delete.request.parallelism", DELETE_PARALLELISM);
     return properties;
-  }
-
-  /**
-   * A util method that is used to test when all servers respond the same {@code serverErrorCode},
-   * the exception thrown by the router has the error code the same as {@code expectedRouterErrorCode}.
-   * @param serverErrorCode The {@link ServerErrorCode} that all servers return.
-   * @param expectedRouterErrorCode The excepted {@link RouterErrorCode}.
-   */
-  private void testResponseForServerErrorUtil(ServerErrorCode serverErrorCode, RouterErrorCode expectedRouterErrorCode)
-      throws Exception {
-    ServerErrorCode[] serverErrorCodes = new ServerErrorCode[9];
-    Arrays.fill(serverErrorCodes, serverErrorCode);
-    presetServerErrorCode(serverErrorCodes);
-    future = router.deleteBlob(blobIdString, new ClientCallback());
-    try {
-      future.get();
-      fail("Deletion should be unsuccessful. Error is expected.");
-    } catch (Exception e) {
-      assertEquals("RouterErrorCodes mistmatch.", expectedRouterErrorCode,
-          ((RouterException) e.getCause()).getErrorCode());
-    }
   }
 }

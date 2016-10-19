@@ -98,6 +98,7 @@ public class NettyMetrics {
   // NettyRequest
   public final Counter contentCopyCount;
   public final Histogram digestCalculationTimeInMs;
+  public final Counter watermarkOverflowCount;
   // NettyMessageProcessor
   public final Histogram channelReadIntervalInMs;
   public final Counter idleConnectionCloseCount;
@@ -109,6 +110,11 @@ public class NettyMetrics {
   public final Counter processorUnknownExceptionCount;
 
   // NettyResponseChannel
+  public final Counter acceptedCount;
+  public final Counter createdCount;
+  public final Counter okCount;
+  public final Counter partialContentCount;
+  public final Counter notModifiedCount;
   public final Counter badRequestCount;
   public final Counter unauthorizedCount;
   public final Counter goneCount;
@@ -116,6 +122,7 @@ public class NettyMetrics {
   public final Counter notFoundCount;
   public final Counter forbiddenCount;
   public final Counter proxyAuthRequiredCount;
+  public final Counter rangeNotSatisfiableCount;
   public final Counter throwableCount;
   public final Counter unknownResponseStatusCount;
   // NettyServer
@@ -245,6 +252,7 @@ public class NettyMetrics {
     contentCopyCount = metricRegistry.counter(MetricRegistry.name(NettyRequest.class, "ContentCopyCount"));
     digestCalculationTimeInMs =
         metricRegistry.histogram(MetricRegistry.name(NettyRequest.class, "DigestCalculationTimeInMs"));
+    watermarkOverflowCount = metricRegistry.counter(MetricRegistry.name(NettyRequest.class, "WatermarkOverflowCount"));
     // NettyMessageProcessor
     channelReadIntervalInMs =
         metricRegistry.histogram(MetricRegistry.name(NettyMessageProcessor.class, "ChannelReadIntervalInMs"));
@@ -263,6 +271,12 @@ public class NettyMetrics {
     processorUnknownExceptionCount =
         metricRegistry.counter(MetricRegistry.name(NettyMessageProcessor.class, "UnknownExceptionCount"));
     // NettyResponseChannel
+    acceptedCount = metricRegistry.counter(MetricRegistry.name(NettyResponseChannel.class, "AcceptedCount"));
+    createdCount = metricRegistry.counter(MetricRegistry.name(NettyResponseChannel.class, "CreatedCount"));
+    okCount = metricRegistry.counter(MetricRegistry.name(NettyResponseChannel.class, "OkCount"));
+    partialContentCount =
+        metricRegistry.counter(MetricRegistry.name(NettyResponseChannel.class, "PartialContentCount"));
+    notModifiedCount = metricRegistry.counter(MetricRegistry.name(NettyResponseChannel.class, "NotModifiedCount"));
     badRequestCount = metricRegistry.counter(MetricRegistry.name(NettyResponseChannel.class, "BadRequestCount"));
     unauthorizedCount = metricRegistry.counter(MetricRegistry.name(NettyResponseChannel.class, "UnauthorizedCount"));
     goneCount = metricRegistry.counter(MetricRegistry.name(NettyResponseChannel.class, "GoneCount"));
@@ -272,6 +286,8 @@ public class NettyMetrics {
     forbiddenCount = metricRegistry.counter(MetricRegistry.name(NettyResponseChannel.class, "ForbiddenCount"));
     proxyAuthRequiredCount =
         metricRegistry.counter(MetricRegistry.name(NettyResponseChannel.class, "ProxyAuthenticationRequiredCount"));
+    rangeNotSatisfiableCount =
+        metricRegistry.counter(MetricRegistry.name(NettyResponseChannel.class, "RangeNotSatisfiableCount"));
     throwableCount = metricRegistry.counter(MetricRegistry.name(NettyResponseChannel.class, "ThrowableCount"));
     unknownResponseStatusCount =
         metricRegistry.counter(MetricRegistry.name(NettyResponseChannel.class, "UnknownResponseStatusCount"));

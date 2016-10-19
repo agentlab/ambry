@@ -13,17 +13,47 @@
  */
 package com.github.ambry.frontend;
 
+import static org.junit.Assert.assertArrayEquals;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
+
+import java.io.IOException;
+import java.nio.ByteBuffer;
+import java.nio.charset.Charset;
+import java.util.Arrays;
+import java.util.Date;
+import java.util.List;
+import java.util.Map;
+import java.util.Properties;
+import java.util.Queue;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.ThreadLocalRandom;
+
+import org.junit.AfterClass;
+import org.junit.BeforeClass;
+import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.junit.runners.Parameterized;
+
 import com.github.ambry.clustermap.MockClusterMap;
 import com.github.ambry.clustermap.api.ClusterMap;
 import com.github.ambry.commons.LoggingNotificationSystem;
+import com.github.ambry.config.api.FrontendConfig;
 import com.github.ambry.config.api.VerifiableProperties;
 import com.github.ambry.messageformat.api.BlobProperties;
 import com.github.ambry.rest.NettyClient;
 import com.github.ambry.rest.RestServer;
 import com.github.ambry.rest.RestTestUtils;
+import com.github.ambry.rest.api.RestServiceException;
 import com.github.ambry.rest.api.RestUtils;
+import com.github.ambry.router.api.ByteRange;
+import com.github.ambry.utils.Pair;
 import com.github.ambry.utils.Utils;
 import com.github.ambry.utils.UtilsTest;
+
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
 import io.netty.handler.codec.http.DefaultFullHttpRequest;
@@ -44,24 +74,6 @@ import io.netty.handler.codec.http.multipart.HttpDataFactory;
 import io.netty.handler.codec.http.multipart.HttpPostRequestEncoder;
 import io.netty.handler.codec.http.multipart.MemoryFileUpload;
 import io.netty.util.ReferenceCountUtil;
-import java.io.IOException;
-import java.nio.ByteBuffer;
-import java.nio.charset.Charset;
-import java.util.Arrays;
-import java.util.Date;
-import java.util.List;
-import java.util.Map;
-import java.util.Properties;
-import java.util.Queue;
-import java.util.concurrent.ExecutionException;
-import junit.framework.Assert;
-import org.junit.AfterClass;
-import org.junit.BeforeClass;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.junit.runners.Parameterized;
-
-import static org.junit.Assert.*;
 
 
 /**
@@ -71,6 +83,8 @@ import static org.junit.Assert.*;
 public class FrontendIntegrationTest {
   private static final int SERVER_PORT = 1174;
   private static final ClusterMap CLUSTER_MAP;
+  private static final VerifiableProperties FRONTEND_VERIFIABLE_PROPS = buildFrontendVProps();
+  private static final FrontendConfig FRONTEND_CONFIG = new FrontendConfig(FRONTEND_VERIFIABLE_PROPS);
 
   static {
     try {
@@ -94,13 +108,12 @@ public class FrontendIntegrationTest {
 
   /**
    * Sets up an Ambry frontend server.
-   * @throws InstantiationException
-   * @throws InterruptedException
+   * @throws Exception
    */
   @BeforeClass
   public static void setup()
-      throws InstantiationException, InterruptedException {
-    ambryRestServer = new RestServer(buildFrontendVProps(), CLUSTER_MAP, new LoggingNotificationSystem());
+      throws Exception {
+    ambryRestServer = new RestServer(FRONTEND_VERIFIABLE_PROPS, CLUSTER_MAP, new LoggingNotificationSystem());
     ambryRestServer.start();
     nettyClient = new NettyClient("localhost", SERVER_PORT);
   }
@@ -149,15 +162,16 @@ public class FrontendIntegrationTest {
    * @throws IOException
    */
   @Test
-  public void healtCheckRequestTest()
+  public void healthCheckRequestTest()
       throws ExecutionException, InterruptedException, IOException {
     FullHttpRequest httpRequest =
         new DefaultFullHttpRequest(HttpVersion.HTTP_1_1, HttpMethod.GET, "/healthCheck", Unpooled.buffer(0));
     Queue<HttpObject> responseParts = nettyClient.sendRequest(httpRequest, null, null).get();
     HttpResponse response = (HttpResponse) responseParts.poll();
     assertEquals("Unexpected response status", HttpResponseStatus.OK, response.getStatus());
-    ByteBuffer content = getContent(response, responseParts);
-    assertEquals("GET content does not match original content", "GOOD", new String(content.array()));
+    final String expectedResponseBody = "GOOD";
+    ByteBuffer content = getContent(responseParts, expectedResponseBody.length());
+    assertEquals("GET content does not match original content", expectedResponseBody, new String(content.array()));
   }
 
   // helpers
@@ -187,16 +201,12 @@ public class FrontendIntegrationTest {
 
   /**
    * Combines all the parts in {@code contents} into one {@link ByteBuffer}.
-   * @param response the {@link HttpResponse} containing headers.
    * @param contents the content of the response.
+   * @param expectedContentLength the length of the contents in bytes.
    * @return a {@link ByteBuffer} that contains all the data in {@code contents}.
    */
-  private ByteBuffer getContent(HttpResponse response, Queue<HttpObject> contents) {
-    long contentLength = HttpHeaders.getContentLength(response, -1);
-    if (contentLength == -1) {
-      contentLength = HttpHeaders.getIntHeader(response, RestUtils.Headers.BLOB_SIZE, 0);
-    }
-    ByteBuffer buffer = ByteBuffer.allocate((int) contentLength);
+  private ByteBuffer getContent(Queue<HttpObject> contents, long expectedContentLength) {
+    ByteBuffer buffer = ByteBuffer.allocate((int) expectedContentLength);
     boolean endMarkerFound = false;
     for (HttpObject object : contents) {
       assertFalse("There should have been no more data after the end marker was found", endMarkerFound);
@@ -205,6 +215,9 @@ public class FrontendIntegrationTest {
       endMarkerFound = object instanceof LastHttpContent;
       ReferenceCountUtil.release(content);
     }
+    assertEquals("Content length did not match expected", expectedContentLength, buffer.position());
+    assertTrue("End marker was not found", endMarkerFound);
+    buffer.flip();
     return buffer;
   }
 
@@ -217,7 +230,7 @@ public class FrontendIntegrationTest {
     for (HttpObject object : contents) {
       assertFalse("There should have been no more data after the end marker was found", endMarkerFound);
       HttpContent content = (HttpContent) object;
-      Assert.assertEquals("No content expected ", 0, content.content().readableBytes());
+      assertEquals("No content expected ", 0, content.content().readableBytes());
       endMarkerFound = object instanceof LastHttpContent;
       ReferenceCountUtil.release(content);
     }
@@ -252,6 +265,8 @@ public class FrontendIntegrationTest {
         .put("rest.server.blob.storage.service.factory", "com.github.ambry.frontend.AmbryBlobStorageServiceFactory");
     properties.put("rest.server.router.factory", "com.github.ambry.router.InMemoryRouterFactory");
     properties.put("netty.server.port", Integer.toString(SERVER_PORT));
+    // to test that backpressure does not impede correct operation.
+    properties.put("netty.server.request.buffer.watermark", "1");
     return new VerifiableProperties(properties);
   }
 
@@ -282,11 +297,24 @@ public class FrontendIntegrationTest {
       headers.add(RestUtils.Headers.USER_META_DATA_HEADER_PREFIX + "key2", "value2");
       blobId = postBlobAndVerify(headers, content);
     }
-    getBlobAndVerify(blobId, headers, content);
+    getBlobAndVerify(blobId, null, headers, content);
+    getHeadAndVerify(blobId, null, headers);
+    ByteRange range = ByteRange.fromLastNBytes(ThreadLocalRandom.current().nextLong(content.capacity() + 1));
+    getBlobAndVerify(blobId, range, headers, content);
+    getHeadAndVerify(blobId, range, headers);
+    if (contentSize > 0) {
+      range = ByteRange.fromStartOffset(ThreadLocalRandom.current().nextLong(content.capacity()));
+      getBlobAndVerify(blobId, range, headers, content);
+      getHeadAndVerify(blobId, range, headers);
+      long random1 = ThreadLocalRandom.current().nextLong(content.capacity());
+      long random2 = ThreadLocalRandom.current().nextLong(content.capacity());
+      range = ByteRange.fromOffsetRange(Math.min(random1, random2), Math.max(random1, random2));
+      getBlobAndVerify(blobId, range, headers, content);
+      getHeadAndVerify(blobId, range, headers);
+    }
     getNotModifiedBlobAndVerify(blobId);
     getUserMetadataAndVerify(blobId, headers, usermetadata);
     getBlobInfoAndVerify(blobId, headers, usermetadata);
-    getHeadAndVerify(blobId, headers);
     deleteBlobAndVerify(blobId);
 
     // check GET, HEAD and DELETE after delete.
@@ -355,24 +383,47 @@ public class FrontendIntegrationTest {
   /**
    * Gets the blob with blob ID {@code blobId} and verifies that the headers and content match with what is expected.
    * @param blobId the blob ID of the blob to GET.
+   * @param range the {@link ByteRange} for the request.
    * @param expectedHeaders the expected headers in the response.
    * @param expectedContent the expected content of the blob.
    * @throws ExecutionException
    * @throws InterruptedException
    */
-  private void getBlobAndVerify(String blobId, HttpHeaders expectedHeaders, ByteBuffer expectedContent)
-      throws ExecutionException, InterruptedException {
-    FullHttpRequest httpRequest = buildRequest(HttpMethod.GET, blobId, null, null);
+  private void getBlobAndVerify(String blobId, ByteRange range, HttpHeaders expectedHeaders, ByteBuffer expectedContent)
+      throws ExecutionException, InterruptedException, RestServiceException {
+    HttpHeaders headers = null;
+    if (range != null) {
+      headers = new DefaultHttpHeaders().add(RestUtils.Headers.RANGE, RestTestUtils.getRangeHeaderString(range));
+    }
+    FullHttpRequest httpRequest = buildRequest(HttpMethod.GET, blobId, headers, null);
     Queue<HttpObject> responseParts = nettyClient.sendRequest(httpRequest, null, null).get();
     HttpResponse response = (HttpResponse) responseParts.poll();
-    assertEquals("Unexpected response status", HttpResponseStatus.OK, response.getStatus());
+    assertEquals("Unexpected response status",
+        range == null ? HttpResponseStatus.OK : HttpResponseStatus.PARTIAL_CONTENT, response.getStatus());
     checkCommonGetHeadHeaders(response.headers());
     assertEquals("Content-Type does not match", expectedHeaders.get(RestUtils.Headers.AMBRY_CONTENT_TYPE),
         response.headers().get(HttpHeaders.Names.CONTENT_TYPE));
     assertEquals(RestUtils.Headers.BLOB_SIZE + " does not match", expectedHeaders.get(RestUtils.Headers.BLOB_SIZE),
         response.headers().get(RestUtils.Headers.BLOB_SIZE));
-    ByteBuffer responseContent = getContent(response, responseParts);
-    assertArrayEquals("GET content does not match original content", expectedContent.array(), responseContent.array());
+    assertEquals("Accept-Ranges not set correctly", "bytes", response.headers().get(RestUtils.Headers.ACCEPT_RANGES));
+    byte[] expectedContentArray = expectedContent.array();
+    if (range != null) {
+      long blobSize = Long.parseLong(expectedHeaders.get(RestUtils.Headers.BLOB_SIZE));
+      assertEquals("Content-Range header not set correctly",
+          RestUtils.buildContentRangeAndLength(range, blobSize).getFirst(),
+          response.headers().get(RestUtils.Headers.CONTENT_RANGE));
+      ByteRange resolvedRange = range.toResolvedByteRange(blobSize);
+      expectedContentArray = Arrays.copyOfRange(expectedContentArray, (int) resolvedRange.getStartOffset(),
+          (int) resolvedRange.getEndOffset() + 1);
+    } else {
+      assertNull("Content-Range header should not be set", response.headers().get(RestUtils.Headers.CONTENT_RANGE));
+    }
+    if (expectedContentArray.length < FRONTEND_CONFIG.frontendChunkedGetResponseThresholdInBytes) {
+      assertEquals("Content-length not as expected", expectedContentArray.length,
+          HttpHeaders.getContentLength(response));
+    }
+    byte[] responseContentArray = getContent(responseParts, expectedContentArray.length).array();
+    assertArrayEquals("GET content does not match original content", expectedContentArray, responseContentArray);
     assertTrue("Channel should be active", HttpHeaders.isKeepAlive(response));
   }
 
@@ -391,6 +442,8 @@ public class FrontendIntegrationTest {
     assertEquals("Unexpected response status", HttpResponseStatus.NOT_MODIFIED, response.getStatus());
     assertTrue("No Date header", response.headers().get(RestUtils.Headers.DATE) != null);
     assertNull("No Last-Modified header expected", response.headers().get("Last-Modified"));
+    assertNull("Accept-Ranges should not be set", response.headers().get(RestUtils.Headers.ACCEPT_RANGES));
+    assertNull("Content-Range header should not be set", response.headers().get(RestUtils.Headers.CONTENT_RANGE));
     assertNull(RestUtils.Headers.BLOB_SIZE + " should have been null ",
         response.headers().get(RestUtils.Headers.BLOB_SIZE));
     assertNull("Content-Type should have been null", response.headers().get(RestUtils.Headers.CONTENT_TYPE));
@@ -441,19 +494,35 @@ public class FrontendIntegrationTest {
   /**
    * Gets the headers of the blob with blob ID {@code blobId} and verifies them against what is expected.
    * @param blobId the blob ID of the blob to HEAD.
+   * @param range the {@link ByteRange} for the request.
    * @param expectedHeaders the expected headers in the response.
    * @throws ExecutionException
    * @throws InterruptedException
    */
-  private void getHeadAndVerify(String blobId, HttpHeaders expectedHeaders)
-      throws ExecutionException, InterruptedException {
-    FullHttpRequest httpRequest = buildRequest(HttpMethod.HEAD, blobId, null, null);
+  private void getHeadAndVerify(String blobId, ByteRange range, HttpHeaders expectedHeaders)
+      throws ExecutionException, InterruptedException, RestServiceException {
+    HttpHeaders headers = null;
+    if (range != null) {
+      headers = new DefaultHttpHeaders().add(RestUtils.Headers.RANGE, RestTestUtils.getRangeHeaderString(range));
+    }
+    FullHttpRequest httpRequest = buildRequest(HttpMethod.HEAD, blobId, headers, null);
     Queue<HttpObject> responseParts = nettyClient.sendRequest(httpRequest, null, null).get();
     HttpResponse response = (HttpResponse) responseParts.poll();
-    assertEquals("Unexpected response status", HttpResponseStatus.OK, response.getStatus());
+    assertEquals("Unexpected response status",
+        range == null ? HttpResponseStatus.OK : HttpResponseStatus.PARTIAL_CONTENT, response.getStatus());
     checkCommonGetHeadHeaders(response.headers());
-    assertEquals(RestUtils.Headers.CONTENT_LENGTH + " does not match " + RestUtils.Headers.BLOB_SIZE,
-        Long.parseLong(expectedHeaders.get(RestUtils.Headers.BLOB_SIZE)), HttpHeaders.getContentLength(response));
+    long contentLength = Long.parseLong(expectedHeaders.get(RestUtils.Headers.BLOB_SIZE));
+    if (range != null) {
+      Pair<String, Long> rangeAndLength = RestUtils.buildContentRangeAndLength(range, contentLength);
+      assertEquals("Content-Range header not set correctly", rangeAndLength.getFirst(),
+          response.headers().get(RestUtils.Headers.CONTENT_RANGE));
+      contentLength = rangeAndLength.getSecond();
+    } else {
+      assertNull("Content-Range header should not be set", response.headers().get(RestUtils.Headers.CONTENT_RANGE));
+    }
+    assertEquals("Accept-Ranges not set correctly", "bytes", response.headers().get(RestUtils.Headers.ACCEPT_RANGES));
+    assertEquals(RestUtils.Headers.CONTENT_LENGTH + " does not match expected", contentLength,
+        HttpHeaders.getContentLength(response));
     assertEquals(RestUtils.Headers.CONTENT_TYPE + " does not match " + RestUtils.Headers.AMBRY_CONTENT_TYPE,
         expectedHeaders.get(RestUtils.Headers.AMBRY_CONTENT_TYPE),
         HttpHeaders.getHeader(response, HttpHeaders.Names.CONTENT_TYPE));
@@ -516,7 +585,7 @@ public class FrontendIntegrationTest {
       discardContent(content, 1);
     } else {
       assertEquals("Content-Length is not as expected", usermetadata.length, HttpHeaders.getContentLength(response));
-      byte[] receivedMetadata = getContent(response, content).array();
+      byte[] receivedMetadata = getContent(content, HttpHeaders.getContentLength(response)).array();
       assertArrayEquals("User metadata does not match original", usermetadata, receivedMetadata);
     }
   }

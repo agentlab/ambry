@@ -29,6 +29,5 @@ Require-Bundle: ambry-api;bundle-version="0.1.0",
  ambry-network;bundle-version="0.1.0",
  ambry-protocol;bundle-version="0.1.0",
  ambry-store;bundle-version="0.1.0",
- ambry-coordinator;bundle-version="0.1.0",
  ambry-rest;bundle-version="0.1.0"
 Bundle-ActivationPolicy: lazy

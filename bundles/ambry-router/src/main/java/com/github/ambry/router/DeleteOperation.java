@@ -13,6 +13,14 @@
  */
 package com.github.ambry.router;
 
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.Map;
+import java.util.concurrent.atomic.AtomicReference;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import com.github.ambry.clustermap.api.ReplicaId;
 import com.github.ambry.commons.BlobId;
 import com.github.ambry.commons.ResponseHandler;
@@ -27,13 +35,6 @@ import com.github.ambry.router.api.FutureResult;
 import com.github.ambry.router.api.RouterErrorCode;
 import com.github.ambry.router.api.RouterException;
 import com.github.ambry.utils.Time;
-import java.io.IOException;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.Map;
-import java.util.concurrent.atomic.AtomicReference;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 
 /**
@@ -213,8 +214,9 @@ class DeleteOperation {
       DeleteRequestInfo deleteRequestInfo = itr.next().getValue();
       if (time.milliseconds() - deleteRequestInfo.startTimeMs > routerConfig.routerRequestTimeoutMs) {
         itr.remove();
-        responseHandler
-            .onRequestResponseException(deleteRequestInfo.replica, new IOException("Timed out waiting for a response"));
+        // Do not notify this as a failure to the response handler, as this timeout could simply be due to
+        // connection unavailability. If there is indeed a network error, the NetworkClient will provide an error
+        // response and the response handler will be notified accordingly.
         updateOperationState(deleteRequestInfo.replica, RouterErrorCode.OperationTimedOut);
       }
     }

@@ -19,9 +19,9 @@ import com.github.ambry.commons.ByteBufferAsyncWritableChannel;
 import com.github.ambry.commons.ResponseHandler;
 import com.github.ambry.config.api.RouterConfig;
 import com.github.ambry.messageformat.api.BlobProperties;
-import com.github.ambry.network.NetworkClientErrorCode;
 import com.github.ambry.network.RequestInfo;
 import com.github.ambry.network.ResponseInfo;
+import com.github.ambry.network.api.NetworkClientErrorCode;
 import com.github.ambry.notification.api.NotificationSystem;
 import com.github.ambry.protocol.PutRequest;
 import com.github.ambry.protocol.PutResponse;
@@ -70,6 +70,7 @@ class PutManager {
   private final AtomicBoolean isOpen = new AtomicBoolean(true);
   private final OperationCompleteCallback operationCompleteCallback;
   private final ReadyForPollCallback readyForPollCallback;
+  private final List<String> idsToDeleteList;
   private final ByteBufferAsyncWritableChannel.ChannelEventListener chunkArrivalListener;
 
   // shared by all PutOperations
@@ -103,13 +104,15 @@ class PutManager {
    * @param operationCompleteCallback The {@link OperationCompleteCallback} to use to complete operations.
    * @param readyForPollCallback The callback to be used to notify the router of any state changes within the
    *                             operations.
+   * @param idsToDeleteList The list to fill with ids of successfully put data chunks of an unsuccessful
+   *                        overall put operation.
    * @param index the index of the {@link NonBlockingRouter.OperationController} in the {@link NonBlockingRouter}
    * @param time The {@link Time} instance to use.
    */
   PutManager(ClusterMap clusterMap, ResponseHandler responseHandler, NotificationSystem notificationSystem,
       RouterConfig routerConfig, NonBlockingRouterMetrics routerMetrics,
-      OperationCompleteCallback operationCompleteCallback, ReadyForPollCallback readyForPollCallback, int index,
-      Time time) {
+      OperationCompleteCallback operationCompleteCallback, ReadyForPollCallback readyForPollCallback,
+      List<String> idsToDeleteList, int index, Time time) {
     this.clusterMap = clusterMap;
     this.responseHandler = responseHandler;
     this.notificationSystem = notificationSystem;
@@ -117,6 +120,7 @@ class PutManager {
     this.routerMetrics = routerMetrics;
     this.operationCompleteCallback = operationCompleteCallback;
     this.readyForPollCallback = readyForPollCallback;
+    this.idsToDeleteList = idsToDeleteList;
     this.chunkArrivalListener = new ByteBufferAsyncWritableChannel.ChannelEventListener() {
       @Override
       public void onEvent(ByteBufferAsyncWritableChannel.EventType e) {
@@ -156,8 +160,7 @@ class PutManager {
       putOperation.startReadingFromChannel();
     } catch (RouterException e) {
       routerMetrics.operationDequeuingRate.mark();
-      routerMetrics.putBlobErrorCount.inc();
-      routerMetrics.countError(e);
+      routerMetrics.onPutBlobError(e);
       operationCompleteCallback.completeOperation(futureResult, callback, null, e);
     }
   }
@@ -227,27 +230,19 @@ class PutManager {
     PutResponse putResponse = null;
     ReplicaId replicaId = ((RouterRequestInfo) responseInfo.getRequestInfo()).getReplicaId();
     NetworkClientErrorCode networkClientErrorCode = responseInfo.getError();
-    if (networkClientErrorCode != null) {
-      logger.trace("Network client returned an error, notifying response handler");
-      responseHandler.onRequestResponseException(replicaId, new IOException("NetworkClient error"));
-    } else {
+    if (networkClientErrorCode == null) {
       try {
         putResponse = PutResponse.readFrom(new DataInputStream(new ByteBufferInputStream(responseInfo.getResponse())));
-        responseHandler.onRequestResponseError(replicaId, putResponse.getError());
+        responseHandler.onEvent(replicaId, putResponse.getError());
       } catch (Exception e) {
         // Ignore. There is no value in notifying the response handler.
         logger.error("Response deserialization received unexpected error", e);
         routerMetrics.responseDeserializationErrorCount.inc();
       }
+    } else {
+      responseHandler.onEvent(replicaId, networkClientErrorCode);
     }
     return putResponse;
-  }
-
-  /**
-   * Returns a list of ids of successfully put chunks that were part of unsuccessful put operations.
-   */
-  void getIdsToDelete(List<String> idsToDelete) {
-    // @todo save and return ids of failed puts.
   }
 
   /**
@@ -258,17 +253,36 @@ class PutManager {
    */
   void onComplete(PutOperation op) {
     Exception e = op.getOperationException();
+    String blobId = op.getBlobIdString();
+    if (blobId == null && e == null) {
+      e = new RouterException("Operation failed, but exception was not set", RouterErrorCode.UnexpectedInternalError);
+      routerMetrics.operationFailureWithUnsetExceptionCount.inc();
+    }
     if (e != null) {
-      // @todo add blobs in the metadata chunk to ids_to_delete
-      routerMetrics.putBlobErrorCount.inc();
-      routerMetrics.countError(e);
+      blobId = null;
+      routerMetrics.onPutBlobError(e);
+      op.addSuccessfullyPutChunkIds(idsToDeleteList);
     } else {
       notificationSystem.onBlobCreated(op.getBlobIdString(), op.getBlobProperties(), op.getUserMetadata());
+      updateChunkingAndSizeMetricsOnSuccessfulPut(op);
     }
     routerMetrics.operationDequeuingRate.mark();
     routerMetrics.putBlobOperationLatencyMs.update(time.milliseconds() - op.getSubmissionTimeMs());
-    operationCompleteCallback
-        .completeOperation(op.getFuture(), op.getCallback(), op.getBlobIdString(), op.getOperationException());
+    operationCompleteCallback.completeOperation(op.getFuture(), op.getCallback(), blobId, e);
+  }
+
+  /**
+   * Update chunking and size related metrics - blob size, chunk count, and whether the blob is simple or composite.
+   * @param op the {@link PutOperation} that completed successfully.
+   */
+  private void updateChunkingAndSizeMetricsOnSuccessfulPut(PutOperation op) {
+    routerMetrics.putBlobSizeBytes.update(op.getBlobProperties().getBlobSize());
+    routerMetrics.putBlobChunkCount.update(op.getNumDataChunks());
+    if (op.getNumDataChunks() == 1) {
+      routerMetrics.simpleBlobPutCount.inc();
+    } else {
+      routerMetrics.compositeBlobPutCount.inc();
+    }
   }
 
   /**
@@ -315,8 +329,7 @@ class PutManager {
         Exception e = new RouterException("Aborted operation because Router is closed.", RouterErrorCode.RouterClosed);
         routerMetrics.operationDequeuingRate.mark();
         routerMetrics.operationAbortCount.inc();
-        routerMetrics.putBlobErrorCount.inc();
-        routerMetrics.countError(e);
+        routerMetrics.onPutBlobError(e);
         operationCompleteCallback.completeOperation(op.getFuture(), op.getCallback(), null, e);
       }
     }
@@ -348,8 +361,9 @@ class PutManager {
             }
           }
         }
-      } catch (InterruptedException e) {
-        logger.error("ChunkFillerThread was interrupted", e);
+      } catch (Throwable e) {
+        logger.error("Aborting, chunkFillerThread received an unexpected error:", e);
+        routerMetrics.chunkFillerUnexpectedErrorCount.inc();
         if (isOpen.compareAndSet(true, false)) {
           completePendingOperations();
         }

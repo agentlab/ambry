@@ -129,6 +129,7 @@ class IndexSegment {
    * @param factory The store key factory used to create new store keys
    * @param config The store config used to initialize the index segment
    * @param metrics The store metrics used to track metrics
+   * @param journal The journal to use
    * @throws StoreException
    */
   public IndexSegment(File indexFile, boolean isMapped, StoreKeyFactory factory, StoreConfig config,
@@ -264,8 +265,8 @@ class IndexSegment {
         if (bloomFilter == null || bloomFilter.isPresent(ByteBuffer.wrap(keyToFind.toBytes()))) {
           metrics.bloomPositiveCount.inc(1);
           logger.trace(bloomFilter == null
-              ? "IndexSegment {} bloom filter empty. Searching file with start offset {} and for key {} "
-              : "IndexSegment {} found in bloom filter for index with start offset {} and for key {} ",
+                  ? "IndexSegment {} bloom filter empty. Searching file with start offset {} and for key {} "
+                  : "IndexSegment {} found in bloom filter for index with start offset {} and for key {} ",
               indexFile.getAbsolutePath(), startOffset.get(), keyToFind);
           // binary search on the mapped file
           ByteBuffer duplicate = mmap.duplicate();
@@ -349,7 +350,7 @@ class IndexSegment {
             " cannot add to a mapped index ", StoreErrorCodes.Illegal_Index_Operation);
       }
       logger.trace("IndexSegment {} inserting key - {} value - offset {} size {} ttl {} "
-          + "originalMessageOffset {} fileEndOffset {}", indexFile.getAbsolutePath(), entry.getKey(),
+              + "originalMessageOffset {} fileEndOffset {}", indexFile.getAbsolutePath(), entry.getKey(),
           entry.getValue().getOffset(), entry.getValue().getSize(), entry.getValue().getTimeToLiveInMs(),
           entry.getValue().getOriginalMessageOffset(), fileEndOffset);
       if (index.put(entry.getKey(), entry.getValue()) == null) {
@@ -395,7 +396,7 @@ class IndexSegment {
       }
       for (IndexEntry entry : entries) {
         logger.trace("IndexSegment {} Inserting key - {} value - offset {} size {} ttl {} "
-            + "originalMessageOffset {} fileEndOffset {}", indexFile.getAbsolutePath(), entry.getKey(),
+                + "originalMessageOffset {} fileEndOffset {}", indexFile.getAbsolutePath(), entry.getKey(),
             entry.getValue().getOffset(), entry.getValue().getSize(), entry.getValue().getTimeToLiveInMs(),
             entry.getValue().getOriginalMessageOffset(), fileEndOffset);
         if (index.put(entry.getKey(), entry.getValue()) == null) {
@@ -564,6 +565,7 @@ class IndexSegment {
   /**
    * Reads the index segment from file into an in memory representation
    * @param fileToRead The file to read the index segment from
+   * @param journal The journal to use.
    * @throws StoreException
    * @throws IOException
    */
@@ -704,4 +706,3 @@ class IndexSegment {
     return entries.size() > entriesSizeAtStart;
   }
 }
-

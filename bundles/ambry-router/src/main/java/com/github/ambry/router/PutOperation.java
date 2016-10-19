@@ -13,6 +13,20 @@
  */
 package com.github.ambry.router;
 
+import java.nio.ByteBuffer;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
+import java.util.TreeMap;
+import java.util.concurrent.ThreadLocalRandom;
+import java.util.concurrent.atomic.AtomicReference;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import com.github.ambry.clustermap.api.ClusterMap;
 import com.github.ambry.clustermap.api.PartitionId;
 import com.github.ambry.clustermap.api.ReplicaId;
@@ -36,21 +50,7 @@ import com.github.ambry.router.api.ReadableStreamChannel;
 import com.github.ambry.router.api.RouterErrorCode;
 import com.github.ambry.router.api.RouterException;
 import com.github.ambry.store.api.StoreKey;
-import com.github.ambry.utils.ByteBufferInputStream;
 import com.github.ambry.utils.Time;
-import java.io.IOException;
-import java.nio.ByteBuffer;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
-import java.util.TreeMap;
-import java.util.concurrent.ThreadLocalRandom;
-import java.util.concurrent.atomic.AtomicReference;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 
 /**
@@ -279,6 +279,9 @@ class PutOperation {
   void onChunkOperationComplete(PutChunk chunk) {
     if (chunk.getChunkBlobId() == null) {
       // the overall operation has failed if any of the chunk fails.
+      if (chunk.getChunkException() == null) {
+        logger.error("Operation on chunk failed, but no exception was set");
+      }
       logger.error("Failed putting chunk at index: " + chunk.getChunkIndex() + ", failing the entire operation");
       operationCompleted = true;
     } else if (numDataChunks == 1 || chunk == metadataPutChunk) {
@@ -357,6 +360,7 @@ class PutOperation {
         }
       }
     } catch (Exception e) {
+      routerMetrics.chunkFillerUnexpectedErrorCount.inc();
       readyForPollCallback.onPollReady();
       setOperationExceptionAndComplete(new RouterException("PutOperation fillChunks encountered unexpected error", e,
           RouterErrorCode.UnexpectedInternalError));
@@ -520,10 +524,20 @@ class PutOperation {
 
   /**
    * The time at which this operation was submitted.
-   * @return return the time at which the operation was submitted.
+   * @return the time at which the operation was submitted.
    */
   long getSubmissionTimeMs() {
     return submissionTimeMs;
+  }
+
+  /**
+   * if this is a composite object, fill the list with successfully put chunk ids.
+   * @param chunkIdList the list to fill with chunk ids.
+   */
+  void addSuccessfullyPutChunkIds(List<String> chunkIdList) {
+    if (numDataChunks > 1) {
+      metadataPutChunk.addChunkIds(chunkIdList);
+    }
   }
 
   /**
@@ -664,6 +678,13 @@ class PutOperation {
     }
 
     /**
+     * @return the {@link RouterException}, if any, encountered for the current chunk.
+     */
+    RouterException getChunkException() {
+      return chunkException;
+    }
+
+    /**
      * @return true if this PutChunk is free so a chunk of the overall blob can be filled in.
      */
     boolean isFree() {
@@ -724,6 +745,9 @@ class PutOperation {
         state = ChunkState.Ready;
       } catch (RouterException e) {
         setOperationExceptionAndComplete(e);
+      } catch (Exception e) {
+        setOperationExceptionAndComplete(new RouterException("Operation tracker could not be initialized", e,
+            RouterErrorCode.UnexpectedInternalError));
       }
     }
 
@@ -817,8 +841,9 @@ class PutOperation {
         Map.Entry<Integer, ChunkPutRequestInfo> entry = inFlightRequestsIterator.next();
         if (time.milliseconds() - entry.getValue().startTimeMs > routerConfig.routerRequestTimeoutMs) {
           onErrorResponse(entry.getValue().replicaId);
-          responseHandler.onRequestResponseException(entry.getValue().replicaId,
-              new IOException("Timed out waiting for a response"));
+          // Do not notify this as a failure to the response handler, as this timeout could simply be due to
+          // connection unavailability. If there is indeed a network error, the NetworkClient will provide an error
+          // response and the response handler will be notified accordingly.
           chunkException = new RouterException("Timed out waiting for a response", RouterErrorCode.OperationTimedOut);
           inFlightRequestsIterator.remove();
         } else {
@@ -860,8 +885,8 @@ class PutOperation {
      */
     protected PutRequest createPutRequest() {
       return new PutRequest(NonBlockingRouter.correlationIdGenerator.incrementAndGet(), routerConfig.routerHostname,
-          chunkBlobId, blobProperties, ByteBuffer.wrap(userMetadata), new ByteBufferInputStream(buf.duplicate()),
-          buf.remaining(), BlobType.DataBlob);
+          chunkBlobId, blobProperties, ByteBuffer.wrap(userMetadata), buf.duplicate(), buf.remaining(),
+          BlobType.DataBlob);
     }
 
     /**
@@ -1038,6 +1063,9 @@ class PutOperation {
   class MetadataPutChunk extends PutChunk {
     StoreKey[] chunkIds;
     int chunksDone;
+    // since chunk operations could complete out of order, this index simply tracks the farthest chunk that was
+    // successfully put (which helps in the getChunkIds() method).
+    int maxFilledChunkIndex = -1;
 
     /**
      * Initialize the MetadataPutChunk.
@@ -1057,9 +1085,25 @@ class PutOperation {
     void addChunkId(BlobId chunkBlobId, int chunkIndex) {
       chunkIds[chunkIndex] = chunkBlobId;
       chunksDone++;
+      if (chunkIndex > maxFilledChunkIndex) {
+        maxFilledChunkIndex = chunkIndex;
+      }
       if (chunksDone == numDataChunks) {
-        buf = MetadataContentSerDe.serializeMetadataContent(Arrays.asList(chunkIds));
+        buf = MetadataContentSerDe
+            .serializeMetadataContent(routerConfig.routerMaxPutChunkSizeBytes, blobSize, Arrays.asList(chunkIds));
         onFillComplete();
+      }
+    }
+
+    /**
+     * Add all the successfully put chunk ids of the overall blob to the passed in list.
+     * @param chunkIdList list to fill with chunk ids.
+     */
+    void addChunkIds(List<String> chunkIdList) {
+      for (int i = 0; i <= maxFilledChunkIndex; i++) {
+        if (chunkIds[i] != null) {
+          chunkIdList.add(chunkIds[i].getID());
+        }
       }
     }
 
@@ -1072,8 +1116,8 @@ class PutOperation {
     @Override
     protected PutRequest createPutRequest() {
       return new PutRequest(NonBlockingRouter.correlationIdGenerator.incrementAndGet(), routerConfig.routerHostname,
-          chunkBlobId, blobProperties, ByteBuffer.wrap(userMetadata), new ByteBufferInputStream(buf.duplicate()),
-          buf.remaining(), BlobType.MetadataBlob);
+          chunkBlobId, blobProperties, ByteBuffer.wrap(userMetadata), buf.duplicate(), buf.remaining(),
+          BlobType.MetadataBlob);
     }
   }
 
@@ -1099,4 +1143,3 @@ class PutOperation {
     Complete,
   }
 }
-

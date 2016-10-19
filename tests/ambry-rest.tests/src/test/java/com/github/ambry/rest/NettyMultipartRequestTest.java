@@ -13,8 +13,31 @@
  */
 package com.github.ambry.rest;
 
+import static org.junit.Assert.assertArrayEquals;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
+
+import java.io.IOException;
+import java.nio.ByteBuffer;
+import java.nio.channels.ClosedChannelException;
+import java.nio.charset.Charset;
+import java.security.MessageDigest;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
+import java.util.Properties;
+import java.util.Random;
+import java.util.concurrent.ExecutionException;
+
+import org.junit.Test;
+
 import com.codahale.metrics.MetricRegistry;
 import com.github.ambry.commons.ByteBufferAsyncWritableChannel;
+import com.github.ambry.config.api.NettyConfig;
+import com.github.ambry.config.api.VerifiableProperties;
 import com.github.ambry.rest.api.RestRequestMetricsTracker;
 import com.github.ambry.rest.api.RestServiceErrorCode;
 import com.github.ambry.rest.api.RestServiceException;
@@ -23,6 +46,7 @@ import com.github.ambry.router.CopyingAsyncWritableChannel;
 import com.github.ambry.router.api.AsyncWritableChannel;
 import com.github.ambry.router.api.Callback;
 import com.github.ambry.utils.Utils;
+
 import io.netty.buffer.Unpooled;
 import io.netty.handler.codec.http.DefaultFullHttpRequest;
 import io.netty.handler.codec.http.DefaultHttpContent;
@@ -39,19 +63,6 @@ import io.netty.handler.codec.http.multipart.HttpDataFactory;
 import io.netty.handler.codec.http.multipart.HttpPostRequestDecoder;
 import io.netty.handler.codec.http.multipart.HttpPostRequestEncoder;
 import io.netty.handler.codec.http.multipart.MemoryFileUpload;
-import java.io.IOException;
-import java.nio.ByteBuffer;
-import java.nio.channels.ClosedChannelException;
-import java.nio.charset.Charset;
-import java.security.MessageDigest;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-import java.util.Random;
-import java.util.concurrent.ExecutionException;
-import org.junit.Test;
-
-import static org.junit.Assert.*;
 
 
 /**
@@ -59,11 +70,17 @@ import static org.junit.Assert.*;
  */
 public class NettyMultipartRequestTest {
 
-  private static final MetricRegistry metricRegistry = new MetricRegistry();
-  private static final NettyMetrics nettyMetrics = new NettyMetrics(metricRegistry);
+  private static final MetricRegistry METRIC_REGISTRY = new MetricRegistry();
+  private static final NettyMetrics NETTY_METRICS = new NettyMetrics(METRIC_REGISTRY);
+  private static final int DEFAULT_WATERMARK;
 
   static {
-    RestRequestMetricsTracker.setDefaults(metricRegistry);
+    DEFAULT_WATERMARK = new NettyConfig(new VerifiableProperties(new Properties())).nettyServerRequestBufferWatermark;
+    RestRequestMetricsTracker.setDefaults(METRIC_REGISTRY);
+  }
+
+  public NettyMultipartRequestTest() {
+    NettyRequest.bufferWatermark = DEFAULT_WATERMARK;
   }
 
   /**
@@ -76,15 +93,22 @@ public class NettyMultipartRequestTest {
   public void instantiationTest()
       throws RestServiceException {
     // POST will succeed.
+    NettyRequest.bufferWatermark = 1;
     HttpRequest httpRequest = new DefaultHttpRequest(HttpVersion.HTTP_1_1, HttpMethod.POST, "/");
-    closeRequestAndValidate(new NettyMultipartRequest(httpRequest, nettyMetrics));
+    MockChannel channel = new MockChannel();
+    int expectedVal = channel.config().getMaxMessagesPerRead();
+    NettyMultipartRequest request = new NettyMultipartRequest(httpRequest, channel, NETTY_METRICS);
+    assertTrue("Auto-read should not have been changed", channel.config().isAutoRead());
+    assertEquals("Max messages per read should not have changed", expectedVal,
+        channel.config().getMaxMessagesPerRead());
+    closeRequestAndValidate(request);
 
     // Methods that will fail. Can include other methods, but these should be enough.
     HttpMethod[] methods = {HttpMethod.GET, HttpMethod.DELETE, HttpMethod.HEAD};
     for (HttpMethod method : methods) {
       httpRequest = new DefaultHttpRequest(HttpVersion.HTTP_1_1, method, "/");
       try {
-        new NettyMultipartRequest(httpRequest, nettyMetrics);
+        new NettyMultipartRequest(httpRequest, new MockChannel(), NETTY_METRICS);
         fail("Creation of NettyMultipartRequest should have failed for " + method);
       } catch (IllegalArgumentException e) {
         // expected. Nothing to do.
@@ -236,7 +260,8 @@ public class NettyMultipartRequestTest {
     // prepare half baked data
     HttpRequest httpRequest = new DefaultFullHttpRequest(HttpVersion.HTTP_1_1, HttpMethod.POST, "/");
     HttpPostRequestEncoder encoder = createEncoder(httpRequest, null);
-    NettyMultipartRequest request = new NettyMultipartRequest(encoder.finalizeRequest(), nettyMetrics);
+    NettyMultipartRequest request =
+        new NettyMultipartRequest(encoder.finalizeRequest(), new MockChannel(), NETTY_METRICS);
     assertTrue("Request channel is not open", request.isOpen());
     // insert random data
     HttpContent httpContent = new DefaultHttpContent(Unpooled.wrappedBuffer(RestTestUtils.getRandomBytes(10)));
@@ -304,7 +329,7 @@ public class NettyMultipartRequestTest {
     files[0] = new InMemoryFile(RestUtils.MultipartPost.BLOB_PART, ByteBuffer.wrap(RestTestUtils.getRandomBytes(256)));
     encoder = createEncoder(httpRequest, files);
     encoder.addBodyAttribute("dummyKey", "dummyValue");
-    request = new NettyMultipartRequest(encoder.finalizeRequest(), nettyMetrics);
+    request = new NettyMultipartRequest(encoder.finalizeRequest(), new MockChannel(), NETTY_METRICS);
     assertTrue("Request channel is not open", request.isOpen());
     while (!encoder.isEndOfInput()) {
       // Sending null for ctx because the encoder is OK with that.
@@ -337,7 +362,8 @@ public class NettyMultipartRequestTest {
       httpRequest.headers().set(headers);
     }
     HttpPostRequestEncoder encoder = createEncoder(httpRequest, parts);
-    NettyMultipartRequest request = new NettyMultipartRequest(encoder.finalizeRequest(), nettyMetrics);
+    NettyMultipartRequest request =
+        new NettyMultipartRequest(encoder.finalizeRequest(), new MockChannel(), NETTY_METRICS);
     assertTrue("Request channel is not open", request.isOpen());
     while (!encoder.isEndOfInput()) {
       // Sending null for ctx because the encoder is OK with that.

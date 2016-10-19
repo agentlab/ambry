@@ -100,7 +100,7 @@ public class RouterConfig {
    * The maximum number of parallel requests allowed for a delete operation.
    */
   @Config("router.delete.request.parallelism")
-  @Default("12")
+  @Default("3")
   public final int routerDeleteRequestParallelism;
 
   /**
@@ -144,13 +144,13 @@ public class RouterConfig {
     routerScalingUnitMaxConnectionsPerPortSsl =
         verifiableProperties.getIntInRange("router.scaling.unit.max.connections.per.port.ssl", 2, 1, 20);
     routerConnectionCheckoutTimeoutMs =
-        verifiableProperties.getIntInRange("router.connection.checkout.timeout.ms", 1000, 1, 5000);
+        verifiableProperties.getIntInRange("router.connection.checkout.timeout.ms", 1000, 1, Integer.MAX_VALUE);
     routerRequestTimeoutMs = verifiableProperties.getInt("router.request.timeout.ms", 2000);
     routerMaxPutChunkSizeBytes = verifiableProperties.getInt("router.max.put.chunk.size.bytes", 4 * 1024 * 1024);
     routerPutRequestParallelism = verifiableProperties.getInt("router.put.request.parallelism", 3);
     routerPutSuccessTarget = verifiableProperties.getInt("router.put.success.target", 2);
     routerMaxSlippedPutAttempts = verifiableProperties.getInt("router.max.slipped.put.attempts", 1);
-    routerDeleteRequestParallelism = verifiableProperties.getInt("router.delete.request.parallelism", 12);
+    routerDeleteRequestParallelism = verifiableProperties.getInt("router.delete.request.parallelism", 3);
     routerDeleteSuccessTarget = verifiableProperties.getInt("router.delete.success.target", 2);
     routerGetRequestParallelism = verifiableProperties.getInt("router.get.request.parallelism", 2);
     routerGetSuccessTarget = verifiableProperties.getInt("router.get.success.target", 1);

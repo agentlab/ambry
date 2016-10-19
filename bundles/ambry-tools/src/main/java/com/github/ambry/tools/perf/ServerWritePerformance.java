@@ -13,6 +13,22 @@
  */
 package com.github.ambry.tools.perf;
 
+import static com.github.ambry.utils.Utils.getRandomLong;
+
+import java.io.DataInputStream;
+import java.io.File;
+import java.io.FileWriter;
+import java.nio.ByteBuffer;
+import java.rmi.UnexpectedException;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+import java.util.Properties;
+import java.util.Random;
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.concurrent.atomic.AtomicLong;
+
 import com.codahale.metrics.MetricRegistry;
 import com.github.ambry.clustermap.ClusterMapManager;
 import com.github.ambry.clustermap.api.ClusterMap;
@@ -33,29 +49,14 @@ import com.github.ambry.network.api.Port;
 import com.github.ambry.protocol.PutRequest;
 import com.github.ambry.protocol.PutResponse;
 import com.github.ambry.tools.util.ToolUtils;
-import com.github.ambry.utils.ByteBufferInputStream;
 import com.github.ambry.utils.SystemTime;
 import com.github.ambry.utils.Throttler;
 import com.github.ambry.utils.Utils;
-import java.io.DataInputStream;
-import java.io.File;
-import java.io.FileWriter;
-import java.nio.ByteBuffer;
-import java.rmi.UnexpectedException;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-import java.util.Properties;
-import java.util.Random;
-import java.util.concurrent.CountDownLatch;
-import java.util.concurrent.atomic.AtomicBoolean;
-import java.util.concurrent.atomic.AtomicLong;
+
 import joptsimple.ArgumentAcceptingOptionSpec;
 import joptsimple.OptionParser;
 import joptsimple.OptionSet;
 import joptsimple.OptionSpec;
-
-import static com.github.ambry.utils.Utils.getRandomLong;
 
 
 /**
@@ -305,7 +306,7 @@ public class ServerWritePerformance {
             PartitionId partitionId = partitionIds.get(index);
             BlobId blobId = new BlobId(partitionId);
             PutRequest putRequest = new PutRequest(0, "perf", blobId, props, ByteBuffer.wrap(usermetadata),
-                new ByteBufferInputStream(ByteBuffer.wrap(blob)), props.getBlobSize(), BlobType.DataBlob);
+            		ByteBuffer.wrap(blob), props.getBlobSize(), BlobType.DataBlob);
             ReplicaId replicaId = partitionId.getReplicaIds().get(0);
             Port port = replicaId.getDataNodeId().getPortToConnectTo(sslEnabledDatacenters);
             channel = connectionPool.checkOutConnection(replicaId.getDataNodeId().getHostname(), port, 10000);

@@ -13,17 +13,6 @@
  */
 package com.github.ambry.network;
 
-import com.codahale.metrics.MetricRegistry;
-import com.github.ambry.config.api.NetworkConfig;
-import com.github.ambry.config.api.VerifiableProperties;
-import com.github.ambry.network.api.BoundedByteBufferReceive;
-import com.github.ambry.network.api.NetworkReceive;
-import com.github.ambry.network.api.NetworkSend;
-import com.github.ambry.network.api.Port;
-import com.github.ambry.network.api.PortType;
-import com.github.ambry.network.api.Send;
-import com.github.ambry.utils.MockTime;
-import com.github.ambry.utils.Time;
 import java.io.IOException;
 import java.net.InetSocketAddress;
 import java.nio.ByteBuffer;
@@ -33,8 +22,22 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Properties;
 import java.util.Set;
+
 import org.junit.Assert;
 import org.junit.Test;
+
+import com.codahale.metrics.MetricRegistry;
+import com.github.ambry.config.api.NetworkConfig;
+import com.github.ambry.config.api.VerifiableProperties;
+import com.github.ambry.network.api.BoundedByteBufferReceive;
+import com.github.ambry.network.api.NetworkClientErrorCode;
+import com.github.ambry.network.api.NetworkReceive;
+import com.github.ambry.network.api.NetworkSend;
+import com.github.ambry.network.api.Port;
+import com.github.ambry.network.api.PortType;
+import com.github.ambry.network.api.Send;
+import com.github.ambry.utils.MockTime;
+import com.github.ambry.utils.Time;
 
 
 /**
@@ -60,6 +63,7 @@ public class NetworkClientTest {
   public void testNetworkClientFactory()
       throws IOException {
     Properties props = new Properties();
+    props.setProperty("router.connection.checkout.timeout.ms", "1000");
     VerifiableProperties vprops = new VerifiableProperties(props);
     NetworkConfig networkConfig = new NetworkConfig(vprops);
     NetworkMetrics networkMetrics = new NetworkMetrics(new MetricRegistry());
@@ -201,7 +205,7 @@ public class NetworkClientTest {
     selector.setState(MockSelectorState.ThrowExceptionOnConnect);
     try {
       networkClient.sendAndPoll(requestInfoList, 100);
-    } catch (IOException e) {
+    } catch (Exception e) {
       Assert.fail("If selector throws on connect, sendAndPoll() should not throw");
     }
   }
@@ -253,35 +257,70 @@ public class NetworkClientTest {
     Assert.assertEquals(NetworkClientErrorCode.NetworkError, responseInfoList.get(0).getError());
     Assert.assertEquals(NetworkClientErrorCode.NetworkError, responseInfoList.get(1).getError());
     responseInfoList.clear();
+  }
 
-    // Test the following case:
-    // Connection C1 gets initiated in the context of Request R1
-    // Connection C2 gets initiated in the context of Request R2
-    // Connection C2 gets established first.
-    // Request R1 checks out connection C2 because it is earlier in the queue
-    // (although C2 was initiated on behalf of R2)
-    // Request R1 gets sent on C2
-    // Connection C1 gets disconnected, which was initiated in the context of Request R1
-    // Request R1 is completed.
-    // Request R2 reuses C1 and gets completed.
+  /**
+   * Test the following case:
+   * Connection C1 gets initiated in the context of Request R1
+   * Connection C2 gets initiated in the context of Request R2
+   * Connection C2 gets established first.
+   * Request R1 checks out connection C2 because it is earlier in the queue
+   * (although C2 was initiated on behalf of R2)
+   * Request R1 gets sent on C2
+   * Connection C1 gets disconnected, which was initiated in the context of Request R1
+   * Request R1 is completed.
+   * Request R2 reuses C1 and gets completed.
+   *
+   * @throws Exception
+   */
+  @Test
+  public void testOutOfOrderConnectionEstablishment()
+      throws Exception {
     selector.setState(MockSelectorState.DelayFailAlternateConnect);
+    List<RequestInfo> requestInfoList = new ArrayList<>();
     requestInfoList.add(new RequestInfo(host2, port2, new MockSend(2)));
     requestInfoList.add(new RequestInfo(host2, port2, new MockSend(3)));
-    responseInfoList = networkClient.sendAndPoll(requestInfoList, 100);
+    List<ResponseInfo> responseInfoList = networkClient.sendAndPoll(requestInfoList, 100);
     requestInfoList.clear();
-    Assert.assertEquals(4, selector.connectCallCount());
+    Assert.assertEquals(2, selector.connectCallCount());
     Assert.assertEquals(0, responseInfoList.size());
     responseInfoList = networkClient.sendAndPoll(requestInfoList, 100);
-    Assert.assertEquals(4, selector.connectCallCount());
+    Assert.assertEquals(2, selector.connectCallCount());
     Assert.assertEquals(1, responseInfoList.size());
     Assert.assertEquals(null, responseInfoList.get(0).getError());
     Assert.assertEquals(2, ((MockSend) responseInfoList.get(0).getRequestInfo().getRequest()).getCorrelationId());
     responseInfoList.clear();
     responseInfoList = networkClient.sendAndPoll(requestInfoList, 100);
-    Assert.assertEquals(4, selector.connectCallCount());
+    Assert.assertEquals(2, selector.connectCallCount());
     Assert.assertEquals(1, responseInfoList.size());
     Assert.assertEquals(null, responseInfoList.get(0).getError());
     Assert.assertEquals(3, ((MockSend) responseInfoList.get(0).getRequestInfo().getRequest()).getCorrelationId());
+    responseInfoList.clear();
+    selector.setState(MockSelectorState.Good);
+  }
+
+  /**
+   * Tests the case where a pending request for which a connection was initiated times out in the same
+   * sendAndPoll cycle in which the connection disconnection is received.
+   * @throws Exception
+   */
+  @Test
+  public void testPendingRequestTimeOutWithDisconnection()
+      throws Exception {
+    List<RequestInfo> requestInfoList = new ArrayList<>();
+    selector.setState(MockSelectorState.IdlePoll);
+    requestInfoList.add(new RequestInfo(host2, port2, new MockSend(4)));
+    List<ResponseInfo> responseInfoList = networkClient.sendAndPoll(requestInfoList, 100);
+    Assert.assertEquals(0, responseInfoList.size());
+    requestInfoList.clear();
+    // now make the selector return any attempted connections as disconnections.
+    selector.setState(MockSelectorState.FailConnectionInitiationOnPoll);
+    // increment the time so that the request times out in the next cycle.
+    time.sleep(2000);
+    responseInfoList = networkClient.sendAndPoll(requestInfoList, 100);
+    Assert.assertEquals(1, responseInfoList.size());
+    Assert.assertEquals("Error received should be ConnectionUnavailable", NetworkClientErrorCode.ConnectionUnavailable,
+        responseInfoList.get(0).getError());
     responseInfoList.clear();
     selector.setState(MockSelectorState.Good);
   }
@@ -297,8 +336,8 @@ public class NetworkClientTest {
     selector.setState(MockSelectorState.ThrowExceptionOnPoll);
     try {
       networkClient.sendAndPoll(requestInfoList, 100);
-      Assert.fail("If selector throws on poll, sendAndPoll() should throw as well");
-    } catch (IOException e) {
+    } catch (Exception e) {
+      Assert.fail("If selector throws on poll, sendAndPoll() should not throw.");
     }
     selector.setState(MockSelectorState.Good);
   }
@@ -461,6 +500,7 @@ class MockSelector extends Selector {
   private MockSelectorState state = MockSelectorState.Good;
   private boolean wakeUpCalled = false;
   private int connectCallCount = 0;
+  private boolean isOpen = true;
 
   /**
    * Create a MockSelector
@@ -469,6 +509,7 @@ class MockSelector extends Selector {
   MockSelector()
       throws IOException {
     super(new NetworkMetrics(new MetricRegistry()), new MockTime(), null);
+    super.close();
   }
 
   /**
@@ -641,5 +682,22 @@ class MockSelector extends Selector {
     if (connectionIds.contains(conn)) {
       disconnected.add(conn);
     }
+  }
+
+  /**
+   * Close the MockSelector.
+   */
+  @Override
+  public void close() {
+    isOpen = false;
+  }
+
+  /**
+   * Check whether the MockSelector is open.
+   * @return true, if the MockSelector is open.
+   */
+  @Override
+  public boolean isOpen() {
+    return isOpen;
   }
 }

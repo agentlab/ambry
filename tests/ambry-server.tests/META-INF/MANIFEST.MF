@@ -13,7 +13,6 @@ Require-Bundle: ambry-clustermap;bundle-version="0.1.0",
  ambry-utils.tests,
  ambry-commons;bundle-version="0.1.0",
  ambry-api,
- ambry-coordinator;bundle-version="0.1.0",
  ambry-protocol;bundle-version="0.1.0",
  ambry-messageformat;bundle-version="0.1.0",
  ambry-store;bundle-version="0.1.0"

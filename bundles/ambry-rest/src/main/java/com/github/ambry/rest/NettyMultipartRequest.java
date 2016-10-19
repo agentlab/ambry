@@ -13,6 +13,16 @@
  */
 package com.github.ambry.rest;
 
+import java.nio.ByteBuffer;
+import java.nio.channels.ClosedChannelException;
+import java.util.Collections;
+import java.util.Queue;
+import java.util.concurrent.Future;
+import java.util.concurrent.LinkedBlockingQueue;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import com.github.ambry.rest.api.RestMethod;
 import com.github.ambry.rest.api.RestServiceErrorCode;
 import com.github.ambry.rest.api.RestServiceException;
@@ -20,6 +30,7 @@ import com.github.ambry.rest.api.RestUtils;
 import com.github.ambry.router.api.AsyncWritableChannel;
 import com.github.ambry.router.api.Callback;
 
+import io.netty.channel.Channel;
 import io.netty.handler.codec.http.DefaultHttpContent;
 import io.netty.handler.codec.http.HttpContent;
 import io.netty.handler.codec.http.HttpRequest;
@@ -31,14 +42,6 @@ import io.netty.handler.codec.http.multipart.HttpPostMultipartRequestDecoder;
 import io.netty.handler.codec.http.multipart.HttpPostRequestDecoder;
 import io.netty.handler.codec.http.multipart.InterfaceHttpData;
 import io.netty.util.ReferenceCountUtil;
-import java.nio.ByteBuffer;
-import java.nio.channels.ClosedChannelException;
-import java.util.Collections;
-import java.util.Queue;
-import java.util.concurrent.Future;
-import java.util.concurrent.LinkedBlockingQueue;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 
 /**
@@ -60,15 +63,18 @@ class NettyMultipartRequest extends NettyRequest {
   /**
    * Wraps the {@code request} in a NettyMultipartRequest so that other layers can understand the request.
    * @param request the {@link HttpRequest} that needs to be wrapped.
+   * @param channel the {@link Channel} over which the {@code request} has been received.
    * @param nettyMetrics the {@link NettyMetrics} instance to use.
    * @throws IllegalArgumentException if {@code request} is null or if the HTTP method defined in {@code request} is
    *                                    anything other than POST.
    * @throws RestServiceException if the HTTP method defined in {@code request} is not recognized as a
    *                                {@link RestMethod}.
    */
-  public NettyMultipartRequest(HttpRequest request, NettyMetrics nettyMetrics)
+  public NettyMultipartRequest(HttpRequest request, Channel channel, NettyMetrics nettyMetrics)
       throws RestServiceException {
-    super(request, nettyMetrics);
+    super(request, channel, nettyMetrics);
+    // reset auto read state.
+    setAutoRead(true);
     if (!getRestMethod().equals(RestMethod.POST)) {
       throw new IllegalArgumentException("NettyMultipartRequest cannot be created for " + getRestMethod());
     }

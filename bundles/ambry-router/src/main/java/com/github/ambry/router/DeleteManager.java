@@ -18,9 +18,9 @@ import com.github.ambry.clustermap.api.ReplicaId;
 import com.github.ambry.commons.BlobId;
 import com.github.ambry.commons.ResponseHandler;
 import com.github.ambry.config.api.RouterConfig;
-import com.github.ambry.network.NetworkClientErrorCode;
 import com.github.ambry.network.RequestInfo;
 import com.github.ambry.network.ResponseInfo;
+import com.github.ambry.network.api.NetworkClientErrorCode;
 import com.github.ambry.notification.api.NotificationSystem;
 import com.github.ambry.protocol.DeleteRequest;
 import com.github.ambry.protocol.DeleteResponse;
@@ -114,8 +114,7 @@ class DeleteManager {
       deleteOperations.add(deleteOperation);
     } catch (RouterException e) {
       routerMetrics.operationDequeuingRate.mark();
-      routerMetrics.deleteBlobErrorCount.inc();
-      routerMetrics.countError(e);
+      routerMetrics.onDeleteBlobError(e);
       operationCompleteCallback.completeOperation(futureResult, callback, null, e);
     }
   }
@@ -189,18 +188,18 @@ class DeleteManager {
     DeleteResponse deleteResponse = null;
     ReplicaId replicaId = ((RouterRequestInfo) responseInfo.getRequestInfo()).getReplicaId();
     NetworkClientErrorCode networkClientErrorCode = responseInfo.getError();
-    if (networkClientErrorCode != null) {
-      responseHandler.onRequestResponseException(replicaId, new IOException("NetworkClient error"));
-    } else {
+    if (networkClientErrorCode == null) {
       try {
         deleteResponse =
             DeleteResponse.readFrom(new DataInputStream(new ByteBufferInputStream(responseInfo.getResponse())));
-        responseHandler.onRequestResponseError(replicaId, deleteResponse.getError());
+        responseHandler.onEvent(replicaId, deleteResponse.getError());
       } catch (Exception e) {
         // Ignore. There is no value in notifying the response handler.
         logger.error("Response deserialization received unexpected error", e);
         routerMetrics.responseDeserializationErrorCount.inc();
       }
+    } else {
+      responseHandler.onEvent(replicaId, networkClientErrorCode);
     }
     return deleteResponse;
   }
@@ -215,8 +214,7 @@ class DeleteManager {
     if (e == null) {
       notificationSystem.onBlobDeleted(op.getBlobId().getID());
     } else {
-      routerMetrics.deleteBlobErrorCount.inc();
-      routerMetrics.countError(e);
+      routerMetrics.onDeleteBlobError(e);
     }
     routerMetrics.operationDequeuingRate.mark();
     routerMetrics.deleteBlobOperationLatencyMs.update(time.milliseconds() - op.getSubmissionTimeMs());
@@ -237,8 +235,7 @@ class DeleteManager {
         Exception e = new RouterException("Aborted operation because Router is closed.", RouterErrorCode.RouterClosed);
         routerMetrics.operationDequeuingRate.mark();
         routerMetrics.operationAbortCount.inc();
-        routerMetrics.deleteBlobErrorCount.inc();
-        routerMetrics.countError(e);
+        routerMetrics.onDeleteBlobError(e);
         operationCompleteCallback.completeOperation(op.getFutureResult(), op.getCallback(), null, e);
       }
     }

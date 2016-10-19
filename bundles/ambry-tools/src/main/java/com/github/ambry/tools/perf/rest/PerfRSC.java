@@ -78,17 +78,6 @@ class PerfRSC implements ReadableStreamChannel {
   }
 
   @Override
-  public void setDigestAlgorithm(String digestAlgorithm)
-      throws NoSuchAlgorithmException {
-    // no op
-  }
-
-  @Override
-  public byte[] getDigest() {
-    return null;
-  }
-
-  @Override
   public boolean isOpen() {
     return isOpen.get();
   }

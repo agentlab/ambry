@@ -40,7 +40,6 @@
 		<module>../../bundles/ambry-commons</module>
 		<module>../../bundles/ambry-messageformat</module>
 		<module>../../bundles/ambry-replication</module>
-		<module>../../bundles/ambry-coordinator</module>
 		<module>../../bundles/ambry-clustermap</module>
 		<module>../../bundles/ambry-tools</module>
 		<module>../../bundles/ambry-metrics</module>
@@ -58,7 +57,6 @@
 		<module>../../tests/ambry-commons.tests</module>
 		<module>../../tests/ambry-messageformat.tests</module>
 		<module>../../tests/ambry-replication.tests</module>
-		<module>../../tests/ambry-coordinator.tests</module>
 		<module>../../tests/ambry-clustermap.tests</module>
 		<module>../../tests/ambry-metrics.tests</module>
 		<module>../../tests/ambry-protocol.tests</module>

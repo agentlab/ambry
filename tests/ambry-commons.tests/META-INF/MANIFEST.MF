@@ -10,4 +10,5 @@ Require-Bundle: ambry-api;bundle-version="0.1.0",
  ambry-commons;bundle-version="0.1.0",
  ambry-clustermap.tests;bundle-version="0.1.0"
 Import-Package: com.codahale.metrics,
+ org.apache.commons.codec.binary;version="1.6.0",
  org.junit;version="4.12.0"

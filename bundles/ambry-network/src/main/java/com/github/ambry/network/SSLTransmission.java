@@ -631,7 +631,7 @@ public class SSLTransmission extends Transmission implements ReadableByteChannel
     long sendTimeMs = SystemTime.getInstance().milliseconds() - networkSend.getSendStartTimeInMs();
     networkSend.onSendComplete();
     double sendBytesRate = networkSend.getPayload().sizeInBytes() / ((double) sendTimeMs / SystemTime.MsPerSec);
-    metrics.sslSendBytesRate.update((long) sendBytesRate);
+    metrics.sslSendBytesRate.mark((long) sendBytesRate);
   }
 
   /**
@@ -642,6 +642,6 @@ public class SSLTransmission extends Transmission implements ReadableByteChannel
     long receiveTimeMs = SystemTime.getInstance().milliseconds() - networkReceive.getReceiveStartTimeInMs();
     double receiveBytesRate =
         networkReceive.getReceivedBytes().sizeRead() / ((double) receiveTimeMs / SystemTime.MsPerSec);
-    metrics.sslReceiveBytesRate.update((long) receiveBytesRate);
+    metrics.sslReceiveBytesRate.mark((long) receiveBytesRate);
   }
 }
