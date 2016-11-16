@@ -3,7 +3,7 @@
 	xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
 	<modelVersion>4.0.0</modelVersion>
 	
-	<artifactId>com.github.ambry.plugins</artifactId>
+	<artifactId>com.github.ambry.products</artifactId>
 	
 	<packaging>pom</packaging>
 	
@@ -14,23 +14,8 @@
 	</parent>
 	
 	<modules>
-		<module>ambry-admin</module>
-		<module>ambry-api</module>
-		<module>ambry-clustermap</module>
-		<module>ambry-commons</module>
-		<module>ambry-frontend</module>
-		<module>ambry-messageformat</module>
-		<module>ambry-metrics</module>
-		<module>ambry-network</module>
-		<module>ambry-protocol</module>
-		<module>ambry-replication</module>
-		<module>ambry-rest</module>
-		<module>ambry-router</module>
-		<module>ambry-server</module>
-		<module>ambry-store</module>
-		<module>ambry-tools</module>
-		<module>ambry-utils</module>
-		<module>net.sf.jopt-simple</module>
+		<module>com.github.ambry.frontend.product</module>
+		<module>com.github.ambry.server.product</module>
 	</modules>
 	
 	<build>

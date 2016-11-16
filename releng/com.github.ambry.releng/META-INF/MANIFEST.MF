@@ -1,5 +1,0 @@
-Manifest-Version: 1.0
-Bundle-ManifestVersion: 2
-Bundle-Name: com.github.ambry.releng
-Bundle-SymbolicName: com.github.ambry.releng
-Bundle-Version: 1.0.0.qualifier

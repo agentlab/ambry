@@ -23,7 +23,7 @@
           source="http:/www.eclipse.org/oomph/targlets/TargetDefinitionGenerator">
         <detail
             key="location">
-          <value>${com.github.ambry.git.clone.location/releng/com.github.ambry.target/com.github.ambry.target.target}</value>
+          <value>${com.github.ambry.git.clone.location/releng/com.github.ambry.releng/com.github.ambry.releng.target}</value>
         </detail>
         <detail
             key="includeAllPlatforms">
@@ -166,12 +166,12 @@
       repositoryURL="https://github.com/agentlab/JaxRSProviders"
       userID="${github.user.id}"
       password="${github.user.password}">
-    <query summary="${scope.project.label} All Open Tasks">
+    <query summary="${scope.project.label} All Open">
       <attribute
           key="state"
           value="open::"/>
     </query>
-    <query summary="${scope.project.label} My Open Tasks">
+    <query summary="${scope.project.label} My Open">
       <attribute
           key="state"
           value="open::"/>
@@ -179,7 +179,7 @@
           key="assignee"
           value="${github.user.id}"/>
     </query>
-    <query summary="${scope.project.label} My Closed Tasks"
+    <query summary="${scope.project.label} My Closed"
         url="">
       <attribute
           key="state"

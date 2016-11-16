@@ -9,10 +9,27 @@
 	
 	<parent>
 		<groupId>com.github.ambry</groupId>
-		<artifactId>com.github.ambry.releng</artifactId>
+		<artifactId>com.github.ambry.parent</artifactId>
 		<version>0.1.0-SNAPSHOT</version>
-		<relativePath>../releng/com.github.ambry.releng/pom.xml</relativePath>
 	</parent>
+	
+	<modules>
+		<module>ambry-admin.tests</module>
+		<module>ambry-api.tests</module>
+		<module>ambry-clustermap.tests</module>
+		<module>ambry-commons.tests</module>
+		<module>ambry-frontend.tests</module>
+		<module>ambry-messageformat.tests</module>
+		<module>ambry-metrics.tests</module>
+		<module>ambry-network.tests</module>
+		<module>ambry-protocol.tests</module>
+		<module>ambry-replication.tests</module>
+		<module>ambry-rest.tests</module>
+		<module>ambry-router.tests</module>
+		<module>ambry-server.tests</module>
+		<module>ambry-store.tests</module>
+		<module>ambry-utils.tests</module>
+	</modules>
 	
 	<build>
 		<plugins>

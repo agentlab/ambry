@@ -8,9 +8,8 @@
 
 	<parent>
 		<groupId>com.github.ambry</groupId>
-		<artifactId>com.github.ambry.releng</artifactId>
+		<artifactId>com.github.ambry.plugins</artifactId>
 		<version>0.1.0-SNAPSHOT</version>
-		<relativePath>../../releng/com.github.ambry.releng/pom.xml</relativePath>
 	</parent>
 
 	<dependencies>
