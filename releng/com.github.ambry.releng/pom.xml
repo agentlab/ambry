@@ -10,9 +10,8 @@
 	<packaging>pom</packaging>
 
 	<parent>
-		<groupId>org.eclipseorbit</groupId>
-		<artifactId>org.eclipseorbit.parent</artifactId>
-		<relativePath>../../../orbit-parent/org.eclipseorbit.parent/pom.xml</relativePath>
+		<groupId>ru.agentlab</groupId>
+		<artifactId>ru.agentlab.parent</artifactId>
 		<version>1.0.0-SNAPSHOT</version>
 	</parent>
 
@@ -107,4 +106,12 @@
 			</plugin>
 		</plugins>
 	</build>
+	
+	<repositories>
+		<repository>
+			<id>agentlab</id>
+			<url>http://agentlab.ru/maven/repository</url>
+		</repository>
+	</repositories>
+
 </project>
