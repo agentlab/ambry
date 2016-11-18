@@ -142,9 +142,9 @@
         <repository
             url="http://download.eclipse.org/eclipse/updates/4.6"/>
         <repository
-            url="http://10.72.103.217:8090/p2/ambry/"/>
+            url="http://agentlab.ru/pd/p2/ambry/"/>
         <repository
-            url="http://10.72.103.217:8090/p2/netty/"/>
+            url="http://agentlab.ru/pd/p2/netty/"/>
         <repository
             url="http://agentlab.ru/p2/orbit/missing-swt-fragments/"/>
       </repositoryList>
