@@ -47,61 +47,14 @@
         </detail>
       </annotation>
       <requirement
-          name="ch.qos.logback.slf4j"
-          versionRange="[1.0.7,1.1.0)"/>
-      <requirement
-          name="ch.qos.logback.classic"
-          versionRange="[1.0.7,1.1.0)"/>
-      <requirement
-          name="ch.qos.logback.core"
-          versionRange="[1.0.7,1.1.0)"/>
-      <requirement
           name="org.apache.felix.scr"/>
       <requirement
           name="org.osgi.service.component.annotations"/>
-      <requirement
-          name="org.eclipse.equinox.sdk.feature.group"/>
-      <requirement
-          name="org.eclipse.swt.dummyfragments.feature.group"/>
-      <requirement
-          name="org.slf4j.api"
-          versionRange="[1.7.2,1.7.3)"/>
-      <requirement
-          name="org.slf4j.jcl"
-          versionRange="[1.7.2,1.7.3)"/>
-      <requirement
-          name="org.slf4j.ext"
-          versionRange="[1.7.2,1.7.3)"/>
-      <requirement
-          name="org.slf4j.jul"
-          versionRange="[1.7.2,1.7.3)"/>
-      <requirement
-          name="org.slf4j.log4j"
-          versionRange="[1.7.2,1.7.3)"/>
-      <requirement
-          name="org.apache.commons.codec"/>
-      <requirement
-          name="org.apache.commons.io"/>
-      <requirement
-          name="com.google.inject.multibindings"/>
-      <requirement
-          name="com.google.inject.assistedinject"/>
-      <requirement
-          name="org.hamcrest.core"
-          versionRange="[1.1.0,1.2.0)"/>
-      <requirement
-          name="org.junit"/>
-      <requirement
-          name="org.mockito"
-          versionRange="[1.9.5,1.10.0)"/>
       <requirement
           name="org.tukaani.xz"/>
       <requirement
           name="net.sf.trove4j"
           versionRange="[3.0.0,3.1.0)"/>
-      <requirement
-          name="com.google.guava"
-          versionRange="[18.0.0,18.1.0)"/>
       <requirement
           name="javax.servlet"/>
       <requirement
@@ -138,15 +91,9 @@
       <repositoryList
           name="Neon">
         <repository
-            url="http://download.eclipse.org/tools/orbit/downloads/drops/R20160520211859/repository"/>
-        <repository
-            url="http://download.eclipse.org/eclipse/updates/4.6"/>
-        <repository
             url="http://agentlab.ru/pd/p2/ambry/"/>
         <repository
             url="http://agentlab.ru/pd/p2/netty/"/>
-        <repository
-            url="http://agentlab.ru/p2/orbit/missing-swt-fragments/"/>
       </repositoryList>
     </targlet>
   </setupTask>
@@ -189,8 +136,6 @@
           value="${github.user.id}"/>
     </query>
   </setupTask>
-  <setupTask
-      xsi:type="projects:ProjectsBuildTask"/>
   <stream name="mvn">
     <setupTask
         xsi:type="git:GitCloneTask"
@@ -213,9 +158,11 @@
       </annotation>
       <description>${scope.project.label}</description>
     </setupTask>
+    <setupTask
+        xsi:type="projects:ProjectsBuildTask"/>
   </stream>
   <logicalProjectContainer
-      xsi:type="setup:ProjectCatalog"
-      href="index:/org.eclipse.setup#//@projectCatalogs[name='ru.agentlab']"/>
+      xsi:type="setup:Project"
+      href="index:/org.eclipse.setup#//@projectCatalogs[name='ru.agentlab']/@projects[name='osgi']"/>
   <description>IDE Setup for LinkedIn Ambry Project</description>
 </setup:Project>
